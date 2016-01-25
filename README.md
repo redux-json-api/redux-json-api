@@ -17,6 +17,9 @@ Redux actions, action creators and reducers to make life with [JSON API](http://
 
 1. `npm install redux-json-api`
 1. Enable JSON API reducer (examples assume that you've connected it to `state.api`)
+1. Add global vars `__API_HOST__` and `__API_ENDPOINT__`
+  - Host is fully qualified hostname including protocol, e.g. *https://api.example.com*
+  - Endpoint is the base path, e.g. */v1*
 1. Dispatch actions
 1. Connect your view to `state.api.${entityType}`
 
