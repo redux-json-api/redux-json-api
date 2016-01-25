@@ -1,10 +1,5 @@
-// @TODO: Handle 401 response from expired access token
-// @TODO: Add method to fetch data if not present
 import { createAction, handleActions } from 'redux-actions';
 import fetch from 'isomorphic-fetch';
-
-// import { showNotification } from './notifications';
-// import { AUTH_LOGOUT } from './auth';
 
 import {
   removeEntityFromState,
@@ -108,8 +103,7 @@ export const uploadFile = (file, {
         onSuccess(json);
       })
       .catch(error => {
-        // dispatch(showNotification(error.message, 'danger'));
-        onError();
+        onError(error);
       });
   };
 };
@@ -134,8 +128,7 @@ export const createEntity = (entity, {
       onSuccess();
     }).catch((error) => {
       dispatch(apiCreateFailed(entity));
-      // dispatch(showNotification(error.message, 'danger'));
-      onError();
+      onError(error);
     });
   };
 };
@@ -156,8 +149,7 @@ export const readEndpoint = (endpoint, {
       })
       .catch((error) => {
         dispatch(apiReadFailed(endpoint));
-        // dispatch(showNotification(error.message, 'danger'));
-        onError();
+        onError(error);
       });
   };
 };
@@ -182,8 +174,7 @@ export const updateEntity = (entity, {
       onSuccess();
     }).catch((error) => {
       dispatch(apiUpdateFailed(entity));
-      // dispatch(showNotification(error.message, 'danger'));
-      onError();
+      onError(error);
     });
   };
 };
@@ -205,8 +196,7 @@ export const deleteEntity = (entity, {
       onSuccess();
     }).catch((error) => {
       dispatch(apiDeleteFailed(entity));
-      // dispatch(showNotification(error.message, 'danger'));
-      onError();
+      onError(error);
     });
   };
 };
@@ -328,15 +318,6 @@ export const reducer = handleActions({
       isDeleting: (state.isDeleting - 1)
     };
   }
-
-  // [AUTH_LOGOUT]: () => {
-  //   return {
-  //     isCreating: 0,
-  //     isReading: 0,
-  //     isUpdating: 0,
-  //     isDeleting: 0
-  //   };
-  // }
 
 }, {
   isCreating: 0,
