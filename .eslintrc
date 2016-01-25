@@ -1,0 +1,18 @@
+{
+  "parser": "babel-eslint",
+  "extends": "airbnb/base",
+  "env": {
+    "browser": true
+  },
+  "globals": {
+    "__API_HOST__": false,
+    "__API_ENDPOINT__": false
+  },
+  "rules": {
+    "comma-dangle": 0,
+    "no-console": 0,
+    "id-length": 0,
+    "react/prop-types": 0,
+    "max-len": 0
+  }
+}
