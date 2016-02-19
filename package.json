@@ -5,7 +5,8 @@
   "main": "lib/jsonapi.js",
   "scripts": {
     "build": "rimraf lib && babel ./src -d lib",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --compilers js:babel-core/register --recursive",
+    "test:watch": "npm test -- --watch"
   },
   "repository": {
     "type": "git",
@@ -35,11 +36,14 @@
     "babel-runtime": "^6.3.19",
     "eslint": "^1.10.3",
     "eslint-config-airbnb": "^4.0.0",
+    "expect": "^1.14.0",
+    "mocha": "^2.4.5",
     "rimraf": "^2.5.1",
     "webpack": "^1.12.12"
   },
   "dependencies": {
     "isomorphic-fetch": "^2.2.1",
+    "pluralize": "^1.2.1",
     "ramda": "^0.19.1",
     "redux-actions": "^0.9.1"
   }
