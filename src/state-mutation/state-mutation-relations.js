@@ -1,4 +1,36 @@
 import R from 'ramda';
+import pluralize from 'pluralize';
+
+const findEntity = (state, entityType, entityId) => {
+  if ((
+    state.hasOwnProperty(entityType) &&
+    state[entityType].hasOwnProperty('data') &&
+    Array.isArray(state[entityType].data)
+  ) === false) {
+    return void 0;
+  }
+
+  return state[entityType].data.find(entity => entity.id === entityId);
+};
+
+const findForeignKeyInEntity = (entity, foreignKeyType) => {
+  if (entity.hasOwnProperty('relationships') === false) {
+    return void 0;
+  }
+
+  const plural = pluralize(foreignKeyType);
+  const singular = pluralize(foreignKeyType, 1);
+
+  let foreignKey = void 0;
+
+  [plural, singular].forEach(key => {
+    if (entity.relationships.hasOwnProperty(key)) {
+      foreignKey = key;
+    }
+  });
+
+  return foreignKey;
+};
 
 const iterateRelationships = (entity, callback) => {
   if (entity.hasOwnProperty('relationships') === false) {
@@ -26,26 +58,19 @@ const iterateRelationships = (entity, callback) => {
 };
 
 const findRelatedEntity = (state, entity, relationship) => {
-  if (state.hasOwnProperty(relationship.type) === false) {
-    // Abandon if we have not loaded any entities of this type
+  const relatedEntity = findEntity(state, relationship.type, relationship.id);
+
+  if (relatedEntity === void 0) {
     return void 0;
   }
 
-  const relatedEntity = R.find(R.propEq('id', relationship.id))(state[relationship.type].data);
+  const foreignKey = findForeignKeyInEntity(relatedEntity, entity.type);
 
-  if ((
-    !R.isNil(relatedEntity) &&
-    relatedEntity.hasOwnProperty('relationships') &&
-    relatedEntity.relationships.hasOwnProperty(entity.type)
-  ) === false) {
-    // Abandon if we don't keep relationships or `entity.type`
-    // in relationships, because we wont know which type of
-    // relationship it is. We probably don't use it in the
-    // application in this cause either.
+  if (foreignKey === void 0) {
     return void 0;
   }
 
-  return relatedEntity.relationships[entity.type];
+  return relatedEntity.relationships[foreignKey];
 };
 
 export const insertRelationshipsForEntity = (state, entity) => {
