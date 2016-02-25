@@ -1,36 +1,8 @@
 import R from 'ramda';
-import pluralize from 'pluralize';
-
-const findEntity = (state, entityType, entityId) => {
-  if ((
-    state.hasOwnProperty(entityType) &&
-    state[entityType].hasOwnProperty('data') &&
-    Array.isArray(state[entityType].data)
-  ) === false) {
-    return void 0;
-  }
-
-  return state[entityType].data.find(entity => entity.id === entityId);
-};
-
-const findForeignKeyInEntity = (entity, foreignKeyType) => {
-  if (entity.hasOwnProperty('relationships') === false) {
-    return void 0;
-  }
-
-  const plural = pluralize(foreignKeyType);
-  const singular = pluralize(foreignKeyType, 1);
-
-  let foreignKey = void 0;
-
-  [plural, singular].forEach(key => {
-    if (entity.relationships.hasOwnProperty(key)) {
-      foreignKey = key;
-    }
-  });
-
-  return foreignKey;
-};
+import {
+  findEntity,
+  findForeignKeyInEntity
+} from '../utils';
 
 const iterateRelationships = (entity, callback) => {
   if (entity.hasOwnProperty('relationships') === false) {
@@ -58,7 +30,7 @@ const iterateRelationships = (entity, callback) => {
 };
 
 const findRelatedEntity = (state, entity, relationship) => {
-  const relatedEntity = findEntity(state, relationship.type, relationship.id);
+  const relatedEntity = findEntity(state, relationship);
 
   if (relatedEntity === void 0) {
     return void 0;
