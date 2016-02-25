@@ -38,7 +38,7 @@ const state = {
           }
         },
         links: {
-          self: 'http://gronk.app/api/v1/transactions/34'
+          self: 'http://localhost/transactions/34'
         }
       }
     ]
@@ -70,9 +70,9 @@ const taskWithTransaction = {
     updatedAt: '2016-02-19T11:52:43+0000'
   },
   relationships: {
-    task_list: {
+    taskList: {
       data: {
-        type: 'task_lists',
+        type: 'taskLists',
         id: '1'
       }
     },
@@ -84,7 +84,7 @@ const taskWithTransaction = {
     }
   },
   links: {
-    self: 'http://gronk.app/api/v1/tasks/43'
+    self: 'http://localhost/tasks/43'
   }
 };
 
