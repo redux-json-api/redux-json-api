@@ -49,10 +49,10 @@ export const updateOrInsertEntitiesIntoState = (state, data) => {
     insertRelationshipsForEntity(newState, entity);
   };
 
-  if (data instanceof Array === false) {
-    updateEntity(data);
-  } else {
+  if (Array.isArray(data)) {
     data.forEach(updateEntity);
+  } else {
+    updateEntity(data);
   }
 
   return newState;

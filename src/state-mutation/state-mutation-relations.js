@@ -21,10 +21,10 @@ const iterateRelationships = (entity, callback) => {
       continue;
     }
 
-    if (data instanceof Array === false) {
-      callback(data);
-    } else {
+    if (Array.isArray(data)) {
       data.forEach(callback);
+    } else {
+      callback(data);
     }
   }
 };
@@ -54,9 +54,7 @@ export const insertRelationshipsForEntity = (state, entity) => {
 
     const newRelation = { type: entity.type, id: entity.id };
 
-    if (currentRelationships.data instanceof Array === false) {
-      currentRelationships.data = newRelation;
-    } else {
+    if (Array.isArray(currentRelationships.data)) {
       const existingRelation = R.findIndex(o => {
         return (
           o.id === newRelation.id &&
@@ -69,6 +67,8 @@ export const insertRelationshipsForEntity = (state, entity) => {
       }
 
       currentRelationships.data.push(newRelation);
+    } else {
+      currentRelationships.data = newRelation;
     }
   };
 
@@ -82,9 +82,7 @@ export const removeRelationshipsForEntity = (state, entity) => {
       return;
     }
 
-    if (currentRelationships.data instanceof Array === false) {
-      currentRelationships.data = null;
-    } else {
+    if (Array.isArray(currentRelationships.data)) {
       const existingRelation = R.findIndex(o => {
         return (
           o.id === entity.id &&
@@ -97,6 +95,8 @@ export const removeRelationshipsForEntity = (state, entity) => {
       }
 
       currentRelationships.data.splice(existingRelation, 1);
+    } else {
+      currentRelationships.data = null;
     }
   };
 
