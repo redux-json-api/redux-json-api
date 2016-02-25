@@ -3,7 +3,7 @@ import {
   insertRelationshipsForEntity,
   removeRelationshipsForEntity
 } from './state-mutation-relations';
-import { findEntity } from '../utils';
+import { copyState, findEntity } from '../utils';
 
 const ensureEntityTypeInState = (state, entityType) => {
   if (state.hasOwnProperty(entityType) === false) {
@@ -25,7 +25,7 @@ const updateOrInsertEntity = (entities, entity) => {
 };
 
 export const removeEntityFromState = (state, entity) => {
-  const newState = JSON.parse(JSON.stringify(state));
+  const newState = copyState(state);
 
   Object.assign(newState, {
     [entity.type]: {
@@ -42,7 +42,7 @@ export const removeEntityFromState = (state, entity) => {
 
 export const updateOrInsertEntitiesIntoState = (state, data) => {
   // @TODO: This should be done much prettier
-  const newState = JSON.parse(JSON.stringify(state));
+  const newState = copyState(state);
   const updateEntity = entity => {
     ensureEntityTypeInState(newState, entity.type);
     updateOrInsertEntity(newState[entity.type].data, entity);

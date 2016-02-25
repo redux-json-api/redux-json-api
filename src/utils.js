@@ -1,5 +1,7 @@
 import pluralize from 'pluralize';
 
+export const copyState = state => JSON.parse(JSON.stringify(state));
+
 export const findEntity = (state, { type, id }) => {
   if ((
     state.hasOwnProperty(type) &&
