@@ -3,23 +3,13 @@ import {
   insertRelationshipsForEntity,
   removeRelationshipsForEntity
 } from './state-mutation-relations';
+import { findEntity } from '../utils';
 
 const ensureEntityTypeInState = (state, entityType) => {
   if (state.hasOwnProperty(entityType) === false) {
     state[entityType] = { data: [] };
   }
   return state;
-};
-
-const findEntityInState = (state, { type, id }) => {
-  if ((
-    state.hasOwnProperty(type) &&
-    state[type].hasOwnProperty('data')
-  ) === false) {
-    return void 0;
-  }
-
-  return R.find((e) => (e.type === type && e.id === id))(state[type].data);
 };
 
 const updateOrInsertEntity = (entities, entity) => {
@@ -70,7 +60,7 @@ export const updateOrInsertEntitiesIntoState = (state, data) => {
 
 export const setIsInvalidatingForExistingEntity = (state, { type, id }, value) => {
   const mutatedEntity = {
-    ...findEntityInState(state, { type, id }),
+    ... findEntity(state, { type, id }),
     isInvalidating: value
   };
 
