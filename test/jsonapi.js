@@ -79,8 +79,6 @@ const taskWithTransaction = {
   }
 };
 
-
-
 describe('State mutation', () => {
   it('should automatically organize new entity in new key on state', () => {
     const updatedState = reducer(state, apiCreated(taskWithTransaction));
