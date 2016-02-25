@@ -7,7 +7,8 @@ import {
   setIsInvalidatingForExistingEntity
 } from './state-mutation/state-mutation';
 
-const apiEndpoint = `${__API_HOST__}${__API_ENDPOINT__}`;
+const g = global || window;
+const apiEndpoint = `${g.__API_HOST__}${g.__API_ENDPOINT__}`;
 
 // Action names
 const API_WILL_CREATE = 'API_WILL_CREATE';
