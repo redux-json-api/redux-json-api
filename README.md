@@ -11,7 +11,8 @@ Redux actions, action creators and reducers to make life with [JSON API](http://
   - Reading endpoint
   - Updating entity
   - Deleting entity
-- Automatically keeps relationships up to date on related entities when creating, updating and deleting entities
+- Automatically keeps reverse relationships up to date upon creation, update and delete
+  - This applies only to relationships where the name of the foreign key is directly adhered from entity type—but can be both plural or singular
 
 # Usage
 
