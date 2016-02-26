@@ -9,6 +9,10 @@ import {
 
 const g = global || window;
 const apiEndpoint = `${g.__API_HOST__}${g.__API_ENDPOINT__}`;
+const jsonContentTypes = [
+  'application/json',
+  'application/vnd.api+json'
+];
 
 // Action names
 const API_WILL_CREATE = 'API_WILL_CREATE';
@@ -60,11 +64,17 @@ const request = (url, accessToken, options = {}) => {
 
   return fetch(url, allOptions)
     .then(res => {
-      if (res.status !== 200) {
+      if (res.status >= 200 && res.status < 300) {
+        if (jsonContentTypes.indexOf(res.headers.get('Content-Type')) > -1) {
+          return res.json();
+        }
+
         return res;
       }
 
-      return res.json();
+      const e = new Error(res.statusText);
+      e.response = res;
+      throw e;
     });
 };
 
@@ -94,11 +104,17 @@ export const uploadFile = (file, {
 
     return fetch(url, options)
       .then(res => {
-        if (res.status !== 200) {
+        if (res.status >= 200 && res.status < 300) {
+          if (jsonContentTypes.indexOf(res.headers.get('Content-Type')) > -1) {
+            return res.json();
+          }
+
           return res;
         }
 
-        return res.json();
+        const e = new Error(res.statusText);
+        e.response = res;
+        throw e;
       })
       .then(json => {
         onSuccess(json);
