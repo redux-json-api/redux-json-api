@@ -3,23 +3,13 @@ import {
   insertRelationshipsForEntity,
   removeRelationshipsForEntity
 } from './state-mutation-relations';
+import { copyState, findEntity } from '../utils';
 
 const ensureEntityTypeInState = (state, entityType) => {
   if (state.hasOwnProperty(entityType) === false) {
     state[entityType] = { data: [] };
   }
   return state;
-};
-
-const findEntityInState = (state, { type, id }) => {
-  if ((
-    state.hasOwnProperty(type) &&
-    state[type].hasOwnProperty('data')
-  ) === false) {
-    return void 0;
-  }
-
-  return R.find((e) => (e.type === type && e.id === id))(state[type].data);
 };
 
 const updateOrInsertEntity = (entities, entity) => {
@@ -35,7 +25,7 @@ const updateOrInsertEntity = (entities, entity) => {
 };
 
 export const removeEntityFromState = (state, entity) => {
-  const newState = JSON.parse(JSON.stringify(state));
+  const newState = copyState(state);
 
   Object.assign(newState, {
     [entity.type]: {
@@ -52,17 +42,17 @@ export const removeEntityFromState = (state, entity) => {
 
 export const updateOrInsertEntitiesIntoState = (state, data) => {
   // @TODO: This should be done much prettier
-  const newState = JSON.parse(JSON.stringify(state));
+  const newState = copyState(state);
   const updateEntity = entity => {
     ensureEntityTypeInState(newState, entity.type);
     updateOrInsertEntity(newState[entity.type].data, entity);
     insertRelationshipsForEntity(newState, entity);
   };
 
-  if (data instanceof Array === false) {
-    updateEntity(data);
-  } else {
+  if (Array.isArray(data)) {
     data.forEach(updateEntity);
+  } else {
+    updateEntity(data);
   }
 
   return newState;
@@ -70,7 +60,7 @@ export const updateOrInsertEntitiesIntoState = (state, data) => {
 
 export const setIsInvalidatingForExistingEntity = (state, { type, id }, value) => {
   const mutatedEntity = {
-    ...findEntityInState(state, { type, id }),
+    ... findEntity(state, { type, id }),
     isInvalidating: value
   };
 

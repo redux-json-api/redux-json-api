@@ -1,36 +1,8 @@
 import R from 'ramda';
-import pluralize from 'pluralize';
-
-const findEntity = (state, entityType, entityId) => {
-  if ((
-    state.hasOwnProperty(entityType) &&
-    state[entityType].hasOwnProperty('data') &&
-    Array.isArray(state[entityType].data)
-  ) === false) {
-    return void 0;
-  }
-
-  return state[entityType].data.find(entity => entity.id === entityId);
-};
-
-const findForeignKeyInEntity = (entity, foreignKeyType) => {
-  if (entity.hasOwnProperty('relationships') === false) {
-    return void 0;
-  }
-
-  const plural = pluralize(foreignKeyType);
-  const singular = pluralize(foreignKeyType, 1);
-
-  let foreignKey = void 0;
-
-  [plural, singular].forEach(key => {
-    if (entity.relationships.hasOwnProperty(key)) {
-      foreignKey = key;
-    }
-  });
-
-  return foreignKey;
-};
+import {
+  findEntity,
+  findForeignKeyInEntity
+} from '../utils';
 
 const iterateRelationships = (entity, callback) => {
   if (entity.hasOwnProperty('relationships') === false) {
@@ -49,16 +21,16 @@ const iterateRelationships = (entity, callback) => {
       continue;
     }
 
-    if (data instanceof Array === false) {
-      callback(data);
-    } else {
+    if (Array.isArray(data)) {
       data.forEach(callback);
+    } else {
+      callback(data);
     }
   }
 };
 
 const findRelatedEntity = (state, entity, relationship) => {
-  const relatedEntity = findEntity(state, relationship.type, relationship.id);
+  const relatedEntity = findEntity(state, relationship);
 
   if (relatedEntity === void 0) {
     return void 0;
@@ -82,9 +54,7 @@ export const insertRelationshipsForEntity = (state, entity) => {
 
     const newRelation = { type: entity.type, id: entity.id };
 
-    if (currentRelationships.data instanceof Array === false) {
-      currentRelationships.data = newRelation;
-    } else {
+    if (Array.isArray(currentRelationships.data)) {
       const existingRelation = R.findIndex(o => {
         return (
           o.id === newRelation.id &&
@@ -97,6 +67,8 @@ export const insertRelationshipsForEntity = (state, entity) => {
       }
 
       currentRelationships.data.push(newRelation);
+    } else {
+      currentRelationships.data = newRelation;
     }
   };
 
@@ -110,9 +82,7 @@ export const removeRelationshipsForEntity = (state, entity) => {
       return;
     }
 
-    if (currentRelationships.data instanceof Array === false) {
-      currentRelationships.data = null;
-    } else {
+    if (Array.isArray(currentRelationships.data)) {
       const existingRelation = R.findIndex(o => {
         return (
           o.id === entity.id &&
@@ -125,6 +95,8 @@ export const removeRelationshipsForEntity = (state, entity) => {
       }
 
       currentRelationships.data.splice(existingRelation, 1);
+    } else {
+      currentRelationships.data = null;
     }
   };
 

@@ -1,9 +1,12 @@
 /* global describe, it */
+global.__API_HOST__ = 'example.com';
+global.__API_ENDPOINT__ = '/api';
+
+import { createAction } from 'redux-actions';
 import expect from 'expect';
-import {
-  insertRelationshipsForEntity,
-  removeRelationshipsForEntity
-} from '../src/state-mutation/state-mutation-relations';
+import { reducer } from '../src/jsonapi';
+
+const apiCreated = createAction('API_CREATED');
 
 const state = {
   users: {
@@ -42,23 +45,11 @@ const state = {
         }
       }
     ]
-  }
-};
-
-const taskWithUser = {
-  type: 'tasks',
-  id: 1,
-  attributes: {
-    title: 'Test'
   },
-  relationships: {
-    user: {
-      data: {
-        type: 'users',
-        id: 1
-      }
-    }
-  }
+  isCreating: 0,
+  isReading: 0,
+  isUpdating: 0,
+  isDeleting: 0
 };
 
 const taskWithTransaction = {
@@ -88,19 +79,17 @@ const taskWithTransaction = {
   }
 };
 
-describe('Relationship updates', () => {
-  it('should register reverse relationship on related entity', () => {
-    insertRelationshipsForEntity(state, taskWithUser);
-    expect(state.users.data[0].relationships.tasks.data.id).toEqual(taskWithUser.id);
+describe('State mutation', () => {
+  it('should automatically organize new entity in new key on state', () => {
+    const updatedState = reducer(state, apiCreated(taskWithTransaction));
+    expect(updatedState.tasks).toBeAn('object');
   });
 
-  it('should remove reverse relationship on related entity', () => {
-    removeRelationshipsForEntity(state, taskWithUser);
-    expect(state.users.data[0].relationships.tasks.data).toEqual(null);
-  });
+  it('should add reverse relationship when inserting new entity', () => {
+    const updatedState = reducer(state, apiCreated(taskWithTransaction));
+    const { data: taskRelationship } = updatedState.transactions.data[0].relationships.task;
 
-  it('should register reverse relationship for one-to-one relationships', () => {
-    insertRelationshipsForEntity(state, taskWithTransaction);
-    expect(state.transactions.data[0].relationships.task.data.id).toEqual(taskWithTransaction.id);
+    expect(taskRelationship.type).toEqual(taskWithTransaction.type);
+    expect(taskRelationship.id).toEqual(taskWithTransaction.id);
   });
 });
