@@ -7,8 +7,10 @@ import {
   setIsInvalidatingForExistingEntity
 } from './state-mutation/state-mutation';
 
-const g = global || window;
-const apiEndpoint = `${g.__API_HOST__}${g.__API_ENDPOINT__}`;
+const apiHost = __API_HOST__ || global.__API_HOST__;
+const apiEndpoint = __API_ENDPOINT__ || global.__API_ENDPOINT__;
+
+const apiUrl = `${apiHost}${apiEndpoint}`;
 const jsonContentTypes = [
   'application/json',
   'application/vnd.api+json'
@@ -133,7 +135,7 @@ export const createEntity = (entity, {
     dispatch(apiWillCreate(entity));
 
     const accessToken = getState().auth.user.access_token;
-    const endpoint = `${apiEndpoint}/${entity.type}`;
+    const endpoint = `${apiUrl}/${entity.type}`;
 
     request(endpoint, accessToken, {
       method: 'POST',
@@ -159,7 +161,7 @@ export const readEndpoint = (endpoint, {
 
     const accessToken = getState().auth.user.access_token;
 
-    request(`${apiEndpoint}/${endpoint}`, accessToken)
+    request(`${apiUrl}/${endpoint}`, accessToken)
       .then(json => {
         dispatch(apiRead({ endpoint, ...json }));
         onSuccess();
@@ -179,7 +181,7 @@ export const updateEntity = (entity, {
     dispatch(apiWillUpdate(entity));
 
     const accessToken = getState().auth.user.access_token;
-    const endpoint = `${apiEndpoint}/${entity.type}/${entity.id}`;
+    const endpoint = `${apiUrl}/${entity.type}/${entity.id}`;
 
     request(endpoint, accessToken, {
       method: 'PATCH',
@@ -204,7 +206,7 @@ export const deleteEntity = (entity, {
     dispatch(apiWillDelete(entity));
 
     const accessToken = getState().auth.user.access_token;
-    const endpoint = `${apiEndpoint}/${entity.type}/${entity.id}`;
+    const endpoint = `${apiUrl}/${entity.type}/${entity.id}`;
 
     request(endpoint, accessToken, {
       method: 'DELETE'
