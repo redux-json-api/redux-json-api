@@ -46,7 +46,7 @@ export const uploadFile = (file, {
   onError: onError = noop
 } = {}) => {
   return (dispatch, getState) => {
-    const accessToken = getState().auth.user.access_token;
+    const accessToken = getState().api.endpoint.accessToken;
     const path = [companyId, fileableType, fileableId].filter(o => !!o).join('/');
     const url = `${__API_HOST__}/upload/${path}?access_token=${accessToken}`;
 
