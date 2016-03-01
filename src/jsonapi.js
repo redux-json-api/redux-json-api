@@ -11,10 +11,6 @@ const apiHost = __API_HOST__ || global.__API_HOST__;
 const apiEndpoint = __API_ENDPOINT__ || global.__API_ENDPOINT__;
 
 const apiUrl = `${apiHost}${apiEndpoint}`;
-const jsonContentTypes = [
-  'application/json',
-  'application/vnd.api+json'
-];
 
 // Action names
 const API_WILL_CREATE = 'API_WILL_CREATE';
@@ -32,6 +28,7 @@ const API_UPDATE_FAILED = 'API_UPDATE_FAILED';
 const API_WILL_DELETE = 'API_WILL_DELETE';
 const API_DELETED = 'API_DELETED';
 const API_DELETE_FAILED = 'API_DELETE_FAILED';
+import { apiRequest, noop, jsonContentTypes } from './utils';
 
 // Entity isInvalidating values
 const IS_DELETING = 'IS_DELETING';
@@ -53,34 +50,6 @@ const apiUpdateFailed = createAction(API_UPDATE_FAILED);
 const apiWillDelete = createAction(API_WILL_DELETE);
 const apiDeleted = createAction(API_DELETED);
 const apiDeleteFailed = createAction(API_DELETE_FAILED);
-
-// Utilities
-const request = (url, accessToken, options = {}) => {
-  const allOptions = {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/vnd.api+json'
-    },
-    ...options
-  };
-
-  return fetch(url, allOptions)
-    .then(res => {
-      if (res.status >= 200 && res.status < 300) {
-        if (jsonContentTypes.indexOf(res.headers.get('Content-Type')) > -1) {
-          return res.json();
-        }
-
-        return res;
-      }
-
-      const e = new Error(res.statusText);
-      e.response = res;
-      throw e;
-    });
-};
-
-const noop = () => {};
 
 // Actions
 export const uploadFile = (file, {
@@ -137,7 +106,7 @@ export const createEntity = (entity, {
     const accessToken = getState().auth.user.access_token;
     const endpoint = `${apiUrl}/${entity.type}`;
 
-    request(endpoint, accessToken, {
+    apiRequest(endpoint, accessToken, {
       method: 'POST',
       body: JSON.stringify({
         data: entity
@@ -161,7 +130,7 @@ export const readEndpoint = (endpoint, {
 
     const accessToken = getState().auth.user.access_token;
 
-    request(`${apiUrl}/${endpoint}`, accessToken)
+    apiRequest(`${apiEndpoint}`, accessToken)
       .then(json => {
         dispatch(apiRead({ endpoint, ...json }));
         onSuccess();
@@ -183,7 +152,7 @@ export const updateEntity = (entity, {
     const accessToken = getState().auth.user.access_token;
     const endpoint = `${apiUrl}/${entity.type}/${entity.id}`;
 
-    request(endpoint, accessToken, {
+    apiRequest(endpoint, accessToken, {
       method: 'PATCH',
       body: JSON.stringify({
         data: entity
@@ -208,7 +177,7 @@ export const deleteEntity = (entity, {
     const accessToken = getState().auth.user.access_token;
     const endpoint = `${apiUrl}/${entity.type}/${entity.id}`;
 
-    request(endpoint, accessToken, {
+    apiRequest(endpoint, accessToken, {
       method: 'DELETE'
     }).then(() => {
       dispatch(apiDeleted(entity));
