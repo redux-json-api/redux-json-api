@@ -6,35 +6,20 @@ import {
   updateOrInsertEntitiesIntoState,
   setIsInvalidatingForExistingEntity
 } from './state-mutation/state-mutation';
-
-const apiHost = __API_HOST__ || global.__API_HOST__;
-const apiEndpoint = __API_ENDPOINT__ || global.__API_ENDPOINT__;
-
-const apiUrl = `${apiHost}${apiEndpoint}`;
-
-// Action names
-const API_WILL_CREATE = 'API_WILL_CREATE';
-const API_CREATED = 'API_CREATED';
-const API_CREATE_FAILED = 'API_CREATE_FAILED';
-
-const API_WILL_READ = 'API_WILL_READ';
-const API_READ = 'API_READ';
-const API_READ_FAILED = 'API_READ_FAILED';
-
-const API_WILL_UPDATE = 'API_WILL_UPDATE';
-const API_UPDATED = 'API_UPDATED';
-const API_UPDATE_FAILED = 'API_UPDATE_FAILED';
-
-const API_WILL_DELETE = 'API_WILL_DELETE';
-const API_DELETED = 'API_DELETED';
-const API_DELETE_FAILED = 'API_DELETE_FAILED';
 import { apiRequest, noop, jsonContentTypes } from './utils';
+import {
+  API_SET_ENDPOINT_HOST, API_SET_ENDPOINT_PATH, API_SET_ACCESS_TOKEN, API_WILL_CREATE, API_CREATED, API_CREATE_FAILED, API_WILL_READ, API_READ, API_READ_FAILED, API_WILL_UPDATE, API_UPDATED, API_UPDATE_FAILED, API_WILL_DELETE, API_DELETED, API_DELETE_FAILED
+} from './constants';
 
 // Entity isInvalidating values
 const IS_DELETING = 'IS_DELETING';
 const IS_UPDATING = 'IS_UPDATING';
 
 // Action creators
+export const setEndpointHost = createAction(API_SET_ENDPOINT_HOST);
+export const setEndpointPath = createAction(API_SET_ENDPOINT_PATH);
+export const setAccessToken = createAction(API_SET_ACCESS_TOKEN);
+
 const apiWillCreate = createAction(API_WILL_CREATE);
 const apiCreated = createAction(API_CREATED);
 const apiCreateFailed = createAction(API_CREATE_FAILED);
@@ -103,8 +88,8 @@ export const createEntity = (entity, {
   return (dispatch, getState) => {
     dispatch(apiWillCreate(entity));
 
-    const accessToken = getState().auth.user.access_token;
-    const endpoint = `${apiUrl}/${entity.type}`;
+    const { host: apiHost, path: apiPath, accessToken } = getState().api.endpoint;
+    const endpoint = `${apiHost}${apiPath}/${entity.type}`;
 
     apiRequest(endpoint, accessToken, {
       method: 'POST',
@@ -114,9 +99,12 @@ export const createEntity = (entity, {
     }).then(json => {
       dispatch(apiCreated(json.data));
       onSuccess();
-    }).catch((error) => {
-      dispatch(apiCreateFailed(entity));
-      onError(error);
+    }).catch(error => {
+      const err = error;
+      err.entity = entity;
+
+      dispatch(apiCreateFailed(err));
+      onError(err);
     });
   };
 };
@@ -128,16 +116,20 @@ export const readEndpoint = (endpoint, {
   return (dispatch, getState) => {
     dispatch(apiWillRead(endpoint));
 
-    const accessToken = getState().auth.user.access_token;
+    const { host: apiHost, path: apiPath, accessToken } = getState().api.endpoint;
+    const apiEndpoint = `${apiHost}${apiPath}/${endpoint}`;
 
     apiRequest(`${apiEndpoint}`, accessToken)
       .then(json => {
         dispatch(apiRead({ endpoint, ...json }));
         onSuccess();
       })
-      .catch((error) => {
-        dispatch(apiReadFailed(endpoint));
-        onError(error);
+      .catch(error => {
+        const err = error;
+        err.endpoint = endpoint;
+
+        dispatch(apiReadFailed(err));
+        onError(err);
       });
   };
 };
@@ -149,8 +141,8 @@ export const updateEntity = (entity, {
   return (dispatch, getState) => {
     dispatch(apiWillUpdate(entity));
 
-    const accessToken = getState().auth.user.access_token;
-    const endpoint = `${apiUrl}/${entity.type}/${entity.id}`;
+    const { host: apiHost, path: apiPath, accessToken } = getState().api.endpoint;
+    const endpoint = `${apiHost}${apiPath}/${entity.type}/${entity.id}`;
 
     apiRequest(endpoint, accessToken, {
       method: 'PATCH',
@@ -160,9 +152,12 @@ export const updateEntity = (entity, {
     }).then((response) => {
       dispatch(apiUpdated(response.data));
       onSuccess();
-    }).catch((error) => {
-      dispatch(apiUpdateFailed(entity));
-      onError(error);
+    }).catch(error => {
+      const err = error;
+      err.entity = entity;
+
+      dispatch(apiUpdateFailed(err));
+      onError(err);
     });
   };
 };
@@ -174,17 +169,20 @@ export const deleteEntity = (entity, {
   return (dispatch, getState) => {
     dispatch(apiWillDelete(entity));
 
-    const accessToken = getState().auth.user.access_token;
-    const endpoint = `${apiUrl}/${entity.type}/${entity.id}`;
+    const { host: apiHost, path: apiPath, accessToken } = getState().api.endpoint;
+    const endpoint = `${apiHost}${apiPath}/${entity.type}/${entity.id}`;
 
     apiRequest(endpoint, accessToken, {
       method: 'DELETE'
     }).then(() => {
       dispatch(apiDeleted(entity));
       onSuccess();
-    }).catch((error) => {
-      dispatch(apiDeleteFailed(entity));
-      onError(error);
+    }).catch(error => {
+      const err = error;
+      err.entity = entity;
+
+      dispatch(apiDeleteFailed(err));
+      onError(err);
     });
   };
 };
@@ -205,6 +203,36 @@ export const requireEntity = (entityType, endpoint = entityType, {
 
 // Reducers
 export const reducer = handleActions({
+
+  [API_SET_ACCESS_TOKEN]: (state, { payload: accessToken }) => {
+    return {
+      ...state,
+      endpoint: {
+        ...state.endpoint,
+        accessToken
+      }
+    };
+  },
+
+  [API_SET_ENDPOINT_HOST]: (state, { payload: host }) => {
+    return {
+      ...state,
+      endpoint: {
+        ...state.endpoint,
+        host
+      }
+    };
+  },
+
+  [API_SET_ENDPOINT_PATH]: (state, { payload: path }) => {
+    return {
+      ...state,
+      endpoint: {
+        ...state.endpoint,
+        path
+      }
+    };
+  },
 
   [API_WILL_CREATE]: (state) => {
     return {
@@ -311,5 +339,10 @@ export const reducer = handleActions({
   isCreating: 0,
   isReading: 0,
   isUpdating: 0,
-  isDeleting: 0
+  isDeleting: 0,
+  endpoint: {
+    host: null,
+    path: null,
+    accessToken: null
+  }
 });
