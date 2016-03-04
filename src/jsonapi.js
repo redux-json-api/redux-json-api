@@ -98,7 +98,7 @@ export const createEntity = (entity, {
       })
     }).then(json => {
       dispatch(apiCreated(json.data));
-      onSuccess();
+      onSuccess(json);
     }).catch(error => {
       const err = error;
       err.entity = entity;
@@ -122,7 +122,7 @@ export const readEndpoint = (endpoint, {
     apiRequest(`${apiEndpoint}`, accessToken)
       .then(json => {
         dispatch(apiRead({ endpoint, ...json }));
-        onSuccess();
+        onSuccess(json);
       })
       .catch(error => {
         const err = error;
@@ -151,7 +151,7 @@ export const updateEntity = (entity, {
       })
     }).then((response) => {
       dispatch(apiUpdated(response.data));
-      onSuccess();
+      onSuccess(response);
     }).catch(error => {
       const err = error;
       err.entity = entity;
