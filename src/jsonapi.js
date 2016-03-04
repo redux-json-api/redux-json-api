@@ -149,9 +149,9 @@ export const updateEntity = (entity, {
       body: JSON.stringify({
         data: entity
       })
-    }).then((response) => {
-      dispatch(apiUpdated(response.data));
-      onSuccess(response);
+    }).then(json => {
+      dispatch(apiUpdated(json.data));
+      onSuccess(json);
     }).catch(error => {
       const err = error;
       err.entity = entity;
