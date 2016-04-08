@@ -42,10 +42,10 @@
     "webpack": "^1.12.12"
   },
   "dependencies": {
+    "immutable": "^3.7.6",
     "isomorphic-fetch": "^2.2.1",
     "keykey": "^2.1.1",
     "pluralize": "^1.2.1",
-    "ramda": "^0.19.1",
     "redux-actions": "^0.9.1"
   }
 }

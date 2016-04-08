@@ -1,19 +1,20 @@
 import { createAction, handleActions } from 'redux-actions';
 import fetch from 'isomorphic-fetch';
+import Imm from 'immutable';
 
 import {
   removeEntityFromState,
   updateOrInsertEntitiesIntoState,
   setIsInvalidatingForExistingEntity
-} from './state-mutation/state-mutation';
+} from './state-mutation';
 import { apiRequest, noop, jsonContentTypes } from './utils';
 import {
   API_SET_ENDPOINT_HOST, API_SET_ENDPOINT_PATH, API_SET_ACCESS_TOKEN, API_WILL_CREATE, API_CREATED, API_CREATE_FAILED, API_WILL_READ, API_READ, API_READ_FAILED, API_WILL_UPDATE, API_UPDATED, API_UPDATE_FAILED, API_WILL_DELETE, API_DELETED, API_DELETE_FAILED
 } from './constants';
 
 // Entity isInvalidating values
-const IS_DELETING = 'IS_DELETING';
-const IS_UPDATING = 'IS_UPDATING';
+export const IS_DELETING = 'IS_DELETING';
+export const IS_UPDATING = 'IS_UPDATING';
 
 // Action creators
 export const setEndpointHost = createAction(API_SET_ENDPOINT_HOST);
@@ -205,134 +206,108 @@ export const requireEntity = (entityType, endpoint = entityType, {
 export const reducer = handleActions({
 
   [API_SET_ACCESS_TOKEN]: (state, { payload: accessToken }) => {
-    return {
-      ...state,
-      endpoint: {
-        ...state.endpoint,
-        accessToken
-      }
-    };
+    return Imm.fromJS(state).setIn(['endpoint', 'accessToken'], accessToken).toJS();
   },
 
   [API_SET_ENDPOINT_HOST]: (state, { payload: host }) => {
-    return {
-      ...state,
-      endpoint: {
-        ...state.endpoint,
-        host
-      }
-    };
+    return Imm.fromJS(state).setIn(['endpoint', 'host'], host).toJS();
   },
 
   [API_SET_ENDPOINT_PATH]: (state, { payload: path }) => {
-    return {
-      ...state,
-      endpoint: {
-        ...state.endpoint,
-        path
-      }
-    };
+    return Imm.fromJS(state).setIn(['endpoint', 'path'], path).toJS();
   },
 
   [API_WILL_CREATE]: (state) => {
-    return {
-      ...state,
-      isCreating: (state.isCreating + 1)
-    };
+    return Imm.fromJS(state).update('isCreating', v => v + 1).toJS();
   },
 
-  [API_CREATED]: (state, { payload }) => {
-    return {
-      ...updateOrInsertEntitiesIntoState(state, payload),
-      isCreating: (state.isCreating - 1)
-    };
+  [API_CREATED]: (rawState, { payload: rawEntities }) => {
+    const state = Imm.fromJS(rawState);
+    const entities = Imm.fromJS(
+      Array.isArray(rawEntities) ? rawEntities : [rawEntities]
+    );
+
+    return updateOrInsertEntitiesIntoState(state, entities)
+      .update('isCreating', v => v - 1)
+      .toJS();
   },
 
   [API_CREATE_FAILED]: (state) => {
-    return {
-      ...state,
-      isCreating: (state.isCreating - 1)
-    };
+    return Imm.fromJS(state).update('isCreating', v => v - 1).toJS();
   },
 
   [API_WILL_READ]: (state) => {
-    return {
-      ...state,
-      isReading: (state.isReading + 1)
-    };
+    return Imm.fromJS(state).update('isReading', v => v + 1).toJS();
   },
 
-  [API_READ]: (state, action) => {
-    const newState = updateOrInsertEntitiesIntoState(state, action.payload.data);
+  [API_READ]: (rawState, { payload }) => {
+    const state = Imm.fromJS(rawState);
+    const entities = Imm.fromJS(payload.data)
+      .concat(Imm.fromJS(payload.included));
 
-    if (action.payload.included) {
-      return {
-        ...updateOrInsertEntitiesIntoState(newState, action.payload.included),
-        isReading: (state.isReading - 1)
-      };
-    }
-
-    return {
-      ...newState,
-      isReading: (state.isReading - 1)
-    };
+    return updateOrInsertEntitiesIntoState(state, entities)
+      .update('isReading', v => v - 1)
+      .toJS();
   },
 
   [API_READ_FAILED]: (state) => {
-    return {
-      ...state,
-      isReading: (state.isReading - 1)
-    };
+    return Imm.fromJS(state).update('isReading', v => v - 1).toJS();
   },
 
-  [API_WILL_UPDATE]: (state, { payload: entity }) => {
+  [API_WILL_UPDATE]: (rawState, { payload: entity }) => {
     const { type, id } = entity;
+    const state = Imm.fromJS(rawState);
 
-    return {
-      ...setIsInvalidatingForExistingEntity(state, { type, id }, IS_UPDATING),
-      isUpdating: (state.isUpdating + 1)
-    };
+    return setIsInvalidatingForExistingEntity(state, { type, id }, IS_UPDATING)
+      .update('isUpdating', v => v + 1)
+      .toJS();
   },
 
-  [API_UPDATED]: (state, { payload: entity }) => {
-    return {
-      ...updateOrInsertEntitiesIntoState(state, entity),
-      isUpdating: (state.isUpdating - 1)
-    };
+  [API_UPDATED]: (rawState, { payload: rawEntities }) => {
+    const state = Imm.fromJS(rawState);
+    const entities = Imm.fromJS(
+      Array.isArray(rawEntities) ? rawEntities : [rawEntities]
+    );
+
+    return updateOrInsertEntitiesIntoState(state, entities)
+      .update('isUpdating', v => v - 1)
+      .toJS();
   },
 
-  [API_UPDATE_FAILED]: (state, { payload: entity }) => {
+  [API_UPDATE_FAILED]: (rawState, { payload: entity }) => {
     const { type, id } = entity;
+    const state = Imm.fromJS(rawState);
 
-    return {
-      ...setIsInvalidatingForExistingEntity(state, { type, id }, null),
-      isUpdating: (state.isUpdating - 1)
-    };
+    return setIsInvalidatingForExistingEntity(state, { type, id }, IS_UPDATING)
+      .update('isUpdating', v => v - 1)
+      .toJS();
   },
 
-  [API_WILL_DELETE]: (state, { payload: entity }) => {
+  [API_WILL_DELETE]: (rawState, { payload: entity }) => {
     const { type, id } = entity;
+    const state = Imm.fromJS(rawState);
 
-    return {
-      ...setIsInvalidatingForExistingEntity(state, { type, id }, IS_DELETING),
-      isDeleting: (state.isDeleting + 1)
-    };
+    return setIsInvalidatingForExistingEntity(state, { type, id }, IS_DELETING)
+      .update('isDeleting', v => v + 1)
+      .toJS();
   },
 
-  [API_DELETED]: (state, { payload }) => {
-    return {
-      ...removeEntityFromState(state, payload),
-      isDeleting: (state.isDeleting - 1)
-    };
+  [API_DELETED]: (rawState, { payload: rawEntity }) => {
+    const state = Imm.fromJS(rawState);
+    const entity = Imm.fromJS(rawEntity);
+
+    return removeEntityFromState(state, entity)
+      .update('isDeleting', v => v - 1)
+      .toJS();
   },
 
-  [API_DELETE_FAILED]: (state, { payload: entity }) => {
+  [API_DELETE_FAILED]: (rawState, { payload: entity }) => {
     const { type, id } = entity;
+    const state = Imm.fromJS(rawState);
 
-    return {
-      ...setIsInvalidatingForExistingEntity(state, { type, id }, null),
-      isDeleting: (state.isDeleting - 1)
-    };
+    return setIsInvalidatingForExistingEntity(state, { type, id }, IS_DELETING)
+      .update('isDeleting', v => v - 1)
+      .toJS();
   }
 
 }, {
