@@ -70,6 +70,16 @@ const state = {
   isDeleting: 0
 };
 
+const taskWithoutRelationship = {
+  type: 'tasks',
+  id: '43',
+  attributes: {
+    name: 'ABC',
+    createdAt: '2016-02-19T11:52:43+0000',
+    updatedAt: '2016-02-19T11:52:43+0000'
+  }
+};
+
 const taskWithTransaction = {
   type: 'tasks',
   id: '43',
@@ -165,7 +175,7 @@ const readResponseWithIncluded = {
 
 describe('Creation of new entities', () => {
   it('should automatically organize new entity in new key on state', () => {
-    const updatedState = reducer(state, apiCreated(taskWithTransaction));
+    const updatedState = reducer(state, apiCreated(taskWithoutRelationship));
     expect(updatedState.tasks).toBeAn('object');
   });
 
