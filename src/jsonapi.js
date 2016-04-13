@@ -243,7 +243,7 @@ export const reducer = handleActions({
   [API_READ]: (rawState, { payload }) => {
     const state = Imm.fromJS(rawState);
     const entities = Imm.fromJS(payload.data)
-      .concat(Imm.fromJS(payload.included));
+      .concat(Imm.fromJS(payload.included || []));
 
     return updateOrInsertEntitiesIntoState(state, entities)
       .update('isReading', v => v - 1)
