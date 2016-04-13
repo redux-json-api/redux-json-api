@@ -173,6 +173,67 @@ const readResponseWithIncluded = {
   ]
 };
 
+const responseDataWithSingleEntity = {
+  data: {
+    type: 'companies',
+    id: '1',
+    attributes: {
+      name: 'Dixie.io',
+      slug: 'dixie.io',
+      createdAt: '2016-04-08T08:42:45+0000',
+      updatedAt: '2016-04-08T08:42:45+0000',
+      role: 'bookkeeper'
+    },
+    relationships: {
+      users: {
+        data: [{
+          type: 'users',
+          id: '1'
+        }]
+      },
+      employees: {
+        data: [{
+          type: 'users',
+          id: '1'
+        }]
+      },
+      bookkeepers: {
+        data: [{
+          type: 'users',
+          id: '4'
+        }]
+      },
+      bookkeeper_state: {
+        data: {
+          type: 'bookkeeper_state',
+          id: '2'
+        }
+      }
+    },
+    links: {
+      self: 'http:\/\/gronk.app\/api\/v1\/companies\/1'
+    }
+  },
+  included: [{
+    type: 'users',
+    id: '1',
+    attributes: {
+      name: 'Ron Star',
+      email: 'stefan+stefan+ronni-dixie.io-dixie.io@dixie.io',
+      createdAt: '2016-04-08T08:42:45+0000',
+      updatedAt: '2016-04-13T08:28:58+0000'
+    },
+    relationships: {
+      companies: {
+        data: [{
+          type: 'companies',
+          id: '1'
+        }]
+      }
+    }
+  }]
+};
+
 describe('Creation of new entities', () => {
   it('should automatically organize new entity in new key on state', () => {
     const updatedState = reducer(state, apiCreated(taskWithoutRelationship));
@@ -209,6 +270,12 @@ describe('Reading entities', () => {
     ).toEqual(
       state.transactions.data.length + 1
     );
+  });
+
+  it('should handle response where data is an object', () => {
+    const updatedState = reducer(undefined, apiRead(responseDataWithSingleEntity));
+    expect(updatedState.users).toBeAn('object');
+    expect(updatedState.companies).toBeAn('object');
   });
 });
 
