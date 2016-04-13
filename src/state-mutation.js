@@ -47,7 +47,13 @@ const updateOrInsertEntity = (state, entity) => {
       }
     );
 
-    entity.get('relationships').forEach(relationship => {
+    const rels = entity.get('relationships');
+
+    if (!rels) {
+      return;
+    }
+
+    rels.forEach(relationship => {
       const entityPath = [
         relationship.getIn(['data', 'type']),
         'data'
