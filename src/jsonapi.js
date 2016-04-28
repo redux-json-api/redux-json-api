@@ -1,5 +1,4 @@
 import { createAction, handleActions } from 'redux-actions';
-import fetch from 'isomorphic-fetch';
 import Imm from 'immutable';
 
 import {
@@ -9,7 +8,7 @@ import {
 } from './state-mutation';
 import { apiRequest, noop, jsonContentTypes } from './utils';
 import {
-  API_SET_ENDPOINT_HOST, API_SET_ENDPOINT_PATH, API_SET_ACCESS_TOKEN, API_WILL_CREATE, API_CREATED, API_CREATE_FAILED, API_WILL_READ, API_READ, API_READ_FAILED, API_WILL_UPDATE, API_UPDATED, API_UPDATE_FAILED, API_WILL_DELETE, API_DELETED, API_DELETE_FAILED
+  API_SET_ENDPOINT_HOST, API_SET_ENDPOINT_PATH, API_SET_AXIOS_CONFIG, API_WILL_CREATE, API_CREATED, API_CREATE_FAILED, API_WILL_READ, API_READ, API_READ_FAILED, API_WILL_UPDATE, API_UPDATED, API_UPDATE_FAILED, API_WILL_DELETE, API_DELETED, API_DELETE_FAILED
 } from './constants';
 
 // Entity isInvalidating values
@@ -19,7 +18,7 @@ export const IS_UPDATING = 'IS_UPDATING';
 // Action creators
 export const setEndpointHost = createAction(API_SET_ENDPOINT_HOST);
 export const setEndpointPath = createAction(API_SET_ENDPOINT_PATH);
-export const setAccessToken = createAction(API_SET_ACCESS_TOKEN);
+export const setAxiosConfig = createAction(API_SET_AXIOS_CONFIG);
 
 const apiWillCreate = createAction(API_WILL_CREATE);
 const apiCreated = createAction(API_CREATED);
@@ -49,34 +48,43 @@ export const uploadFile = (file, {
   console.warn('uploadFile has been deprecated and will no longer be supported by redux-json-api https://github.com/dixieio/redux-json-api/issues/2');
 
   return (dispatch, getState) => {
-    const accessToken = getState().api.endpoint.accessToken;
+    const axiosConfig = getState().api.endpoint.axiosConfig;
     const path = [companyId, fileableType, fileableId].filter(o => !!o).join('/');
-    const url = `${__API_HOST__}/upload/${path}?access_token=${accessToken}`;
+    const endpoint = `${__API_HOST__}/upload/${path}`;
 
     const data = new FormData;
     data.append('file', file);
 
     const options = {
+      ...axiosConfig,
       method: 'POST',
       body: data
     };
 
-    return fetch(url, options)
-      .then(res => {
-        if (res.status >= 200 && res.status < 300) {
-          if (jsonContentTypes.some(contentType => res.headers.get('Content-Type').indexOf(contentType) > -1)) {
-            return res.json();
-          }
+    // return fetch(url, options)
+    //   .then(res => {
+    //     if (res.status >= 200 && res.status < 300) {
+    //       if (jsonContentTypes.indexOf(res.headers.get('Content-Type')) > -1) {
+    //         return res.json();
+    //       }
+    //
+    //       return res;
+    //     }
+    //
+    //     const e = new Error(res.statusText);
+    //     e.response = res;
+    //     throw e;
+    //   })
+    //   .then(json => {
+    //     onSuccess(json);
+    //   })
+    //   .catch(error => {
+    //     onError(error);
+    //   });
 
-          return res;
-        }
-
-        const e = new Error(res.statusText);
-        e.response = res;
-        throw e;
-      })
+    return apiRequest(endpoint, options)
       .then(json => {
-        onSuccess(json);
+        onSuccess(res.data);
       })
       .catch(error => {
         onError(error);
@@ -188,7 +196,7 @@ export const updateEntity = (entity, {
     });
   };
 };
-
+    
 export const deleteEntity = (entity, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
@@ -248,8 +256,8 @@ export const requireEntity = (entityType, endpoint = entityType, {
 // Reducers
 export const reducer = handleActions({
 
-  [API_SET_ACCESS_TOKEN]: (state, { payload: accessToken }) => {
-    return Imm.fromJS(state).setIn(['endpoint', 'accessToken'], accessToken).toJS();
+  [API_SET_AXIOS_CONFIG]: (state, { payload: axiosConfig }) => {
+    return Imm.fromJS(state).setIn(['endpoint', 'axiosConfig'], axiosConfig).toJS();
   },
 
   [API_SET_ENDPOINT_HOST]: (state, { payload: host }) => {
@@ -362,6 +370,6 @@ export const reducer = handleActions({
   endpoint: {
     host: null,
     path: null,
-    accessToken: null
+    axiosConfig: {}
   }
 });

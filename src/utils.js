@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 export const jsonContentTypes = [
   'application/json',
   'application/vnd.api+json'
@@ -7,25 +9,25 @@ export const noop = () => {};
 
 export const apiRequest = (url, accessToken, options = {}) => {
   const allOptions = {
+    url,
     headers: {
-      Authorization: `Bearer ${accessToken}`,
+      ...options.headers,
       'Content-Type': 'application/vnd.api+json'
     },
     ...options
   };
 
-  return fetch(url, allOptions)
+  return axios(allOptions)
     .then(res => {
-      if (res.status >= 200 && res.status < 300) {
-        if (jsonContentTypes.some(contentType => res.headers.get('Content-Type').indexOf(contentType) > -1)) {
-          return res.json();
-        }
-
-        return res;
+      if (jsonContentTypes.indexOf(res.headers.get('Content-Type')) > -1) {
+        return res.data;
       }
 
-      const e = new Error(res.statusText);
-      e.response = res;
+      return res;
+    })
+    // For legacy catches
+    .catch(res => {
+      res.response = res;
       throw e;
     });
 };

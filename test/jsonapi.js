@@ -6,7 +6,7 @@ import { createAction } from 'redux-actions';
 import expect from 'expect';
 import {
   reducer,
-  setAccessToken,
+  setAxiosConfig,
   setEndpointHost,
   setEndpointPath,
   IS_DELETING,
@@ -25,7 +25,7 @@ const state = {
   endpoint: {
     host: null,
     path: null,
-    accessToken: null
+    axiosConfig: {}
   },
   users: {
     data: [
@@ -307,11 +307,15 @@ describe('Delete entities', () => {
 });
 
 describe('Endpoint values', () => {
-  it('should update to provided access token', () => {
-    const at = 'abcdef0123456789';
-    expect(state.endpoint.accessToken).toNotEqual(at);
-    const updatedState = reducer(state, setAccessToken(at));
-    expect(updatedState.endpoint.accessToken).toEqual(at);
+  it('should update to provided axiosConfig', () => {
+    const config = {
+      headers: {
+        Authorization: 'Bearer abcdef0123456789'
+      }
+    };
+    expect(state.endpoint.axiosConfig).toNotEqual(config);
+    const updatedState = reducer(state, setAxiosConfig(config));
+    expect(updatedState.endpoint.axiosConfig).toEqual(config);
   });
 
   it('should update to provided endpoint host and path', () => {

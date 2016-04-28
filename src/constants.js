@@ -3,7 +3,7 @@ import keykey from 'keykey';
 export default keykey(
   'API_SET_ENDPOINT_HOST',
   'API_SET_ENDPOINT_PATH',
-  'API_SET_ACCESS_TOKEN',
+  'API_SET_AXIOS_CONFIG',
   'API_WILL_CREATE',
   'API_CREATED',
   'API_CREATE_FAILED',
