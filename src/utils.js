@@ -17,7 +17,7 @@ export const apiRequest = (url, accessToken, options = {}) => {
   return fetch(url, allOptions)
     .then(res => {
       if (res.status >= 200 && res.status < 300) {
-        if (jsonContentTypes.indexOf(res.headers.get('Content-Type')) > -1) {
+        if (jsonContentTypes.some(contentType => res.headers.get('Content-Type').indexOf(contentType) > -1)) {
           return res.json();
         }
 

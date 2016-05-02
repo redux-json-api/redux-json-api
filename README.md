@@ -88,3 +88,9 @@ Expects the API to return `200 OK` with the updated resource object in response 
 Accept a resource object and triggers a request to `DELETE /${entity.type}/${entity.id}`.
 
 Expects the API to return `204 No content`.
+
+* * *
+
+Made with ❤️ by Team [Dixie][dixie]
+
+ [dixie]: http://dixie.io
