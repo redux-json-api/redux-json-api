@@ -46,6 +46,8 @@ export const uploadFile = (file, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
 } = {}) => {
+  console.warn('uploadFile has been deprecated and will no longer be supported by redux-json-api https://github.com/dixieio/redux-json-api/issues/2');
+
   return (dispatch, getState) => {
     const accessToken = getState().api.endpoint.accessToken;
     const path = [companyId, fileableType, fileableId].filter(o => !!o).join('/');
