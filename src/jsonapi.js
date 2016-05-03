@@ -86,6 +86,10 @@ export const createEntity = (entity, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
 } = {}) => {
+  if (onSuccess !== noop || onError !== noop) {
+    console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
+  }
+
   return (dispatch, getState) => {
     dispatch(apiWillCreate(entity));
 
@@ -114,6 +118,10 @@ export const readEndpoint = (endpoint, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
 } = {}) => {
+  if (onSuccess !== noop || onError !== noop) {
+    console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
+  }
+
   return (dispatch, getState) => {
     dispatch(apiWillRead(endpoint));
 
@@ -139,6 +147,10 @@ export const updateEntity = (entity, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
 } = {}) => {
+  if (onSuccess !== noop || onError !== noop) {
+    console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
+  }
+
   return (dispatch, getState) => {
     dispatch(apiWillUpdate(entity));
 
@@ -167,6 +179,10 @@ export const deleteEntity = (entity, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
 } = {}) => {
+  if (onSuccess !== noop || onError !== noop) {
+    console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
+  }
+
   return (dispatch, getState) => {
     dispatch(apiWillDelete(entity));
 
