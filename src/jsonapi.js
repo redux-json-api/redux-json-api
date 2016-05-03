@@ -96,20 +96,24 @@ export const createEntity = (entity, {
     const { host: apiHost, path: apiPath, accessToken } = getState().api.endpoint;
     const endpoint = `${apiHost}${apiPath}/${entity.type}`;
 
-    apiRequest(endpoint, accessToken, {
-      method: 'POST',
-      body: JSON.stringify({
-        data: entity
-      })
-    }).then(json => {
-      dispatch(apiCreated(json.data));
-      onSuccess(json);
-    }).catch(error => {
-      const err = error;
-      err.entity = entity;
+    return new Promise((resolve, reject) => {
+      apiRequest(endpoint, accessToken, {
+        method: 'POST',
+        body: JSON.stringify({
+          data: entity
+        })
+      }).then(json => {
+        dispatch(apiCreated(json.data));
+        onSuccess(json);
+        resolve(json);
+      }).catch(error => {
+        const err = error;
+        err.entity = entity;
 
-      dispatch(apiCreateFailed(err));
-      onError(err);
+        dispatch(apiCreateFailed(err));
+        onError(err);
+        reject(err);
+      });
     });
   };
 };
@@ -128,18 +132,22 @@ export const readEndpoint = (endpoint, {
     const { host: apiHost, path: apiPath, accessToken } = getState().api.endpoint;
     const apiEndpoint = `${apiHost}${apiPath}/${endpoint}`;
 
-    apiRequest(`${apiEndpoint}`, accessToken)
-      .then(json => {
-        dispatch(apiRead({ endpoint, ...json }));
-        onSuccess(json);
-      })
-      .catch(error => {
-        const err = error;
-        err.endpoint = endpoint;
+    return new Promise((resolve, reject) => {
+      apiRequest(`${apiEndpoint}`, accessToken)
+        .then(json => {
+          dispatch(apiRead({ endpoint, ...json }));
+          onSuccess(json);
+          resolve(json);
+        })
+        .catch(error => {
+          const err = error;
+          err.endpoint = endpoint;
 
-        dispatch(apiReadFailed(err));
-        onError(err);
-      });
+          dispatch(apiReadFailed(err));
+          onError(err);
+          reject(err);
+        });
+    });
   };
 };
 
@@ -157,20 +165,24 @@ export const updateEntity = (entity, {
     const { host: apiHost, path: apiPath, accessToken } = getState().api.endpoint;
     const endpoint = `${apiHost}${apiPath}/${entity.type}/${entity.id}`;
 
-    apiRequest(endpoint, accessToken, {
-      method: 'PATCH',
-      body: JSON.stringify({
-        data: entity
-      })
-    }).then(json => {
-      dispatch(apiUpdated(json.data));
-      onSuccess(json);
-    }).catch(error => {
-      const err = error;
-      err.entity = entity;
+    return new Promise((resolve, reject) => {
+      apiRequest(endpoint, accessToken, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          data: entity
+        })
+      }).then(json => {
+        dispatch(apiUpdated(json.data));
+        onSuccess(json);
+        resolve(json);
+      }).catch(error => {
+        const err = error;
+        err.entity = entity;
 
-      dispatch(apiUpdateFailed(err));
-      onError(err);
+        dispatch(apiUpdateFailed(err));
+        onError(err);
+        reject(err);
+      });
     });
   };
 };
@@ -189,17 +201,21 @@ export const deleteEntity = (entity, {
     const { host: apiHost, path: apiPath, accessToken } = getState().api.endpoint;
     const endpoint = `${apiHost}${apiPath}/${entity.type}/${entity.id}`;
 
-    apiRequest(endpoint, accessToken, {
-      method: 'DELETE'
-    }).then(() => {
-      dispatch(apiDeleted(entity));
-      onSuccess();
-    }).catch(error => {
-      const err = error;
-      err.entity = entity;
+    return new Promise((resolve, reject) => {
+      apiRequest(endpoint, accessToken, {
+        method: 'DELETE'
+      }).then(() => {
+        dispatch(apiDeleted(entity));
+        onSuccess();
+        resolve();
+      }).catch(error => {
+        const err = error;
+        err.entity = entity;
 
-      dispatch(apiDeleteFailed(err));
-      onError(err);
+        dispatch(apiDeleteFailed(err));
+        onError(err);
+        reject(err);
+      });
     });
   };
 };
@@ -208,13 +224,22 @@ export const requireEntity = (entityType, endpoint = entityType, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
 } = {}) => {
-  return (dispatch, getState) => {
-    const { api } = getState();
-    if (api.hasOwnProperty(entityType)) {
-      return onSuccess();
-    }
+  if (onSuccess !== noop || onError !== noop) {
+    console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
+  }
 
-    dispatch(readEndpoint(endpoint, { onSuccess, onError }));
+  return (dispatch, getState) => {
+    return new Promise((resolve, reject) => {
+      const { api } = getState();
+      if (api.hasOwnProperty(entityType)) {
+        resolve();
+        return onSuccess();
+      }
+
+      dispatch(readEndpoint(endpoint, { onSuccess, onError }))
+        .then(resolve)
+        .catch(reject);
+    });
   };
 };
 
