@@ -7,7 +7,7 @@ import {
   updateOrInsertEntitiesIntoState,
   setIsInvalidatingForExistingEntity
 } from './state-mutation';
-import { apiRequest, noop, jsonContentTypes } from './utils';
+import { apiRequest, noop, jsonContentTypes, getPaginationUrl } from './utils';
 import {
   API_SET_ENDPOINT_HOST, API_SET_ENDPOINT_PATH, API_SET_ACCESS_TOKEN, API_WILL_CREATE, API_CREATED, API_CREATE_FAILED, API_WILL_READ, API_READ, API_READ_FAILED, API_WILL_UPDATE, API_UPDATED, API_UPDATE_FAILED, API_WILL_DELETE, API_DELETED, API_DELETE_FAILED
 } from './constants';
@@ -139,7 +139,22 @@ export const readEndpoint = (endpoint, {
         .then(json => {
           dispatch(apiRead({ endpoint, ...json }));
           onSuccess(json);
-          resolve(json);
+
+          const prevUrl = getPaginationUrl(json, 'prev', apiHost, apiPath);
+          const nextUrl = getPaginationUrl(json, 'next', apiHost, apiPath);
+
+          const getPrevPage = () => dispatch(readEndpoint(prevUrl));
+          const getNextPage = () => dispatch(readEndpoint(nextUrl));
+
+          const resObj = {
+            response: json,
+            pagination: {
+              getPrevPage: !prevUrl ? null : getPrevPage,
+              getNextPage: !nextUrl ? null : getNextPage,
+            }
+          };
+
+          resolve(resObj);
         })
         .catch(error => {
           const err = error;

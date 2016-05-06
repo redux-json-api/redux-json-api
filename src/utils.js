@@ -29,3 +29,29 @@ export const apiRequest = (url, accessToken, options = {}) => {
       throw e;
     });
 };
+
+export const getPaginationUrl = (json, direction, host, path) => {
+  if (!json.links) {
+    return null;
+  }
+
+  if (direction === 'next') {
+    if (!json.links.next) {
+      return null;
+    }
+
+    return json.links.next
+      .replace(host, '')
+      .replace(`${path}/`, '');
+  }
+
+  if (direction === 'prev') {
+    if (!json.links.prev) {
+      return null;
+    }
+
+    return json.links.prev
+      .replace(host, '')
+      .replace(`${path}/`, '');
+  }
+};
