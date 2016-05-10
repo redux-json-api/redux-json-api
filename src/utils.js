@@ -9,7 +9,8 @@ export const apiRequest = (url, accessToken, options = {}) => {
   const allOptions = {
     headers: {
       Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/vnd.api+json'
+      'Content-Type': 'application/vnd.api+json',
+      'Accept': 'application/vnd.api+json'
     },
     ...options
   };
