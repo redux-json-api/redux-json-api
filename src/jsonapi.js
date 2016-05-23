@@ -318,7 +318,7 @@ export const reducer = handleActions({
       .toJS();
   },
 
-  [API_UPDATE_FAILED]: (rawState, { payload: entity }) => {
+  [API_UPDATE_FAILED]: (rawState, { payload: { entity } }) => {
     const { type, id } = entity;
     const state = Imm.fromJS(rawState);
 
@@ -345,7 +345,7 @@ export const reducer = handleActions({
       .toJS();
   },
 
-  [API_DELETE_FAILED]: (rawState, { payload: entity }) => {
+  [API_DELETE_FAILED]: (rawState, { payload: { entity } }) => {
     const { type, id } = entity;
     const state = Imm.fromJS(rawState);
 
