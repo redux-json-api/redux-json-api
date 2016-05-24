@@ -139,11 +139,11 @@ export const readEndpoint = (endpoint, {
   return (dispatch, getState) => {
     dispatch(apiWillRead(endpoint));
 
-    const { host: apiHost, path: apiPath, accessToken } = getState().api.endpoint;
+    const { host: apiHost, path: apiPath, axiosConfig } = getState().api.endpoint;
     const apiEndpoint = `${apiHost}${apiPath}/${endpoint}`;
 
     return new Promise((resolve, reject) => {
-      apiRequest(`${apiEndpoint}`, accessToken)
+      apiRequest(`${apiEndpoint}`, '', axiosConfig)
         .then(json => {
           dispatch(apiRead({ endpoint, ...json }));
           onSuccess(json);

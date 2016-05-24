@@ -9,25 +9,22 @@ export const noop = () => {};
 
 export const apiRequest = (url, accessToken, options = {}) => {
   const allOptions = {
+    ...options,
     url,
     headers: {
       ...options.headers,
       'Content-Type': 'application/vnd.api+json'
-    },
-    ...options
+    }
   };
 
   return axios(allOptions)
     .then(res => {
-      if (jsonContentTypes.indexOf(res.headers.get('Content-Type')) > -1) {
-        return res.data;
-      }
-
-      return res;
+      return res.data;
     })
     // For legacy catches
     .catch(res => {
       res.response = res;
-      throw e;
+      throw res;
     });
 };
+
