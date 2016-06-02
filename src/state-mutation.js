@@ -12,14 +12,16 @@ const updateReverseRelationship = (
   return (foreignEntities) => {
     return foreignEntities.update(
       foreignEntities.findIndex(
-        item => item.get('id') === relationship.getIn(['data', 'id'])
+        item => item.get('id') == relationship.getIn(['data', 'id'])
       ),
       foreignEntity => {
         const relCase = [1, 2]
           .map(i => pluralize(entity.get('type'), i))
-          .find(r => foreignEntity.hasIn(['relationships', r]));
+          .find(r => foreignEntity.hasIn(['relationships', r])),
+          relCount = foreignEntity.getIn(['relationships', relCase, 'data']);
+        const isset = relCount && relCount.getIn([0]) && relCount.getIn([0]).count();
 
-        if (!relCase) {
+        if (!relCase || isset) {
           return foreignEntity;
         }
 
