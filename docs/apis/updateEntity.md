@@ -1,5 +1,5 @@
 ## updateEntity(value: { object })
-Dispatching the createEntity function will send a `PATCH` to the backend, providing it a JSON API compliant object (not sure what this is? head to our "Introduction page").
+Dispatching the createEntity function will send a `PATCH` to the backend, providing it a JSON API compliant object (not sure what this is? head to our "Good reads section").
 
 ```javascript
 import { updateEntity } from 'redux-json-api'

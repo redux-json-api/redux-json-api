@@ -1,5 +1,5 @@
 ## deleteEntity(value: { object })
-Dispatching the deleteEntity function will send a `DELETE` to the backend, providing it a JSON API compliant object (not sure what this is? head to our "Introduction page").
+Dispatching the deleteEntity function will send a `DELETE` to the backend, providing it a JSON API compliant object (not sure what this is? head to our "Good reads section").
 
 ```javascript
 import { deleteEntity } from 'redux-json-api'
