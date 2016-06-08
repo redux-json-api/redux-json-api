@@ -1,93 +1,47 @@
-Redux ❤️ JSON API
-----------------
+# Introduction
+Welcome to the __Redux JSON API__ we ❤️ JSON and we love simple api's. With this in mind was this libiary born. We strive to keep this libiary as small but as powerfull as possible so it would be easy adaptable into any `JSON API` stack enviroment.
 
-Redux actions, action creators and reducers to make life with [JSON API](http://jsonapi.org)s a breeze.
+We would love all of you users, to open disscusions/issues with us, that can make this tool pleasent for all to use, and ther for give a better libiary in the end. And if you build somthing with it, please let us know so we can see the cool stuff you are doing!
 
-# Features
+If there is anything that you feel is not documented, or could be refered better to such as things from `redux` let us know aswell.
 
-- Automatically maintains a state of all loaded entities
-- Provides actions for
-  - Creating entity
-  - Reading endpoint
-  - Updating entity
-  - Deleting entity
-- Automatically keeps reverse relationships up to date upon creation, update and delete
-  - This applies only to relationships where the name of the foreign key is directly adhered from entity type—but can be both plural or singular
+## Table of content
+1. Introduction
+2. Getting Started
+3. How To Use
+4. Api Overview
+5. Good reads
+6. Contribute
+7. Contributors
 
-# Usage
+## [Getting Started](http://www.github.com)
+## [How to use](http://www.github.com)
+## API overview
+1. [Read __createEntity()__](http://www.github.com) - Creating new entities
+2. [Read __readEndpoint()__](http://www.github.com) - Retrive data from your database
+3. [Read __updateEntity()__](http://www.github.com) - Update a given entity's values
+4. [Read __deleteEntity()__](http://www.github.com) - Remove entity from your database
 
-1. `npm install redux-json-api`
-1. Enable JSON API reducer (examples assume that you've connected it to `state.api`)
-1. Set up API hostname and path using the actions `setEndpointHost` and `setEndpointPath`
-1. Configure access token with `setAccessToken`
+## 5. Good reads
+1. [__Redux__](http://www.github.com) - Read about redux and core principles.
+2. [__JSON API__](http://www.jsonapi.org/) - Read about the specifications for JSON API.
 
-You're now good to go. So have a look the the available actions below.
+## 6. Contribute
+The reason for this repository is to keep on a good and healty & simple api for _JSON API_, for Redux applications weahter you use it in _react_ or any other framework of choise. Feel like getting envolved into to this, then get cloning and follow our simple guide lines, if you just want to give feedback or report bug click that [issues](https://github.com/dixieio/redux-json-api/issues) button and lets talk about it.
 
-# State structure
+### Development Guidelines
+We have a few simple guidelines for how to develop on the tool, and how to build and test it locally.
+#### Test the code
+Beside writing the cases that you might create, there is also a need for you to test the code localy in your project, this can be set up using the `npm link` [How to use npmn link](https://docs.npmjs.com/cli/link), before creating the link you would need to build the code.
 
-```json
-{
-  "api": {
-    "users": {
-      "data": [
-        {
-          "type": "users",
-          "id": 1,
-          "attributes": { }
-        }
-      ],
-      "isInvalidating": "IS_DELETING"
-    },
-    "isCreating": 0,
-    "isReading": 0,
-    "isUpdating": 0,
-    "isDeleting": 0,
-    "endpoint": {
-      "host": null,
-      "path": null,
-      "accessToken": null
-    }
-  }
-}
-```
+#### Build the code
+To build the code for local testing purposed run `npm run build`, this will dist the code make it able to be a part of the node_modules packages in your applications repo.
 
-Entity objects are 1-to-1 with the API response.
+#### Create a PR
+You have done really cool work, __KUDOS__! 🎉, now you want to contrubute the code and you create a _PR_, we will then review the pull request.
 
-# API
-
-## Options
-
-Each function accepts an options object with two callbacks: `onSuccess`, `onError`.
-
-## Create entity
-
-`createEntity(entity, options)`
-
-Pass a full resource object to `createEntity`. It will trigger a request to `POST /${entity.type}`.
-
-Expects the API to return `200 OK` with the newly created resource object in response body.
-
-## Read endpoint
-
-`readEndpoint(endpoint, options)`
-
-Provide the endpoint from where to read. E.g. `users/1/roles`. The module will read each entity and map them from their type specified.
-
-## Update entity
-
-`updateEntity(entity, options)`
-
-Pass your resource object to `updateEntity`. It will trigger a request to `PATCH /${entity.type}/${entity.id}`.
-
-Expects the API to return `200 OK` with the updated resource object in response body.
-
-## Delete entity
-
-`deleteEntity(entity.options)`
-
-Accept a resource object and triggers a request to `DELETE /${entity.type}/${entity.id}`.
-
-Expects the API to return `204 No content`.
+## 7. Contributors
+Made with love from the [Dixie](http://www.dixie.io) team, and our lovely [contributers](https://github.com/dixieio/redux-json-api/graphs/contributors)!
 
 * * *
 
