@@ -11,6 +11,10 @@ __*Lets get cracking with this api*__ 🎈
 __NB:__ _In the examples are we assuming that we have already set up a store that we can map to the components props through the `redux` `conect` higherOrderComponent, this will enhance our React component to have add the store keys to props, with our overriding your already excisting props._
 
 ## createEntity(value: { object })
-[Read the createEntity api](http://github.com)
+[Read the createEntity api](apis/createEntity.md)
 ## readEndpoint(value: 'string')
-[Read the readEndpoint api](http://github.com)
+[Read the readEndpoint api](apis/readEndpoint.md)
+## updateEntity(value: { object })
+[Read the updateEntity api](apis/updateEntity.md)
+## deleteEntity(value: { object })
+[Read the deleteEntity api](apis/deleteEntity.md)
