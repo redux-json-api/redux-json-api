@@ -14,13 +14,13 @@ If there is anything that you feel is not documented, or could be refered better
 6. [Contribute](#contribute)
 7. [Contributors](#contributors)
 
-## [Getting Started](http://www.github.com)
-## [How to use](http://www.github.com)
+## [Getting Started](docs/GettingStarted.md)
+## [How to use](docs/HowToUse.md)
 ## API overview
-1. [Read __createEntity()__](http://www.github.com) - Creating new entities
-2. [Read __readEndpoint()__](http://www.github.com) - Retrive data from your database
-3. [Read __updateEntity()__](http://www.github.com) - Update a given entity's values
-4. [Read __deleteEntity()__](http://www.github.com) - Remove entity from your database
+1. [Read __createEntity()__](docs/apis/createEntity.md) - Creating new entities
+2. [Read __readEndpoint()__](docs/apis/readEndpoint.md) - Retrive data from your database
+3. [Read __updateEntity()__](docs/apis/updateEntity.md) - Update a given entity's values
+4. [Read __deleteEntity()__](docs/apis/deleteEntity.md) - Remove entity from your database
 
 ## Good reads
 1. [__Redux__](http://www.github.com) - Read about redux and core principles.
