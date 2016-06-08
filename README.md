@@ -22,11 +22,11 @@ If there is anything that you feel is not documented, or could be refered better
 3. [Read __updateEntity()__](http://www.github.com) - Update a given entity's values
 4. [Read __deleteEntity()__](http://www.github.com) - Remove entity from your database
 
-## 5. Good reads
+## Good reads
 1. [__Redux__](http://www.github.com) - Read about redux and core principles.
 2. [__JSON API__](http://www.jsonapi.org/) - Read about the specifications for JSON API.
 
-## 6. Contribute
+## Contribute
 The reason for this repository is to keep on a good and healty & simple api for _JSON API_, for Redux applications weahter you use it in _react_ or any other framework of choise. Feel like getting envolved into to this, then get cloning and follow our simple guide lines, if you just want to give feedback or report bug click that [issues](https://github.com/dixieio/redux-json-api/issues) button and lets talk about it.
 
 ### Development Guidelines
@@ -40,7 +40,7 @@ To build the code for local testing purposed run `npm run build`, this will dist
 #### Create a PR
 You have done really cool work, __KUDOS__! 🎉, now you want to contrubute the code and you create a _PR_, we will then review the pull request.
 
-## 7. Contributors
+## Contributors
 Made with love from the [Dixie](http://www.dixie.io) team, and our lovely [contributers](https://github.com/dixieio/redux-json-api/graphs/contributors)!
 
 * * *
