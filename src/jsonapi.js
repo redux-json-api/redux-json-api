@@ -46,6 +46,8 @@ export const uploadFile = (file, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
 } = {}) => {
+  console.warn('uploadFile has been deprecated and will no longer be supported by redux-json-api https://github.com/dixieio/redux-json-api/issues/2');
+
   return (dispatch, getState) => {
     const accessToken = getState().api.endpoint.accessToken;
     const path = [companyId, fileableType, fileableId].filter(o => !!o).join('/');
@@ -62,7 +64,7 @@ export const uploadFile = (file, {
     return fetch(url, options)
       .then(res => {
         if (res.status >= 200 && res.status < 300) {
-          if (jsonContentTypes.indexOf(res.headers.get('Content-Type')) > -1) {
+          if (jsonContentTypes.some(contentType => res.headers.get('Content-Type').indexOf(contentType) > -1)) {
             return res.json();
           }
 
@@ -86,26 +88,34 @@ export const createEntity = (entity, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
 } = {}) => {
+  if (onSuccess !== noop || onError !== noop) {
+    console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
+  }
+
   return (dispatch, getState) => {
     dispatch(apiWillCreate(entity));
 
     const { host: apiHost, path: apiPath, accessToken } = getState().api.endpoint;
     const endpoint = `${apiHost}${apiPath}/${entity.type}`;
 
-    apiRequest(endpoint, accessToken, {
-      method: 'POST',
-      body: JSON.stringify({
-        data: entity
-      })
-    }).then(json => {
-      dispatch(apiCreated(json.data));
-      onSuccess(json);
-    }).catch(error => {
-      const err = error;
-      err.entity = entity;
+    return new Promise((resolve, reject) => {
+      apiRequest(endpoint, accessToken, {
+        method: 'POST',
+        body: JSON.stringify({
+          data: entity
+        })
+      }).then(json => {
+        dispatch(apiCreated(json.data));
+        onSuccess(json);
+        resolve(json);
+      }).catch(error => {
+        const err = error;
+        err.entity = entity;
 
-      dispatch(apiCreateFailed(err));
-      onError(err);
+        dispatch(apiCreateFailed(err));
+        onError(err);
+        reject(err);
+      });
     });
   };
 };
@@ -114,24 +124,32 @@ export const readEndpoint = (endpoint, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
 } = {}) => {
+  if (onSuccess !== noop || onError !== noop) {
+    console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
+  }
+
   return (dispatch, getState) => {
     dispatch(apiWillRead(endpoint));
 
     const { host: apiHost, path: apiPath, accessToken } = getState().api.endpoint;
     const apiEndpoint = `${apiHost}${apiPath}/${endpoint}`;
 
-    apiRequest(`${apiEndpoint}`, accessToken)
-      .then(json => {
-        dispatch(apiRead({ endpoint, ...json }));
-        onSuccess(json);
-      })
-      .catch(error => {
-        const err = error;
-        err.endpoint = endpoint;
+    return new Promise((resolve, reject) => {
+      apiRequest(`${apiEndpoint}`, accessToken)
+        .then(json => {
+          dispatch(apiRead({ endpoint, ...json }));
+          onSuccess(json);
+          resolve(json);
+        })
+        .catch(error => {
+          const err = error;
+          err.endpoint = endpoint;
 
-        dispatch(apiReadFailed(err));
-        onError(err);
-      });
+          dispatch(apiReadFailed(err));
+          onError(err);
+          reject(err);
+        });
+    });
   };
 };
 
@@ -139,26 +157,34 @@ export const updateEntity = (entity, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
 } = {}) => {
+  if (onSuccess !== noop || onError !== noop) {
+    console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
+  }
+
   return (dispatch, getState) => {
     dispatch(apiWillUpdate(entity));
 
     const { host: apiHost, path: apiPath, accessToken } = getState().api.endpoint;
     const endpoint = `${apiHost}${apiPath}/${entity.type}/${entity.id}`;
 
-    apiRequest(endpoint, accessToken, {
-      method: 'PATCH',
-      body: JSON.stringify({
-        data: entity
-      })
-    }).then(json => {
-      dispatch(apiUpdated(json.data));
-      onSuccess(json);
-    }).catch(error => {
-      const err = error;
-      err.entity = entity;
+    return new Promise((resolve, reject) => {
+      apiRequest(endpoint, accessToken, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          data: entity
+        })
+      }).then(json => {
+        dispatch(apiUpdated(json.data));
+        onSuccess(json);
+        resolve(json);
+      }).catch(error => {
+        const err = error;
+        err.entity = entity;
 
-      dispatch(apiUpdateFailed(err));
-      onError(err);
+        dispatch(apiUpdateFailed(err));
+        onError(err);
+        reject(err);
+      });
     });
   };
 };
@@ -167,23 +193,31 @@ export const deleteEntity = (entity, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
 } = {}) => {
+  if (onSuccess !== noop || onError !== noop) {
+    console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
+  }
+
   return (dispatch, getState) => {
     dispatch(apiWillDelete(entity));
 
     const { host: apiHost, path: apiPath, accessToken } = getState().api.endpoint;
     const endpoint = `${apiHost}${apiPath}/${entity.type}/${entity.id}`;
 
-    apiRequest(endpoint, accessToken, {
-      method: 'DELETE'
-    }).then(() => {
-      dispatch(apiDeleted(entity));
-      onSuccess();
-    }).catch(error => {
-      const err = error;
-      err.entity = entity;
+    return new Promise((resolve, reject) => {
+      apiRequest(endpoint, accessToken, {
+        method: 'DELETE'
+      }).then(() => {
+        dispatch(apiDeleted(entity));
+        onSuccess();
+        resolve();
+      }).catch(error => {
+        const err = error;
+        err.entity = entity;
 
-      dispatch(apiDeleteFailed(err));
-      onError(err);
+        dispatch(apiDeleteFailed(err));
+        onError(err);
+        reject(err);
+      });
     });
   };
 };
@@ -192,13 +226,22 @@ export const requireEntity = (entityType, endpoint = entityType, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
 } = {}) => {
-  return (dispatch, getState) => {
-    const { api } = getState();
-    if (api.hasOwnProperty(entityType)) {
-      return onSuccess();
-    }
+  if (onSuccess !== noop || onError !== noop) {
+    console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
+  }
 
-    dispatch(readEndpoint(endpoint, { onSuccess, onError }));
+  return (dispatch, getState) => {
+    return new Promise((resolve, reject) => {
+      const { api } = getState();
+      if (api.hasOwnProperty(entityType)) {
+        resolve();
+        return onSuccess();
+      }
+
+      dispatch(readEndpoint(endpoint, { onSuccess, onError }))
+        .then(resolve)
+        .catch(reject);
+    });
   };
 };
 
@@ -275,7 +318,7 @@ export const reducer = handleActions({
       .toJS();
   },
 
-  [API_UPDATE_FAILED]: (rawState, { payload: entity }) => {
+  [API_UPDATE_FAILED]: (rawState, { payload: { entity } }) => {
     const { type, id } = entity;
     const state = Imm.fromJS(rawState);
 
@@ -302,7 +345,7 @@ export const reducer = handleActions({
       .toJS();
   },
 
-  [API_DELETE_FAILED]: (rawState, { payload: entity }) => {
+  [API_DELETE_FAILED]: (rawState, { payload: { entity } }) => {
     const { type, id } = entity;
     const state = Imm.fromJS(rawState);
 
