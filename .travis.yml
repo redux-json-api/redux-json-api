@@ -2,4 +2,4 @@ language: node_js
 node_js:
   - "4"
 before_install:
-    - "console.log('Hello World')"
+    - "console.log('Hello World, you are awesome')"
