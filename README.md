@@ -6,13 +6,13 @@ We would love all of you users, to open disscusions/issues with us, that can mak
 If there is anything that you feel is not documented, or could be refered better to such as things from `redux` let us know aswell.
 
 ## Table of content
-1. Introduction
-2. Getting Started
-3. How To Use
-4. Api Overview
-5. Good reads
-6. Contribute
-7. Contributors
+1. [Introduction](#introduction)
+2. [Getting Started](#getting-started)
+3. [How To Use](#how-to-use)
+4. [Api Overview](#api-overview)
+5. [Good reads](#good-reads)
+6. [Contribute](#contribute)
+7. [Contributors](#contributors)
 
 ## [Getting Started](http://www.github.com)
 ## [How to use](http://www.github.com)
