@@ -8,8 +8,6 @@ In this section we will go through the simple _CRUD API_. There are 4 simple cal
 
 __*Lets get cracking with this api*__ 🎈
 
-__NB:__ _In the examples are we assuming that we have already set up a store that we can map to the components props through the `redux` `conect` higherOrderComponent, this will enhance our React component to have add the store keys to props, with our overriding your already excisting props._
-
 ## createEntity(value: { object })
 [Read the createEntity api](apis/createEntity.md)
 ## readEndpoint(value: 'string')

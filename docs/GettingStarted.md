@@ -57,4 +57,4 @@ export default connect()(CoreLayout);
 
 In this example are we using the CoreLayout witch is the first component to be rendered, we will before the component mount dispatch our `setEndpointHost` and `setEndpointPath` with strings that defines our api's path.
 
-__NB:__ A good practise would be to store these as a process enviromental variable.
+__NB:__ A good practise would be to store these as a process enviromental variables.

@@ -4,14 +4,6 @@ Dispatching the createEntity function will send a `PATCH` to the backend, provid
 ```javascript
 import { updateEntity } from 'redux-json-api'
 class UpdateTask extends Component {
-  constructor() {
-    super();
-
-    this.state = {
-      taskListId: 1
-    };
-  }
-
   handleSubmit() {
     const { dispatch } = this.props;
     const entity = {
@@ -36,7 +28,7 @@ class UpdateTask extends Component {
   render() {
     return (
       <form onSubmit={this.handleSubmit.bind(this)}>
-        <input type="text" onChange={this.handleChange.bind(this)}/>
+        <input type="text"/>
         <button type="submit">Submit Task</button>
       </form>
     );
@@ -45,7 +37,6 @@ class UpdateTask extends Component {
 
 export default connect()(UpdateTask);
 ```
-
 When updating the task the `redux-json-api` will dispatch the following actions:
 
 __API_WILL_UPDATE__

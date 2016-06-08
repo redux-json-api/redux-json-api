@@ -26,7 +26,6 @@ class TasksOverview extends Component {
 
 export default connect(mapStateToProps)(TasksOverview);
 ```
-
 When submitting the task the `redux-json-api` will dispatch the following actions:
 
 __API_WILL_DELETE__

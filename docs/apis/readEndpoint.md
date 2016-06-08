@@ -4,13 +4,6 @@ Great now we just created a new entity in our database using the `createEntity` 
 
 ```javascript
 import { readEndpoint } from 'redux-json-api';
-
-const mapStateToProp = ({
-  api: tasks
-}) => ({
-  tasks: (tasks || { data: [] }).data
-});
-
 class Tasks extends Component {
   componentWillMount() {
     const { dispatch } = this.props;
@@ -25,9 +18,8 @@ class Tasks extends Component {
 
 }
 
-export default connect(mapStateToProp)(Tasks);
+export default connect()(Tasks);
 ```
-For the fastest fetch of data, try to fetch all your data before your components mount, this will ensure that your data is being fetched as your component renders.
 
 When you have dispatched the `readEndpoint`method the reducer will run following actions:
 
