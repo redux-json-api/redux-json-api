@@ -1,4 +1,4 @@
-# Introduction
+# How to use
 In this section we will go through the simple _CRUD API_. There are 4 simple calls to get `redux-json-api` rocking.
 
 1. `createEntity(value: { object })`
