@@ -1,6 +1,5 @@
 language: node_js
 node_js:
-  - "4"
-script:
-  - "npm run lint"
-  - "npm test"
+  - 4
+before_script:
+  - npm run lint
