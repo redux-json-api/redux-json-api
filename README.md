@@ -90,6 +90,31 @@ Accept a resource object and triggers a request to `DELETE /${entity.type}/${ent
 
 Expects the API to return `204 No content`.
 
+# Getting Started
+
+## Adding The Reducer
+
+```
+import { combineReducers }  from 'redux';
+import { reducer }    from 'redux-json-api';
+
+export default combineReducers({
+    api: reducer,
+    ... // Other reducers
+});
+
+```
+
+## Set the Endpoint Host and Path
+
+```
+import {setEndpointHost, setEndpointPath} from 'redux-json-api';
+
+store.dispatch(setEndpointHost("http://localhost:4000"));
+store.dispatch(setEndpointPath("/api"));
+```
+
+
 * * *
 
 Made with ❤️ by Team [Dixie][dixie]
