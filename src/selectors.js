@@ -1,6 +1,28 @@
+/**
+ * // Usage Example - my-app/selectors.js:
+ * 
+ * import { createSelector } from 'reselect';
+ * import { createEntityResolver } from 'redux-json-api';
+ * 
+ * export const entityResolver = createEntityResolver();
+ * 
+ * export const currentArticleId = state => state.currentArticleId;
+ * 
+ * // Selector for current article.
+ * export const currentArticle = createSelector(
+ *    [entityResolver, currentArticleId],
+ *    (resolve, id) => resolve({ type: 'article', id });
+ * 
+ * export const currentComments = createSelector(
+ *    [entityResolver, currentArticle],
+ *    (resolve, article) => article.relationships.comments.data.map(resolve);
+ */ 
+
 import { createSelector } from 'reselect';
 
-export const createSelectorsForType = (type, apiRoot = 'api') => {
+const defaultRoot = 'api';
+
+export const createSelectorsForType = (type, apiRoot = defaultRoot) => {
   const typeState = state => state[apiRoot][type]);
   
   const data = createSelector(typeState, state => state.data);
@@ -15,11 +37,9 @@ export const createSelectorsForType = (type, apiRoot = 'api') => {
   return { type, typeState, data, index };  
 };
 
-export const createResolver = (typeSelectors = {}) => state => refs => {
-  const getSelectorsForType = 
-      type => typeSelectors[type] || (typeSelectors[type] = createSelectorsForType(type));
+export const createEntityResolver = (typeSelectors = {}, apiRoot = defaultRoot) => {
+  const getSelectorsForType = type => 
+      typeSelectors[type] || (typeSelectors[type] = createSelectorsForType(type, apiRoot));
   
-  const resolveSingle = ref => getSelectorsForType(ref.type).index(state)[ref.id];
-  
-  return Array.isArray(refs) ? refs.map(resolveSingle) : resolveSingle(refs);
+  return state => ref => getSelectorsForType(ref.type).index(state)[ref.id];
 };
