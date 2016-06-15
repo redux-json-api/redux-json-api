@@ -13,6 +13,7 @@
  *    [entityResolver, currentArticleId],
  *    (resolve, id) => resolve({ type: 'article', id });
  * 
+ * // Selector for comments of current article.
  * export const currentComments = createSelector(
  *    [entityResolver, currentArticle],
  *    (resolve, article) => article.relationships.comments.data.map(resolve);
