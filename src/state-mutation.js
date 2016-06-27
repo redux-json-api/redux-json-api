@@ -18,8 +18,13 @@ const updateReverseRelationship = (
         const relCase = [1, 2]
           .map(i => pluralize(entity.get('type'), i))
           .find(r => foreignEntity.hasIn(['relationships', r]));
+        const relCount = foreignEntity.getIn(['relationships', relCase, 'data']);
+        const isset = relCount &&
+          relCount.getIn &&
+          relCount.getIn([0]) &&
+          relCount.getIn([0]).count();
 
-        if (!relCase) {
+        if (!relCase || isset) {
           return foreignEntity;
         }
 
