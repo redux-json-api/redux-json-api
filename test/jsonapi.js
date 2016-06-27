@@ -234,6 +234,90 @@ const responseDataWithSingleEntity = {
   }]
 };
 
+const responseDataWithOneToManyRelationship = {
+  data: {
+    type: 'companies',
+    id: '1',
+    attributes: {
+      name: 'Dixie.io',
+      slug: 'dixie.io',
+      createdAt: '2016-04-08T08:42:45+0000',
+      updatedAt: '2016-04-08T08:42:45+0000',
+      role: 'bookkeeper'
+    },
+    relationships: {
+      users: {
+        data: [{
+          type: 'users',
+          id: '1'
+        }, {
+          type: 'users',
+          id: '2'
+        }]
+      },
+      employees: {
+        data: [{
+          type: 'users',
+          id: '1'
+        }, {
+          type: 'users',
+          id: '2'
+        }]
+      },
+      bookkeepers: {
+        data: [{
+          type: 'users',
+          id: '4'
+        }]
+      },
+      bookkeeper_state: {
+        data: {
+          type: 'bookkeeper_state',
+          id: '2'
+        }
+      }
+    },
+    links: {
+      self: 'http:\/\/gronk.app\/api\/v1\/companies\/1'
+    }
+  },
+  included: [{
+    type: 'users',
+    id: '1',
+    attributes: {
+      name: 'Ron Star',
+      email: 'stefan+stefan+ronni-dixie.io-dixie.io@dixie.io',
+      createdAt: '2016-04-08T08:42:45+0000',
+      updatedAt: '2016-04-13T08:28:58+0000'
+    },
+    relationships: {
+      companies: {
+        data: [{
+          type: 'companies',
+          id: '1'
+        }]
+      }
+    }
+  }, {
+    type: 'users',
+    id: '2',
+    attributes: {
+      name: 'John Jackson',
+      email: 'john-johnnah-joe-jay-jackson@dixie.io',
+      createdAt: '2016-05-17T15:22:11+0000',
+      updatedAt: '2016-06-22T01:09:39+0000'
+    },
+    relationships: {
+      companies: {
+        data: [{
+          type: 'companies',
+          id: '1'
+        }]
+      }
+    }
+  }]
+};
+
 describe('Creation of new entities', () => {
   it('should automatically organize new entity in new key on state', () => {
     const updatedState = reducer(state, apiCreated(taskWithoutRelationship));
@@ -276,6 +360,14 @@ describe('Reading entities', () => {
     const updatedState = reducer(undefined, apiRead(responseDataWithSingleEntity));
     expect(updatedState.users).toBeAn('object');
     expect(updatedState.companies).toBeAn('object');
+  });
+
+  it('should handle response with a one to many relationship', () => {
+    const updatedState = reducer(undefined, apiRead(responseDataWithOneToManyRelationship));
+    expect(updatedState.users).toBeAn('object');
+    expect(updatedState.companies).toBeAn('object');
+    expect(updatedState.companies.data[0].relationships.users.data).toBeAn('array');
+    expect(updatedState.companies.data[0].relationships.users.data.length).toBe(2);
   });
 });
 
