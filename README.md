@@ -41,4 +41,4 @@ To build the code for local testing purposed run `npm run build`, this will dist
 You have done really cool work, __KUDOS__! 🎉, now you want to contrubute the code and you create a _PR_, we will then review the pull request.
 
 ## Contributors
-Made with ❤️ from the [Dixie](http://www.dixie.io) team, and our lovely [contributers](https://github.com/dixieio/redux-json-api/graphs/contributors)!
+Made with 💜 from the [Dixie](http://www.dixie.io) team, and our lovely [contributers](https://github.com/dixieio/redux-json-api/graphs/contributors)!
