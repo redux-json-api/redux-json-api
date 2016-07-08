@@ -9,7 +9,6 @@ Use _redux-json-api_ to have one simple way of storing resource objects in Redux
 Please raise any questions as an [Issue](issues) or submit your contributions as a [Pull Request](pulls). Remember to review our [contributions guidelines](CONTRIBUTING.md).
 
 # Table of contents
-1. [Introduction](#introduction)
 1. [Getting Started](#getting-started)
 1. [How To Use](#how-to-use)
 1. [API Overview](#api-overview)
