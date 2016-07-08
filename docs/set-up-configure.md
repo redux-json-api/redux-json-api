@@ -33,7 +33,7 @@ Since most of _redux-json-api_'s are async it is required to configure your stor
 
 ## Configure API endpoints and access token
 
-As _redux-json-api_ will automatically make request to your API, it requires to know about API host and root path.
+As _redux-json-api_ will automatically make request to your API, it requires to know about API host, root path and access token.
 
 There are one method for each of these, and they should be dispatched before dispatching any CRUD actions.
 
@@ -60,3 +60,7 @@ dispatch(setEndpointHost('https://api.my-server'));
 dispatch(setEndpointPath('v1'));
 // => https://api.my-serverv1
 ```
+
+#### `setAccessToken( accessToken: string ): object`
+
+Dispatch this action to configure an access token to include in all requests. At the moment, _redux-json-api_ only supports authorizing requests through the `Authorization: Bearer <accessToken>` header.
