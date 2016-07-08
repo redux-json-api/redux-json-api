@@ -9,14 +9,13 @@ Use _redux-json-api_ to have one simple way of storing resource objects in Redux
 Please raise any questions as an [Issue](issues) or submit your contributions as a [Pull Request](pulls). Remember to review our [contributions guidelines](CONTRIBUTING.md).
 
 # Table of contents
-1. [Getting Started](#getting-started)
+1. [Set-Up & Configure](docs/set-up-configure.md)
 1. [How To Use](#how-to-use)
 1. [API Overview](#api-overview)
 1. [Good reads](#good-reads)
 1. [Contribute](#contribute)
 1. [Contributors](#contributors)
 
-## [Getting Started](docs/GettingStarted.md)
 ## [How to use](docs/HowToUse.md)
 ## API overview
 - [Read __createEntity()__](docs/apis/createEntity.md) - Creating new entities
