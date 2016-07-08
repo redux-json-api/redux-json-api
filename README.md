@@ -10,16 +10,10 @@ Please raise any questions as an [Issue](issues) or submit your contributions as
 
 # Table of contents
 1. [Set-Up & Configure](docs/set-up-configure.md)
-1. [API Overview](#api-overview)
+1. [API](docs/api.md)
 1. [Good reads](#good-reads)
 1. [Contribute](#contribute)
 1. [Contributors](#contributors)
-
-## API overview
-- [Read __createEntity()__](docs/apis/createEntity.md) - Creating new entities
-- [Read __readEndpoint()__](docs/apis/readEndpoint.md) - Retrive data from your database
-- [Read __updateEntity()__](docs/apis/updateEntity.md) - Update a given entity's values
-- [Read __deleteEntity()__](docs/apis/deleteEntity.md) - Remove entity from your database
 
 ## Good reads
 - [__Redux__](http://www.github.com) - Read about redux and core principles.
