@@ -37,25 +37,25 @@ While dispatching a create action for the following resource will make a request
 }
 ```
 
-## `createEntity( resource: object ): function`
+#### `createEntity( resource: object ): function`
 
 Use this action creator to trigger a POST request to your API with the given resource.
 
 [Examples and details here.](docs/apis/createEntity.md)
 
-## `readEndpoint( endpoint: string ): function`
+#### `readEndpoint( endpoint: string ): function`
 
 This action creator will trigger a GET request to the specified endpoint.
 
 [Read more.](docs/apis/readEndpoint.md)
 
-## `updateEntity( resource: object ): function`
+#### `updateEntity( resource: object ): function`
 
 Update entities using this action creator. It will make a PATCH request to your API.
 
 [Details and examples.](docs/apis/updateEntity.md)
 
-## `deleteEntity( resource: object ): function`
+#### `deleteEntity( resource: object ): function`
 
 Use this action creator to issue a DELETE request to your API.
 
