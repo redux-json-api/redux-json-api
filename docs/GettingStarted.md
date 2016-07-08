@@ -37,7 +37,7 @@ As _redux-json-api_ will automatically make request to your API, it requires to 
 
 There are one method for each of these, and they should be dispatched before dispatching any CRUD actions.
 
-### `setEndpointHost( hostWithProtocol: string ): object`
+#### `setEndpointHost( hostWithProtocol: string ): object`
 
 Dispatch the returned action to set endpoint hostname. It requires one argument, which is a full hostname including protocol.
 
@@ -45,7 +45,7 @@ Dispatch the returned action to set endpoint hostname. It requires one argument,
 dispatch(setEndpointHost('https://api.my-server'));
 ```
 
-### `setEndpointPath( rootPath: string ): object`
+#### `setEndpointPath( rootPath: string ): object`
 
 Dispatch the returned action to configure endpoint root path. It requires one argument.
 
