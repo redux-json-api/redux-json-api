@@ -37,6 +37,8 @@ While dispatching a create action for the following resource will make a request
 }
 ```
 
+## API Methods
+
 #### `createEntity( resource: object ): function`
 
 Use this action creator to trigger a POST request to your API with the given resource.
