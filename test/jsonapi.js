@@ -235,28 +235,52 @@ const responseDataWithSingleEntity = {
 };
 
 const responseDataWithOneToManyRelationship = {
-  data: {
-    type: 'companies',
-    id: '1',
-    attributes: {
-      name: 'Dixie.io',
-      slug: 'dixie.io',
-      createdAt: '2016-04-08T08:42:45+0000',
-      updatedAt: '2016-04-08T08:42:45+0000'
-    },
-    relationships: {
-      user: {
-        data: {
-          type: 'users',
-          id: '1'
+  data: [
+    {
+      type: 'companies',
+      id: '1',
+      attributes: {
+        name: 'Dixie.io',
+        slug: 'dixie.io',
+        createdAt: '2016-04-08T08:42:45+0000',
+        updatedAt: '2016-04-08T08:42:45+0000'
+      },
+      relationships: {
+        user: {
+          data: {
+            type: 'users',
+            id: '1'
+          }
         }
+      },
+      links: {
+        self: 'http:\/\/gronk.app\/api\/v1\/companies\/1'
       }
     },
-    links: {
-      self: 'http:\/\/gronk.app\/api\/v1\/companies\/1'
+    {
+      type: 'companies',
+      id: '2',
+      attributes: {
+        name: 'Dixie.io',
+        slug: 'dixie.io',
+        createdAt: '2016-04-08T08:42:45+0000',
+        updatedAt: '2016-04-08T08:42:45+0000'
+      },
+      relationships: {
+        user: {
+          data: {
+            type: 'users',
+            id: '1'
+          }
+        }
+      },
+      links: {
+        self: 'http:\/\/gronk.app\/api\/v1\/companies\/2'
+      }
     }
-  }
+  ]
 };
+
 
 describe('Creation of new entities', () => {
   it('should automatically organize new entity in new key on state', () => {
