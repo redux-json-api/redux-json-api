@@ -30,7 +30,7 @@ const updateReverseRelationship = (
             }
 
             if (!relation) {
-              return [newRelation];
+              return new Imm.List([newRelation]);
             }
 
             return relation.push(newRelation);
