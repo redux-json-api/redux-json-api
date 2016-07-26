@@ -1,5 +1,4 @@
 import { createAction, handleActions } from 'redux-actions';
-import fetch from 'isomorphic-fetch';
 import Imm from 'immutable';
 
 import {
@@ -9,7 +8,7 @@ import {
 } from './state-mutation';
 import { apiRequest, noop, jsonContentTypes } from './utils';
 import {
-  API_SET_ENDPOINT_HOST, API_SET_ENDPOINT_PATH, API_SET_ACCESS_TOKEN, API_WILL_CREATE, API_CREATED, API_CREATE_FAILED, API_WILL_READ, API_READ, API_READ_FAILED, API_WILL_UPDATE, API_UPDATED, API_UPDATE_FAILED, API_WILL_DELETE, API_DELETED, API_DELETE_FAILED
+  API_SET_AXIOS_CONFIG, API_WILL_CREATE, API_CREATED, API_CREATE_FAILED, API_WILL_READ, API_READ, API_READ_FAILED, API_WILL_UPDATE, API_UPDATED, API_UPDATE_FAILED, API_WILL_DELETE, API_DELETED, API_DELETE_FAILED
 } from './constants';
 
 // Entity isInvalidating values
@@ -17,9 +16,7 @@ export const IS_DELETING = 'IS_DELETING';
 export const IS_UPDATING = 'IS_UPDATING';
 
 // Action creators
-export const setEndpointHost = createAction(API_SET_ENDPOINT_HOST);
-export const setEndpointPath = createAction(API_SET_ENDPOINT_PATH);
-export const setAccessToken = createAction(API_SET_ACCESS_TOKEN);
+export const setAxiosConfig = createAction(API_SET_AXIOS_CONFIG);
 
 const apiWillCreate = createAction(API_WILL_CREATE);
 const apiCreated = createAction(API_CREATED);
@@ -48,24 +45,30 @@ export const uploadFile = (file, {
 } = {}) => {
   console.warn('uploadFile has been deprecated and will no longer be supported by redux-json-api https://github.com/dixieio/redux-json-api/issues/2');
 
+  if (onSuccess !== noop || onError !== noop) {
+    console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
+  }
+
   return (dispatch, getState) => {
-    const accessToken = getState().api.endpoint.accessToken;
+    const axiosConfig = getState().api.endpoint.axiosConfig;
     const path = [companyId, fileableType, fileableId].filter(o => !!o).join('/');
-    const url = `${__API_HOST__}/upload/${path}?access_token=${accessToken}`;
+    const endpoint = `${__API_HOST__}/upload/${path}`;
 
     const data = new FormData;
     data.append('file', file);
 
     const options = {
+      ...axiosConfig,
       method: 'POST',
       body: data
     };
 
-    return fetch(url, options)
-      .then(res => {
+    return apiRequest(endpoint, options)
+      .then((res) => {
+        onSuccess(res.data);
         if (res.status >= 200 && res.status < 300) {
           if (jsonContentTypes.some(contentType => res.headers.get('Content-Type').indexOf(contentType) > -1)) {
-            return res.json();
+            return res.data;
           }
 
           return res;
@@ -74,9 +77,6 @@ export const uploadFile = (file, {
         const e = new Error(res.statusText);
         e.response = res;
         throw e;
-      })
-      .then(json => {
-        onSuccess(json);
       })
       .catch(error => {
         onError(error);
@@ -95,27 +95,29 @@ export const createEntity = (entity, {
   return (dispatch, getState) => {
     dispatch(apiWillCreate(entity));
 
-    const { host: apiHost, path: apiPath, accessToken } = getState().api.endpoint;
-    const endpoint = `${apiHost}${apiPath}/${entity.type}`;
+    const { axiosConfig } = getState().api.endpoint;
+    const endpoint = `${axiosConfig.baseURL}/${entity.type}`;
+
+    const options = {
+      ...axiosConfig,
+      method: 'POST',
+      body: JSON.stringify({ data: entity })
+    };
 
     return new Promise((resolve, reject) => {
-      apiRequest(endpoint, accessToken, {
-        method: 'POST',
-        body: JSON.stringify({
-          data: entity
-        })
-      }).then(json => {
-        dispatch(apiCreated(json.data));
-        onSuccess(json);
-        resolve(json);
-      }).catch(error => {
-        const err = error;
-        err.entity = entity;
+      apiRequest(endpoint, options)
+        .then(json => {
+          dispatch(apiCreated(json.data));
+          onSuccess(json);
+          resolve(json);
+        }).catch(error => {
+          const err = error;
+          err.entity = entity;
 
-        dispatch(apiCreateFailed(err));
-        onError(err);
-        reject(err);
-      });
+          dispatch(apiCreateFailed(err));
+          onError(err);
+          reject(err);
+        });
     });
   };
 };
@@ -131,11 +133,11 @@ export const readEndpoint = (endpoint, {
   return (dispatch, getState) => {
     dispatch(apiWillRead(endpoint));
 
-    const { host: apiHost, path: apiPath, accessToken } = getState().api.endpoint;
-    const apiEndpoint = `${apiHost}${apiPath}/${endpoint}`;
+    const { axiosConfig } = getState().api.endpoint;
+    const apiEndpoint = `${axiosConfig.baseURL}/${endpoint}`;
 
     return new Promise((resolve, reject) => {
-      apiRequest(`${apiEndpoint}`, accessToken)
+      apiRequest(apiEndpoint, axiosConfig)
         .then(json => {
           dispatch(apiRead({ endpoint, ...json }));
           onSuccess(json);
@@ -164,11 +166,11 @@ export const updateEntity = (entity, {
   return (dispatch, getState) => {
     dispatch(apiWillUpdate(entity));
 
-    const { host: apiHost, path: apiPath, accessToken } = getState().api.endpoint;
-    const endpoint = `${apiHost}${apiPath}/${entity.type}/${entity.id}`;
+    const { axiosConfig } = getState().api.endpoint;
+    const endpoint = `${axiosConfig.baseURL}/${entity.id}`;
 
     return new Promise((resolve, reject) => {
-      apiRequest(endpoint, accessToken, {
+      apiRequest(endpoint, {
         method: 'PATCH',
         body: JSON.stringify({
           data: entity
@@ -200,11 +202,11 @@ export const deleteEntity = (entity, {
   return (dispatch, getState) => {
     dispatch(apiWillDelete(entity));
 
-    const { host: apiHost, path: apiPath, accessToken } = getState().api.endpoint;
-    const endpoint = `${apiHost}${apiPath}/${entity.type}/${entity.id}`;
+    const { axiosConfig } = getState().api.endpoint;
+    const endpoint = `${axiosConfig.baseURL}/${entity.type}/${entity.id}`;
 
     return new Promise((resolve, reject) => {
-      apiRequest(endpoint, accessToken, {
+      apiRequest(endpoint, {
         method: 'DELETE'
       }).then(() => {
         dispatch(apiDeleted(entity));
@@ -248,16 +250,8 @@ export const requireEntity = (entityType, endpoint = entityType, {
 // Reducers
 export const reducer = handleActions({
 
-  [API_SET_ACCESS_TOKEN]: (state, { payload: accessToken }) => {
-    return Imm.fromJS(state).setIn(['endpoint', 'accessToken'], accessToken).toJS();
-  },
-
-  [API_SET_ENDPOINT_HOST]: (state, { payload: host }) => {
-    return Imm.fromJS(state).setIn(['endpoint', 'host'], host).toJS();
-  },
-
-  [API_SET_ENDPOINT_PATH]: (state, { payload: path }) => {
-    return Imm.fromJS(state).setIn(['endpoint', 'path'], path).toJS();
+  [API_SET_AXIOS_CONFIG]: (state, { payload: axiosConfig }) => {
+    return Imm.fromJS(state).setIn(['endpoint', 'axiosConfig'], axiosConfig).toJS();
   },
 
   [API_WILL_CREATE]: (state) => {
@@ -362,6 +356,6 @@ export const reducer = handleActions({
   endpoint: {
     host: null,
     path: null,
-    accessToken: null
+    axiosConfig: {}
   }
 });

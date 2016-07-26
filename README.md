@@ -19,8 +19,7 @@ Redux actions, action creators and reducers to make life with [JSON API](http://
 
 1. `npm install redux-json-api`
 1. Enable JSON API reducer (examples assume that you've connected it to `state.api`)
-1. Set up API hostname and path using the actions `setEndpointHost` and `setEndpointPath`
-1. Configure access token with `setAccessToken`
+1. Set [axios](https://github.com/mzabriskie/axios) config with `setAxiosConfig`. Pay attention to `baseURL` option.
 
 You're now good to go. So have a look the the available actions below.
 
@@ -44,9 +43,7 @@ You're now good to go. So have a look the the available actions below.
     "isUpdating": 0,
     "isDeleting": 0,
     "endpoint": {
-      "host": null,
-      "path": null,
-      "accessToken": null
+      "axiosConfig": {}
     }
   }
 }

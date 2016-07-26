@@ -6,9 +6,7 @@ import { createAction } from 'redux-actions';
 import expect from 'expect';
 import {
   reducer,
-  setAccessToken,
-  setEndpointHost,
-  setEndpointPath,
+  setAxiosConfig,
   IS_DELETING,
   IS_UPDATING
 } from '../src/jsonapi';
@@ -23,9 +21,7 @@ const apiWillDelete = createAction('API_WILL_DELETE');
 
 const state = {
   endpoint: {
-    host: null,
-    path: null,
-    accessToken: null
+    axiosConfig: {}
   },
   users: {
     data: [
@@ -362,24 +358,15 @@ describe('Delete entities', () => {
 });
 
 describe('Endpoint values', () => {
-  it('should update to provided access token', () => {
-    const at = 'abcdef0123456789';
-    expect(state.endpoint.accessToken).toNotEqual(at);
-    const updatedState = reducer(state, setAccessToken(at));
-    expect(updatedState.endpoint.accessToken).toEqual(at);
-  });
-
-  it('should update to provided endpoint host and path', () => {
-    const host = 'https://api.example.com';
-    const path = '/api/v1';
-
-    expect(state.endpoint.host).toNotEqual(host);
-    const stateWithHost = reducer(state, setEndpointHost(host));
-    expect(stateWithHost.endpoint.host).toEqual(host);
-
-    expect(state.endpoint.path).toNotEqual(path);
-    const stateWithPath = reducer(state, setEndpointPath(path));
-    expect(stateWithPath.endpoint.path).toEqual(path);
+  it('should update to provided axiosConfig', () => {
+    const config = {
+      headers: {
+        Authorization: 'Bearer abcdef0123456789'
+      }
+    };
+    expect(state.endpoint.axiosConfig).toNotEqual(config);
+    const updatedState = reducer(state, setAxiosConfig(config));
+    expect(updatedState.endpoint.axiosConfig).toEqual(config);
   });
 });
 
