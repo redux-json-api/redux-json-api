@@ -10,10 +10,16 @@ const updateReverseRelationship = (
   }
 ) => {
   return (foreignEntities) => {
+    const idx = foreignEntities.findIndex(
+      item => item.get('id') === relationship.getIn(['data', 'id'])
+    );
+
+    if (idx === -1) {
+      return foreignEntities;
+    }
+
     return foreignEntities.update(
-      foreignEntities.findIndex(
-        item => item.get('id') === relationship.getIn(['data', 'id'])
-      ),
+      idx,
       foreignEntity => {
         const [singular, plural] = [1, 2].map(i => pluralize(entity.get('type'), i));
         const relCase = [singular, plural].find(r => foreignEntity.hasIn(['relationships', r]));
