@@ -36,7 +36,7 @@ const state = {
           name: 'John Doe'
         },
         relationships: {
-          tasks: {
+          companies: {
             data: null
           }
         }
@@ -234,6 +234,54 @@ const responseDataWithSingleEntity = {
   }]
 };
 
+const responseDataWithOneToManyRelationship = {
+  data: [
+    {
+      type: 'companies',
+      id: '1',
+      attributes: {
+        name: 'Dixie.io',
+        slug: 'dixie.io',
+        createdAt: '2016-04-08T08:42:45+0000',
+        updatedAt: '2016-04-08T08:42:45+0000'
+      },
+      relationships: {
+        user: {
+          data: {
+            type: 'users',
+            id: '1'
+          }
+        }
+      },
+      links: {
+        self: 'http:\/\/gronk.app\/api\/v1\/companies\/1'
+      }
+    },
+    {
+      type: 'companies',
+      id: '2',
+      attributes: {
+        name: 'Dixie.io',
+        slug: 'dixie.io',
+        createdAt: '2016-04-08T08:42:45+0000',
+        updatedAt: '2016-04-08T08:42:45+0000'
+      },
+      relationships: {
+        user: {
+          data: {
+            type: 'users',
+            id: '1'
+          }
+        }
+      },
+      links: {
+        self: 'http:\/\/gronk.app\/api\/v1\/companies\/2'
+      }
+    }
+  ]
+};
+
+
 describe('Creation of new entities', () => {
   it('should automatically organize new entity in new key on state', () => {
     const updatedState = reducer(state, apiCreated(taskWithoutRelationship));
@@ -276,6 +324,13 @@ describe('Reading entities', () => {
     const updatedState = reducer(undefined, apiRead(responseDataWithSingleEntity));
     expect(updatedState.users).toBeAn('object');
     expect(updatedState.companies).toBeAn('object');
+  });
+
+  it('should handle response with a one to many relationship', () => {
+    const updatedState = reducer(state, apiRead(responseDataWithOneToManyRelationship));
+    expect(updatedState.users).toBeAn('object');
+    expect(updatedState.companies).toBeAn('object');
+    expect(updatedState.users.data[0].relationships.companies.data).toBeAn('array');
   });
 });
 

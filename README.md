@@ -1,5 +1,6 @@
 Redux ❤️ JSON API
 ----------------
+[![Build Status](https://travis-ci.org/dixieio/redux-json-api.svg?branch=master)](https://travis-ci.org/dixieio/redux-json-api)
 
 Redux actions, action creators and reducers to make life with [JSON API](http://jsonapi.org)s a breeze.
 

@@ -15,17 +15,26 @@ const updateReverseRelationship = (
         item => item.get('id') === relationship.getIn(['data', 'id'])
       ),
       foreignEntity => {
-        const relCase = [1, 2]
-          .map(i => pluralize(entity.get('type'), i))
-          .find(r => foreignEntity.hasIn(['relationships', r]));
+        const [singular, plural] = [1, 2].map(i => pluralize(entity.get('type'), i));
+        const relCase = [singular, plural].find(r => foreignEntity.hasIn(['relationships', r]));
 
         if (!relCase) {
           return foreignEntity;
         }
 
-        return foreignEntity.setIn(
+        return foreignEntity.updateIn(
           ['relationships', relCase, 'data'],
-          newRelation
+          relation => {
+            if (relCase === singular) {
+              return newRelation;
+            }
+
+            if (!relation) {
+              return new Imm.List([newRelation]);
+            }
+
+            return relation.push(newRelation);
+          }
         );
       }
     );
