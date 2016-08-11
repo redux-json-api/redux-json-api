@@ -31,7 +31,7 @@ const state = {
     data: [
       {
         type: 'users',
-        id: 1,
+        id: '1',
         attributes: {
           name: 'John Doe'
         },
@@ -127,7 +127,7 @@ const transactionToDelete = {
 
 const updatedUser = {
   type: 'users',
-  id: 1,
+  id: '1',
   attributes: {
     name: 'Sir John Doe'
   },
