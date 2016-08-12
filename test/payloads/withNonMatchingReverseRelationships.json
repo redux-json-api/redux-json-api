@@ -1,0 +1,57 @@
+{
+  "data": [],
+  "included": [
+    {
+      "type": "reports",
+      "id": "121",
+      "attributes": { },
+      "relationships": {
+        "file": {
+          "data": {
+            "type": "files",
+            "id": "9979"
+          }
+        }
+      }
+    },
+    {
+      "type": "files",
+      "id": "210",
+      "attributes": { },
+      "relationships": {
+        "fileable": {
+          "data": {
+            "type": "reports",
+            "id": "13"
+          }
+        }
+      }
+    },
+    {
+      "type": "reports",
+      "id": "122",
+      "attributes": { },
+      "relationships": {
+        "file": {
+          "data": {
+            "type": "files",
+            "id": "9980"
+          }
+        }
+      }
+    },
+    {
+      "type": "files",
+      "id": "666",
+      "attributes": { },
+      "relationships": {
+        "fileable": {
+          "data": {
+            "type": "reports",
+            "id": "16"
+          }
+        }
+      }
+    }
+  ]
+}

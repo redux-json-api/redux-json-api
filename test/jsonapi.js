@@ -31,7 +31,7 @@ const state = {
     data: [
       {
         type: 'users',
-        id: 1,
+        id: '1',
         attributes: {
           name: 'John Doe'
         },
@@ -127,7 +127,7 @@ const transactionToDelete = {
 
 const updatedUser = {
   type: 'users',
-  id: 1,
+  id: '1',
   attributes: {
     name: 'Sir John Doe'
   },
@@ -281,6 +281,7 @@ const responseDataWithOneToManyRelationship = {
   ]
 };
 
+const payloadWithNonMatchingReverseRelationships = require('./payloads/withNonMatchingReverseRelationships.json');
 
 describe('Creation of new entities', () => {
   it('should automatically organize new entity in new key on state', () => {
@@ -331,6 +332,19 @@ describe('Reading entities', () => {
     expect(updatedState.users).toBeAn('object');
     expect(updatedState.companies).toBeAn('object');
     expect(updatedState.users.data[0].relationships.companies.data).toBeAn('array');
+  });
+
+  it('should ignore reverse relationship with no matching entity', () => {
+    const updatedState = reducer(state, apiRead(payloadWithNonMatchingReverseRelationships));
+
+    payloadWithNonMatchingReverseRelationships.included
+      .filter(entity => entity.type === 'reports')
+      .forEach(
+        payloadReport => {
+          const stateReport = updatedState.reports.data.find(r => payloadReport.id === r.id);
+          expect(stateReport.relationships.file.data.id).toEqual(payloadReport.relationships.file.data.id);
+        }
+      );
   });
 });
 
