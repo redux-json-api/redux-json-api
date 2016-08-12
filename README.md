@@ -1,30 +1,23 @@
-# Introduction
-Welcome to the __Redux JSON API__ we ❤️ JSON and we love simple api's. With this in mind was this libiary born. We strive to keep this libiary as small but as powerfull as possible so it would be easy adaptable into any `JSON API` stack enviroment.
+Make Redux 💜 JSON API
+----------------------
+[![Build Status](https://travis-ci.org/dixieio/redux-json-api.svg?branch=master)](https://travis-ci.org/dixieio/redux-json-api)
 
-We would love all of you users, to open disscusions/issues with us, that can make this tool pleasent for all to use, and ther for give a better libiary in the end. And if you build somthing with it, please let us know so we can see the cool stuff you are doing!
+This library is intended for use in web applications build on Redux, which consumes data from a [JSON API](http://jsonapi.org/).
 
-If there is anything that you feel is not documented, or could be refered better to such as things from `redux` let us know aswell.
+Use _redux-json-api_ to have one simple way of storing resource objects in Redux state along with the CRUD API, which provides easy ways to create, read, update and delete resources.
 
-## Table of content
-1. [Introduction](#introduction)
-2. [Getting Started](#getting-started)
-3. [How To Use](#how-to-use)
-4. [Api Overview](#api-overview)
-5. [Good reads](#good-reads)
-6. [Contribute](#contribute)
-7. [Contributors](#contributors)
+Please raise any questions as an [Issue](issues) or submit your contributions as a [Pull Request](pulls). Remember to review our [contributions guidelines](CONTRIBUTING.md).
 
-## [Getting Started](docs/GettingStarted.md)
-## [How to use](docs/HowToUse.md)
-## API overview
-1. [Read __createEntity()__](docs/apis/createEntity.md) - Creating new entities
-2. [Read __readEndpoint()__](docs/apis/readEndpoint.md) - Retrive data from your database
-3. [Read __updateEntity()__](docs/apis/updateEntity.md) - Update a given entity's values
-4. [Read __deleteEntity()__](docs/apis/deleteEntity.md) - Remove entity from your database
+# Table of contents
+1. [Set-Up & Configure](docs/set-up-configure.md)
+1. [API](docs/api.md)
+1. [Good reads](#good-reads)
+1. [Contribute](#contribute)
+1. [Contributors](#contributors)
 
 ## Good reads
-1. [__Redux__](http://www.github.com) - Read about redux and core principles.
-2. [__JSON API__](http://www.jsonapi.org/) - Read about the specifications for JSON API.
+- [__Redux__](http://www.github.com) - Read about redux and core principles.
+- [__JSON API__](http://www.jsonapi.org/) - Read about the specifications for JSON API.
 
 ## Contribute
 The reason for this repository is to keep on a good and healty & simple api for _JSON API_, for Redux applications weahter you use it in _react_ or any other framework of choise. Feel like getting envolved into to this, then get cloning and follow our simple guide lines, if you just want to give feedback or report bug click that [issues](https://github.com/dixieio/redux-json-api/issues) button and lets talk about it.
@@ -41,4 +34,4 @@ To build the code for local testing purposed run `npm run build`, this will dist
 You have done really cool work, __KUDOS__! 🎉, now you want to contrubute the code and you create a _PR_, we will then review the pull request.
 
 ## Contributors
-Made with ❤️ from the [Dixie](http://www.dixie.io) team, and our lovely [contributers](https://github.com/dixieio/redux-json-api/graphs/contributors)!
+Made with 💜 from the [Dixie](http://www.dixie.io) team, and our lovely [contributers](graphs/contributors)!
