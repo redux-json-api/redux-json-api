@@ -31,12 +31,12 @@ const state = {
     data: [
       {
         type: 'users',
-        id: 1,
+        id: '1',
         attributes: {
           name: 'John Doe'
         },
         relationships: {
-          tasks: {
+          companies: {
             data: null
           }
         }
@@ -127,7 +127,7 @@ const transactionToDelete = {
 
 const updatedUser = {
   type: 'users',
-  id: 1,
+  id: '1',
   attributes: {
     name: 'Sir John Doe'
   },
@@ -234,6 +234,55 @@ const responseDataWithSingleEntity = {
   }]
 };
 
+const responseDataWithOneToManyRelationship = {
+  data: [
+    {
+      type: 'companies',
+      id: '1',
+      attributes: {
+        name: 'Dixie.io',
+        slug: 'dixie.io',
+        createdAt: '2016-04-08T08:42:45+0000',
+        updatedAt: '2016-04-08T08:42:45+0000'
+      },
+      relationships: {
+        user: {
+          data: {
+            type: 'users',
+            id: '1'
+          }
+        }
+      },
+      links: {
+        self: 'http:\/\/gronk.app\/api\/v1\/companies\/1'
+      }
+    },
+    {
+      type: 'companies',
+      id: '2',
+      attributes: {
+        name: 'Dixie.io',
+        slug: 'dixie.io',
+        createdAt: '2016-04-08T08:42:45+0000',
+        updatedAt: '2016-04-08T08:42:45+0000'
+      },
+      relationships: {
+        user: {
+          data: {
+            type: 'users',
+            id: '1'
+          }
+        }
+      },
+      links: {
+        self: 'http:\/\/gronk.app\/api\/v1\/companies\/2'
+      }
+    }
+  ]
+};
+
+const payloadWithNonMatchingReverseRelationships = require('./payloads/withNonMatchingReverseRelationships.json');
+
 describe('Creation of new entities', () => {
   it('should automatically organize new entity in new key on state', () => {
     const updatedState = reducer(state, apiCreated(taskWithoutRelationship));
@@ -276,6 +325,26 @@ describe('Reading entities', () => {
     const updatedState = reducer(undefined, apiRead(responseDataWithSingleEntity));
     expect(updatedState.users).toBeAn('object');
     expect(updatedState.companies).toBeAn('object');
+  });
+
+  it('should handle response with a one to many relationship', () => {
+    const updatedState = reducer(state, apiRead(responseDataWithOneToManyRelationship));
+    expect(updatedState.users).toBeAn('object');
+    expect(updatedState.companies).toBeAn('object');
+    expect(updatedState.users.data[0].relationships.companies.data).toBeAn('array');
+  });
+
+  it('should ignore reverse relationship with no matching entity', () => {
+    const updatedState = reducer(state, apiRead(payloadWithNonMatchingReverseRelationships));
+
+    payloadWithNonMatchingReverseRelationships.included
+      .filter(entity => entity.type === 'reports')
+      .forEach(
+        payloadReport => {
+          const stateReport = updatedState.reports.data.find(r => payloadReport.id === r.id);
+          expect(stateReport.relationships.file.data.id).toEqual(payloadReport.relationships.file.data.id);
+        }
+      );
   });
 });
 

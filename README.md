@@ -1,5 +1,6 @@
-Make Redux 💜 JSON API
-----------------------
+# Redux JSON API
+### Make Redux 💜 JSON API
+
 [![Build Status](https://travis-ci.org/dixieio/redux-json-api.svg?branch=master)](https://travis-ci.org/dixieio/redux-json-api)
 
 This library is intended for use in web applications build on Redux, which consumes data from a [JSON API](http://jsonapi.org/).
