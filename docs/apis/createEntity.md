@@ -2,6 +2,7 @@
 Dispatching the createEntity function will send a `POST` to the backend, providing it a JSON API compliant object.
 
 ```javascript
+import { Component } from 'react'
 import { createEntity } from 'redux-json-api'
 class CreateTask extends Component {
   handleSubmit() {
@@ -35,7 +36,7 @@ class CreateTask extends Component {
 
 }
 
-export default connect()(CreateTask);
+export default CreateTask;
 ```
 
 When submitting the task the `redux-json-api` will dispatch the following actions:
