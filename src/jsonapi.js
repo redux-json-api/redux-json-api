@@ -162,14 +162,7 @@ export const updateEntity = (entity) => {
   };
 };
 
-export const deleteEntity = (entity, {
-  onSuccess: onSuccess = noop,
-  onError: onError = noop
-} = {}) => {
-  if (onSuccess !== noop || onError !== noop) {
-    console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
-  }
-
+export const deleteEntity = (entity) => {
   return (dispatch, getState) => {
     dispatch(apiWillDelete(entity));
 
@@ -181,14 +174,12 @@ export const deleteEntity = (entity, {
         method: 'DELETE'
       }).then(() => {
         dispatch(apiDeleted(entity));
-        onSuccess();
         resolve();
       }).catch(error => {
         const err = error;
         err.entity = entity;
 
         dispatch(apiDeleteFailed(err));
-        onError(err);
         reject(err);
       });
     });
