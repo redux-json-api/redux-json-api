@@ -111,14 +111,7 @@ export const createEntity = (entity) => {
   };
 };
 
-export const readEndpoint = (endpoint, {
-  onSuccess: onSuccess = noop,
-  onError: onError = noop
-} = {}) => {
-  if (onSuccess !== noop || onError !== noop) {
-    console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
-  }
-
+export const readEndpoint = (endpoint) => {
   return (dispatch, getState) => {
     dispatch(apiWillRead(endpoint));
 
@@ -129,7 +122,6 @@ export const readEndpoint = (endpoint, {
       apiRequest(`${apiEndpoint}`, accessToken)
         .then(json => {
           dispatch(apiRead({ endpoint, ...json }));
-          onSuccess(json);
           resolve(json);
         })
         .catch(error => {
@@ -137,7 +129,6 @@ export const readEndpoint = (endpoint, {
           err.endpoint = endpoint;
 
           dispatch(apiReadFailed(err));
-          onError(err);
           reject(err);
         });
     });
