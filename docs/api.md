@@ -38,7 +38,7 @@ While dispatching a create action for the following resource will make a request
 ```
 
 ## API Promises
-The `redux-json-api`'s CRUD API methods will all return a single promise. Within this promise you will recive __`response: {object}`__ as first argument, in this `object` you will find key __`data: {object}`__ that contains all data.
+The _redux-json-api's_ CRUD API methods will all return a single promise. Within this promise you will recive __`response: {object}`__ as first argument, in this `object` you will find key __`data: {object}`__ that contains all data.
 
 _Note that `redux-json-api` by it self will reduce your data on your redux state._
 
