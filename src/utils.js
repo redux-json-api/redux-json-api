@@ -31,28 +31,27 @@ export const apiRequest = (url, accessToken, options = {}) => {
     });
 };
 
-export const getPaginationUrl = (json, direction, host, path) => {
-  if (!json.links) {
+const hasOwnProperties = (obj, propertyTree) => {
+  if ((obj instanceof Object) === false) {
+    return false;
+  }
+  const property = propertyTree[0];
+  const hasProperty = obj.hasOwnProperty(property);
+  if (hasProperty) {
+    if (propertyTree.length === 1) {
+      return hasProperty;
+    }
+    return hasOwnProperties(obj[property], propertyTree.slice(1));
+  }
+  return false;
+};
+
+export const getPaginationUrl = (response, direction, host, path) => {
+  if (!response.links || !hasOwnProperties(response, ['links', direction])) {
     return null;
   }
 
-  if (direction === 'next') {
-    if (!json.links.next) {
-      return null;
-    }
-
-    return json.links.next
-      .replace(host, '')
-      .replace(`${path}/`, '');
-  }
-
-  if (direction === 'prev') {
-    if (!json.links.prev) {
-      return null;
-    }
-
-    return json.links.prev
-      .replace(host, '')
-      .replace(`${path}/`, '');
-  }
+  return response.links[direction]
+    .replace(host, '')
+    .replace(`${path}/`, '');
 };
