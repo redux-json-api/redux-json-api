@@ -1,4 +1,4 @@
-## createEntity(value: { object })
+## readEndpoint(value: { object })
 Great now we just created a new entity in our database using the `createEntity` method, now we would like to display this to our users.
 
 
