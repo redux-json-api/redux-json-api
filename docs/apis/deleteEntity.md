@@ -10,16 +10,7 @@ class TasksOverview extends Component {
   }
 
   render() {
-    return (
-      <div>
-        <div className="left-col">
-          <p>This tasks should be deleted</p>
-        </div>
-        <div className="right-col">
-          <button onClick={deleteTask(this.props.task)}
-        </div>
-      </div>
-    );
+    // render view
   }
 
 }
