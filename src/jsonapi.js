@@ -120,6 +120,27 @@ export const createEntity = (entity, {
   };
 };
 
+class ApiResponse {
+  constructor(response, dispatch, nextUrl, prevUrl) {
+    this.body = response;
+    this.dispatch = dispatch;
+    this.nextUrl = nextUrl;
+    this.prevUrl = prevUrl;
+    this.loadNext = this.loadNext.bind(this);
+    this.loadPrev = this.loadPrev.bind(this);
+  }
+
+  /* eslint-disable */
+  loadNext() {
+    return this.dispatch(readEndpoint(this.nextUrl));
+  }
+
+  prevNext() {
+    return this.dispatch(readEndpoint(this.prevUrl));
+  }
+  /* eslint-enable */
+}
+
 export const readEndpoint = (endpoint, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
@@ -140,21 +161,10 @@ export const readEndpoint = (endpoint, {
           dispatch(apiRead({ endpoint, ...json }));
           onSuccess(json);
 
-          const prevUrl = getPaginationUrl(json, 'prev', apiHost, apiPath);
           const nextUrl = getPaginationUrl(json, 'next', apiHost, apiPath);
+          const prevUrl = getPaginationUrl(json, 'prev', apiHost, apiPath);
 
-          const getPrevPage = () => dispatch(readEndpoint(prevUrl));
-          const getNextPage = () => dispatch(readEndpoint(nextUrl));
-
-          const resObj = {
-            response: json,
-            pagination: {
-              getPrevPage: !prevUrl ? null : getPrevPage,
-              getNextPage: !nextUrl ? null : getNextPage,
-            }
-          };
-
-          resolve(resObj);
+          resolve(new ApiResponse(json, dispatch, nextUrl, prevUrl));
         })
         .catch(error => {
           const err = error;
