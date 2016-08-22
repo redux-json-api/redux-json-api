@@ -14,11 +14,12 @@ Getting _redux-json-api_ set up requires __4 steps__ which we will cover here.
 
 ## Add reducer to _api_ namespace
 
-The current version of _redux-json-api_ assumes that it's reducer will be attached to the api namespace of your Redux state.
+The current version of _redux-json-api_ assumes that it's reducer reduced on to your root reducer under the namespace _api (in this example)_.
 
 You can achieve this by using [combineReducers](http://redux.js.org/docs/api/combineReducers.html) from Redux:
 
 ```js
+// rootReducer.js
 import { combineReducers } from 'redux';
 import { reducer as api } from 'redux-json-api';
 
