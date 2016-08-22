@@ -4,9 +4,7 @@ Great now we just created a new entity in our database using the `createEntity` 
 
 ```javascript
 import { readEndpoint } from 'redux-json-api';
-import { connect } from 'react-redux';
 
-const mapStateToProps = ({ api: { tasks }}) => ({ tasks });
 class Tasks extends Component {
   componentWillMount() {
     const { dispatch } = this.props;
@@ -14,16 +12,13 @@ class Tasks extends Component {
   }
 
   render() {
-    return (
-      {this.props.tasks}
-    );
+    // render tasks
   }
 
 }
 
-export default connect(mapStateToProps)(Tasks);
+export default Tasks;
 ```
-_Note: in this example we use the `react-redux` `connect` to get tasks from our redux state:_
 
 When you have dispatched the `readEndpoint`method the reducer will run following actions.
 
