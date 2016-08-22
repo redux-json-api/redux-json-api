@@ -1,12 +1,13 @@
 {
   "name": "redux-json-api",
-  "version": "1.4.0",
+  "version": "1.4.4",
   "description": "A bunch of Redux actions, action creators and reducers to integrate with a JSON API",
   "main": "lib/jsonapi.js",
   "scripts": {
     "build": "rimraf lib && babel ./src -d lib",
     "test": "mocha --compilers js:babel-core/register --recursive",
-    "test:watch": "npm test -- --watch"
+    "test:watch": "npm test -- --watch",
+    "lint": "eslint . ./"
   },
   "repository": {
     "type": "git",
