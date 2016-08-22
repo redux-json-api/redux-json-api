@@ -26,7 +26,7 @@ The reason for this repository is to keep on a good and healty & simple api for 
 ### Development Guidelines
 We have a few simple guidelines for how to develop on the tool, and how to build and test it locally.
 #### Test the code
-Beside writing the cases that you might create, there is also a need for you to test the code localy in your project, this can be set up using the `npm link` [How to use npmn link](https://docs.npmjs.com/cli/link), before creating the link you would need to build the code.
+Beside writing the cases that you might create, there is also a need for you to test the code localy in your project, this can be set up using the `npm link` [How to use npm link](https://docs.npmjs.com/cli/link), before creating the link you would need to build the code.
 
 #### Build the code
 To build the code for local testing purposed run `npm run build`, this will dist the code make it able to be a part of the node_modules packages in your applications repo.
