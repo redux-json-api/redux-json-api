@@ -186,23 +186,15 @@ export const deleteEntity = (entity) => {
   };
 };
 
-export const requireEntity = (entityType, endpoint = entityType, {
-  onSuccess: onSuccess = noop,
-  onError: onError = noop
-} = {}) => {
-  if (onSuccess !== noop || onError !== noop) {
-    console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
-  }
-
+export const requireEntity = (entityType, endpoint = entityType) => {
   return (dispatch, getState) => {
     return new Promise((resolve, reject) => {
       const { api } = getState();
       if (api.hasOwnProperty(entityType)) {
         resolve();
-        return onSuccess();
       }
 
-      dispatch(readEndpoint(endpoint, { onSuccess, onError }))
+      dispatch(readEndpoint(endpoint))
         .then(resolve)
         .catch(reject);
     });
