@@ -1,5 +1,5 @@
 ## updateEntity(value: { object })
-Dispatching the createEntity function will send a `PATCH` to the backend, providing it a JSON API compliant object (not sure what this is? head to our "Good reads section").
+Dispatching the createEntity function will send a `PATCH` to the backend, providing it a JSON API compliant object.
 
 ```javascript
 import { updateEntity } from 'redux-json-api'
@@ -10,7 +10,7 @@ class UpdateTask extends Component {
       id: '1',
       type: 'tasks',
       attributes: {
-        task: 'New task string!'
+        completed: true
       },
       relationships: {
         taskList: {
@@ -35,7 +35,7 @@ class UpdateTask extends Component {
   }
 }
 
-export default connect()(UpdateTask);
+export default UpdateTask;
 ```
 When updating the task the `redux-json-api` will dispatch the following actions:
 
@@ -48,6 +48,7 @@ action: {
     type: 'tasks',
     attributes: {
       task: 'New task string!'
+      completed: true
     },
     relationships: {
       taskList: {
@@ -70,7 +71,7 @@ action: {
     type: 'tasks',
     attributes: {
       task: 'New task string!',
-      completed: false,
+      completed: true,
     },
     relationships: {
       taskList: {
