@@ -10,7 +10,7 @@ _redux-json-api_ provides a simple API for all four CRUD actions.
 
 ## Resource objects
 
-Whenever there's referred to a resource object or entity, it must conform to JSON API specifications.
+Whenever there's referred to a resource object or entity, it must conform to [JSON API specifications](http://jsonapi.org/format/#document-resource-objects).
 
 ## Resource endpoints
 
