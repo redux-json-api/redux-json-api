@@ -24,9 +24,9 @@ class TasksOverview extends Component {
 
 }
 
-export default connect(mapStateToProps)(TasksOverview);
+export default TasksOverview;
 ```
-When submitting the task the `redux-json-api` will dispatch the following actions:
+When submitting the deleation the `redux-json-api` will dispatch the following actions:
 
 __API_WILL_DELETE__
 _This tells us what payload have been in the que for deletion, and what the `redux-json-api` will ship to the backend_
@@ -35,7 +35,7 @@ action: {
   payload: {
     type: 'tasks',
     attributes: {
-      task: 'New task created',
+      task: 'Task should be deleted',
       completed: false
     },
     relationships: {
@@ -50,14 +50,14 @@ action: {
 }
 ```
 
-__API_CREATED__
+__API_DELETED__
 _This tells us the response object that we deleted from the server._
 ```javascript
 action: {
   payload: {
     type: 'tasks',
     attributes: {
-      task: 'New task created',
+      task: 'Task should be deleted',
       completed: false
     },
     relationships: {
