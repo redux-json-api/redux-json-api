@@ -1,5 +1,4 @@
 import { createAction, handleActions } from 'redux-actions';
-import fetch from 'isomorphic-fetch';
 import Imm from 'immutable';
 
 import {
@@ -7,7 +6,7 @@ import {
   updateOrInsertEntitiesIntoState,
   setIsInvalidatingForExistingEntity
 } from './state-mutation';
-import { apiRequest, noop, jsonContentTypes } from './utils';
+import { apiRequest, noop } from './utils';
 import {
   API_SET_ENDPOINT_HOST, API_SET_ENDPOINT_PATH, API_SET_ACCESS_TOKEN, API_WILL_CREATE, API_CREATED, API_CREATE_FAILED, API_WILL_READ, API_READ, API_READ_FAILED, API_WILL_UPDATE, API_UPDATED, API_UPDATE_FAILED, API_WILL_DELETE, API_DELETED, API_DELETE_FAILED
 } from './constants';
