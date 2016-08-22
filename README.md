@@ -5,7 +5,7 @@
 
 This library is intended for use in web applications build on Redux, which consumes data from a [JSON API](http://jsonapi.org/).
 
-Use _redux-json-api_ to have one simple way of storing resource objects in Redux state along with the CRUD API, which provides easy ways to create, read, update and delete resources.
+Use _redux-json-api_ to have one simple way of storing resource objects in Redux state along with it's CRUD API, which provides easy ways to create, read, update and delete resources.
 
 Please raise any questions as an [Issue](issues) or submit your contributions as a [Pull Request](pulls). Remember to review our [contributions guidelines](CONTRIBUTING.md).
 
