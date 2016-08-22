@@ -1,5 +1,5 @@
 ## createEntity(value: { object })
-Dispatching the createEntity function will send a `POST` to the backend, providing it a JSON API compliant object (not sure what this is? head to our "Good reads section").
+Dispatching the createEntity function will send a `POST` to the backend, providing it a JSON API compliant object.
 
 ```javascript
 import { createEntity } from 'redux-json-api'
