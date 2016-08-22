@@ -4,10 +4,13 @@ Great now we just created a new entity in our database using the `createEntity` 
 
 ```javascript
 import { readEndpoint } from 'redux-json-api';
+import { connect } from 'react-redux';
+
+const mapStateToProps = ({ api: { tasks }}) => ({ tasks });
 class Tasks extends Component {
   componentWillMount() {
     const { dispatch } = this.props;
-    dispatch(readEndpoint('tasks')); //<--
+    dispatch(readEndpoint('tasks'));
   }
 
   render() {
@@ -18,10 +21,11 @@ class Tasks extends Component {
 
 }
 
-export default connect()(Tasks);
+export default connect(mapStateToProps)(Tasks);
 ```
+_Note: in this example we use the `react-redux` `connect` to get tasks from our redux state:_
 
-When you have dispatched the `readEndpoint`method the reducer will run following actions:
+When you have dispatched the `readEndpoint`method the reducer will run following actions.
 
 __API_WILL_READ__
 _This tells us that the `redux-json-api` will now call your backend with the payload given in this case a simple call to `/tasks´._
