@@ -26,12 +26,7 @@ class UpdateTask extends Component {
   }
 
   render() {
-    return (
-      <form onSubmit={this.handleSubmit.bind(this)}>
-        <input type="text"/>
-        <button type="submit">Submit Task</button>
-      </form>
-    );
+    // render view
   }
 }
 
