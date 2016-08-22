@@ -84,14 +84,7 @@ export const uploadFile = (file, {
   };
 };
 
-export const createEntity = (entity, {
-  onSuccess: onSuccess = noop,
-  onError: onError = noop
-} = {}) => {
-  if (onSuccess !== noop || onError !== noop) {
-    console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
-  }
-
+export const createEntity = (entity) => {
   return (dispatch, getState) => {
     dispatch(apiWillCreate(entity));
 
@@ -106,14 +99,12 @@ export const createEntity = (entity, {
         })
       }).then(json => {
         dispatch(apiCreated(json.data));
-        onSuccess(json);
         resolve(json);
       }).catch(error => {
         const err = error;
         err.entity = entity;
 
         dispatch(apiCreateFailed(err));
-        onError(err);
         reject(err);
       });
     });
