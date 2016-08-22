@@ -37,53 +37,6 @@ const apiWillDelete = createAction(API_WILL_DELETE);
 const apiDeleted = createAction(API_DELETED);
 const apiDeleteFailed = createAction(API_DELETE_FAILED);
 
-// Actions
-export const uploadFile = (file, {
-  companyId,
-  fileableType: fileableType = null,
-  fileableId: fileableId = null
-}, {
-  onSuccess: onSuccess = noop,
-  onError: onError = noop
-} = {}) => {
-  console.warn('uploadFile has been deprecated and will no longer be supported by redux-json-api https://github.com/dixieio/redux-json-api/issues/2');
-
-  return (dispatch, getState) => {
-    const accessToken = getState().api.endpoint.accessToken;
-    const path = [companyId, fileableType, fileableId].filter(o => !!o).join('/');
-    const url = `${__API_HOST__}/upload/${path}?access_token=${accessToken}`;
-
-    const data = new FormData;
-    data.append('file', file);
-
-    const options = {
-      method: 'POST',
-      body: data
-    };
-
-    return fetch(url, options)
-      .then(res => {
-        if (res.status >= 200 && res.status < 300) {
-          if (jsonContentTypes.some(contentType => res.headers.get('Content-Type').indexOf(contentType) > -1)) {
-            return res.json();
-          }
-
-          return res;
-        }
-
-        const e = new Error(res.statusText);
-        e.response = res;
-        throw e;
-      })
-      .then(json => {
-        onSuccess(json);
-      })
-      .catch(error => {
-        onError(error);
-      });
-  };
-};
-
 export const createEntity = (entity, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
