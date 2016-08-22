@@ -5,7 +5,7 @@ _redux-json-api_ provides a simple API for all four CRUD actions.
 
 - Create resource objects using [createEntity](#createentity-resource-object--function)
 - Read endpoints using [readEndpoint](#readendpoint-endpoint-string--function)
-- Update using [updateEntity](#updateentity-resource-object--function)
+- Update entities using [updateEntity](#updateentity-resource-object--function)
 - Delete resources using [deleteEntity](#deleteentity-resource-object--function)
 
 ## Resource objects
