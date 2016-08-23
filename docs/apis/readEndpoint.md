@@ -1,44 +1,50 @@
 ### `readEndpoint( endpoint: string ): Promise`
-Great now we just created a new entity in our database using the `createEntity` method, now we would like to display this to our users.
 
+To read resource object from your API, you simply dispatch the function returned by `readEndpoint`. It will automatically read all resources from `data` and `included` keys on the response body, and append these to state.
 
-```javascript
+### Example
+
+```js
+import { connect } from 'react-redux';
 import { readEndpoint } from 'redux-json-api';
 
+const mapStateToProps = ({ api: { tasks = { data: [] } } }) => ({ tasks });
 class Tasks extends Component {
   componentWillMount() {
-    const { dispatch } = this.props;
-    dispatch(readEndpoint('tasks'));
+    this.props.dispatch(readEndpoint('tasks?include=assignee'));
   }
 
   render() {
-    // render tasks
+    return (
+      <ul>
+        {this.props.tasks.data.map(task => (
+          <li>{task.title}</li>
+        ))}
+      </ul>
+    )
   }
 
 }
 
-export default Tasks;
+export default connect(mapStateToProps)(Tasks);
 ```
 
-When you have dispatched the `readEndpoint`method the reducer will run following actions.
+### Nested actions
 
-__API_WILL_READ__
-_This tells us that the `redux-json-api` will now call your backend with the payload given in this case a simple call to `/tasks´._
-```javascript
-action: {
-  payload: '/tasks'
-}
-```
+#### API_WILL_READ
 
-__API_READ__
-_This tells us what respond the server gave us, and what is being mapped to your `api` key in your redux store, it will tell you what `[data]` is fetched, what `[includes]` and what `endpoint` it came from, and will reduce it all down for you to simple query of your redux store._
-```javascript
-action: {
-  payload: {
-    endpoint: '/tasks',
-    data: [{...}, {...}, {...}]
-  }
-}
-```
+This action is dispatched immediately after dispatching `readEndpoint`. It will increment `state.api.isReading`.
 
-__NB:__ In this test case we dont get includes, but in the case where you are including data, they way we will store this in the redux store would be on the entity type key eg: `[{type: 'comments'}]` would be reduced on to your `api.comments` and the tasks that we fetched would be reduced to `api.tasks`
+#### API_READ
+
+A successful API request will dispatch the `API_READ` action. For this action the reducer will take all resource objects from the response body (from `data` and `included` keys) and append these to state.
+
+Resource objects are automatically mapped to `state.api.${resourceType}`, where `resourceType` is the value of `type` on the resource objects. It reads each resource object individually.
+
+After appending resource objects to state, `state.api.isReading` is decremented.
+
+This also triggers resolve on the returned Promise.
+
+#### API_READ_FAILED
+
+If the API responds with an error, `API_READ_FAILED` will be dispatched. The returned Promise throws an error and `state.api.isReading` is decremented.
