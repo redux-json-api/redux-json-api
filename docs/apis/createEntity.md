@@ -1,4 +1,4 @@
-## createEntity(value: { object })
+### `createEntity( resource: object ): Promise`
 Dispatching the createEntity function will send a `POST` to the backend, providing it a JSON API compliant object.
 
 ```javascript

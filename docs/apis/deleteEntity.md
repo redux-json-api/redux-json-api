@@ -1,4 +1,4 @@
-## deleteEntity(value: { object })
+## `deleteEntity( resource: object ): Promise`
 Dispatching the deleteEntity function will send a `DELETE` to the backend, providing it a JSON API compliant object.
 
 ```javascript

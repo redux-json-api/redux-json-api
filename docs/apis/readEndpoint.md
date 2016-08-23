@@ -1,4 +1,4 @@
-## readEndpoint(value: { object })
+### `readEndpoint( endpoint: string ): Promise`
 Great now we just created a new entity in our database using the `createEntity` method, now we would like to display this to our users.
 
 

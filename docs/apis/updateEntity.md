@@ -1,4 +1,4 @@
-## updateEntity(value: { object })
+### `updateEntity( resource: object ): Promise`
 Dispatching the createEntity function will send a `PATCH` to the backend, providing it a JSON API compliant object.
 
 ```javascript
