@@ -2,6 +2,21 @@
 
 Dispatch function returned from `createEntity` to issue a `POST` request to your API.
 
+### Endpoint
+
+The endpoint to which the request is issued is resolved from `type` off the resource object in the request body.
+
+This resource object will resolve to "/tasks":
+
+```json
+{
+  "type": "tasks",
+  "attributes": {
+    "task": "New task name"
+  }
+}
+```
+
 ### Example
 
 ```js
