@@ -44,25 +44,27 @@ The _redux-json-api_'s CRUD API methods will all return a single promise. The fu
 
 ## API Methods
 
-#### `createEntity( resource: object ): function`
+Note: Return values noted below are after dispatch, i.e. `dispatch(createEntity({ ... }))`.
+
+#### `createEntity( resource: object ): Promise`
 
 Use this action creator to trigger a POST request to your API with the given resource.
 
 [Examples and details here.](apis/createEntity.md)
 
-#### `readEndpoint( endpoint: string ): function`
+#### `readEndpoint( endpoint: string ): Promise`
 
 This action creator will trigger a GET request to the specified endpoint.
 
 [Read more.](apis/readEndpoint.md)
 
-#### `updateEntity( resource: object ): function`
+#### `updateEntity( resource: object ): Promise`
 
 Update entities using this action creator. It will make a PATCH request to your API.
 
 [Details and examples.](apis/updateEntity.md)
 
-#### `deleteEntity( resource: object ): function`
+#### `deleteEntity( resource: object ): Promise`
 
 Use this action creator to issue a DELETE request to your API.
 
