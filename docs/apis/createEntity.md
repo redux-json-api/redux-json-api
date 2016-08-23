@@ -1,4 +1,4 @@
-## `createEntity( resource: object ): Promise`
+### `createEntity( resource: object ): Promise`
 
 Dispatch function returned from `createEntity` to issue a `POST` request to your API.
 
