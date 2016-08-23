@@ -37,48 +37,22 @@ class CreateTask extends Component {
 export default connect()(CreateTask);
 ```
 
-When submitting the task the `redux-json-api` will dispatch the following actions:
+#### Nested actions
 
-__API_WILL_CREATE__
-_This tells us what payload have been in the que for creation, and what the `redux-json-api` will ship to the backend_
-```javascript
-action: {
-  payload: {
-    type: 'tasks',
-    attributes: {
-      task: 'New task created'
-    },
-    relationships: {
-      taskList: {
-        data: {
-          id: 1
-          type: 'taskLists'
-        }
-      }
-    }
-  }
-}
-```
+##### API_WILL_CREATE
 
-__API_CREATED__
-_This tells us the response object that we get back from the sever, where the backend have stored it, given it a ID, and next time we want to call the `readEndpoint`this object will now show up with our tasks._
-```javascript
-action: {
-  payload: {
-    id: '1'
-    type: 'tasks',
-    attributes: {
-      task: 'New task created',
-      completed: false
-    },
-    relationships: {
-      taskList: {
-        data: {
-          id: '1',
-          type: 'taskLists'
-        }
-      }
-    }
-  }
-}
-```
+This action will be dispatched immediately after dispatching `createEntity`. It will increment `state.api.isCreating`.
+
+##### API_CREATED
+
+When the API returns the request successfully, `API_CREATED` is dispatched to append the newly created resource object to state.
+
+Based on the example above, a new resource object is appended to `state.api.tasks.data`.
+
+After appending the object to state, `state.api.isCreating` is decremented.
+
+This is also the state at which the returned Promise is resolved.
+
+##### API_CREATE_FAILED
+
+If the API returns the request with an error, `API_CREATE_FAILED` is dispatched. `state.api.isCreating` is decremented and the returned Promise will throw an error.
