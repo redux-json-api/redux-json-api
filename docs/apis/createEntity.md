@@ -1,8 +1,13 @@
 ### `createEntity( resource: object ): Promise`
-Dispatching the createEntity function will send a `POST` to the backend, providing it a JSON API compliant object.
 
-```javascript
+Dispatch function returned from `createEntity` to issue a `POST` request to your API.
+
+#### Example
+
+```js
+import { connect } from 'react-redux';
 import { createEntity } from 'redux-json-api'
+
 class CreateTask extends Component {
   handleSubmit() {
     const { dispatch } = this.props;
@@ -25,12 +30,11 @@ class CreateTask extends Component {
   }
 
   render() {
-    // render view
+    return <button onClick={this.handleSubmit.bind(this)} />;
   }
-
 }
 
-export default CreateTask;
+export default connect()(CreateTask);
 ```
 
 When submitting the task the `redux-json-api` will dispatch the following actions:
