@@ -72,6 +72,8 @@ This action will be dispatched immediately after dispatching `updateEntity`. It 
 
 Upon successful patch of resource, `API_UPDATED` will be dispatched to replace the resource object in the state. Upon update, _redux-json-api_ will first remove the old resource object, then append the updated object to state.
 
+This action will resolve the returned Promise.
+
 State example before update:
 
 ```json
@@ -140,3 +142,5 @@ After successful update:
 #### API_UPDATE_FAILED
 
 If the PATCH request responds with an error, we dispatch `API_UPDATE_FAILED`. This will remove any `isInvalidating` flag and decrement `state.api.isUpdating`.
+
+The returned promise will throw an error when this action is dispatched.
