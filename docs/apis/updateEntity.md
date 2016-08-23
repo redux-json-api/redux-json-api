@@ -2,6 +2,22 @@
 
 This action creator facilitates `PATCH` requests.
 
+### Endpoint
+
+Endpoint path for `updateEntity` is resolved from `type` and `id` of the resource object passed to this action creator.
+
+The following resource object will resolve to "/tasks/1":
+
+```json
+{
+  "type": "tasks",
+  "id": "1",
+  "attributes": {
+    "task": "New task name"
+  }
+}
+```
+
 ### Example
 
 ```js
