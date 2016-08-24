@@ -24,4 +24,4 @@ Please raise any questions as an [Issue](issues) or submit your contributions as
 Got any feedback or suggestions? Review our [contribution guidelines](CONTRIBUTING.md).
 
 ## Contributors
-Made with 💜 from the [Dixie](http://www.dixie.io) team, and our lovely [contributers](graphs/contributors)!
+Made with 💜 from the [Dixie](http://www.dixie.io) team, and our lovely [contributers](https://github.com/dixieio/redux-json-api/graphs/contributors)!
