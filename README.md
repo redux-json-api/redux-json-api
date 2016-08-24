@@ -7,7 +7,7 @@ This library is intended for use in web applications build on Redux, which consu
 
 Use _redux-json-api_ to have one simple way of storing resource objects in Redux state along with it's CRUD API, which provides easy ways to create, read, update and delete resources.
 
-Please raise any questions as an [Issue](issues) or submit your contributions as a [Pull Request](pulls). Remember to review our [contributions guidelines](CONTRIBUTING.md).
+Please raise any questions as an [Issue](https://github.com/dixieio/redux-json-api/issues) or submit your contributions as a [Pull Request](https://github.com/dixieio/redux-json-api/pulls). Remember to review our [contributions guidelines](CONTRIBUTING.md).
 
 # Table of contents
 1. [Set-Up & Configure](docs/set-up-configure.md)
