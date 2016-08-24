@@ -1,97 +1,27 @@
-Redux ❤️ JSON API
-----------------
+# Redux JSON API
+### Make Redux 💜 JSON API
+
 [![Build Status](https://travis-ci.org/dixieio/redux-json-api.svg?branch=master)](https://travis-ci.org/dixieio/redux-json-api)
 
-Redux actions, action creators and reducers to make life with [JSON API](http://jsonapi.org)s a breeze.
+This library is intended for use in web applications build on Redux, which consumes data from a [JSON API](http://jsonapi.org/).
 
-# Features
+Use _redux-json-api_ to have one simple way of storing resource objects in Redux state along with it's CRUD API, which provides easy ways to create, read, update and delete resources.
 
-- Automatically maintains a state of all loaded entities
-- Provides actions for
-  - Creating entity
-  - Reading endpoint
-  - Updating entity
-  - Deleting entity
-- Automatically keeps reverse relationships up to date upon creation, update and delete
-  - This applies only to relationships where the name of the foreign key is directly adhered from entity type—but can be both plural or singular
+Please raise any questions as an [Issue](issues) or submit your contributions as a [Pull Request](pulls). Remember to review our [contributions guidelines](CONTRIBUTING.md).
 
-# Usage
+# Table of contents
+1. [Set-Up & Configure](docs/set-up-configure.md)
+1. [API](docs/api.md)
+1. [Good reads](#good-reads)
+1. [Contribute](#contribute)
+1. [Contributors](#contributors)
 
-1. `npm install redux-json-api`
-1. Enable JSON API reducer (examples assume that you've connected it to `state.api`)
-1. Set up API hostname and path using the actions `setEndpointHost` and `setEndpointPath`
-1. Configure access token with `setAccessToken`
+## Good reads
+- [__Redux__](http://www.github.com) - Read about redux and core principles.
+- [__JSON API__](http://www.jsonapi.org/) - Read about the specifications for JSON API.
 
-You're now good to go. So have a look the the available actions below.
+## Contribute
+Got any feedback or suggestions? Review our [contribution guidelines](CONTRIBUTING.md).
 
-# State structure
-
-```json
-{
-  "api": {
-    "users": {
-      "data": [
-        {
-          "type": "users",
-          "id": 1,
-          "attributes": { }
-        }
-      ],
-      "isInvalidating": "IS_DELETING"
-    },
-    "isCreating": 0,
-    "isReading": 0,
-    "isUpdating": 0,
-    "isDeleting": 0,
-    "endpoint": {
-      "host": null,
-      "path": null,
-      "accessToken": null
-    }
-  }
-}
-```
-
-Entity objects are 1-to-1 with the API response.
-
-# API
-
-## Options
-
-Each function accepts an options object with two callbacks: `onSuccess`, `onError`.
-
-## Create entity
-
-`createEntity(entity, options)`
-
-Pass a full resource object to `createEntity`. It will trigger a request to `POST /${entity.type}`.
-
-Expects the API to return `200 OK` with the newly created resource object in response body.
-
-## Read endpoint
-
-`readEndpoint(endpoint, options)`
-
-Provide the endpoint from where to read. E.g. `users/1/roles`. The module will read each entity and map them from their type specified.
-
-## Update entity
-
-`updateEntity(entity, options)`
-
-Pass your resource object to `updateEntity`. It will trigger a request to `PATCH /${entity.type}/${entity.id}`.
-
-Expects the API to return `200 OK` with the updated resource object in response body.
-
-## Delete entity
-
-`deleteEntity(entity.options)`
-
-Accept a resource object and triggers a request to `DELETE /${entity.type}/${entity.id}`.
-
-Expects the API to return `204 No content`.
-
-* * *
-
-Made with ❤️ by Team [Dixie][dixie]
-
- [dixie]: http://dixie.io
+## Contributors
+Made with 💜 from the [Dixie](http://www.dixie.io) team, and our lovely [contributers](graphs/contributors)!
