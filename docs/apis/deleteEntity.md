@@ -4,7 +4,7 @@ Dispatch this action to issue a `DELETE` request to your API.
 
 ### Endpoint
 
-Endpoint calculation for `deleteEntity` is the same as for `[updateEntity](./updateEntity.md)`. It is resolved from `type` and `id` of the resource object passed to this action creator.
+Endpoint calculation for `deleteEntity` is the same as for [`updateEntity`](./updateEntity.md). It is resolved from `type` and `id` of the resource object passed to this action creator.
 
 The following resource object will resolve to "/tasks/1":
 
