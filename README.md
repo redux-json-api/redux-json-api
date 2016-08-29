@@ -18,7 +18,7 @@ Please raise any questions as an [Issue](https://github.com/dixieio/redux-json-a
 
 ## Good reads
 - [__Redux__](http://www.github.com) - Read about redux and core principles.
-- [__JSON API__](http://www.jsonapi.org/) - Read about the specifications for JSON API.
+- [__JSON API__](http://jsonapi.org/) - Read about the specifications for JSON API.
 
 ## Contribute
 Got any feedback or suggestions? Review our [contribution guidelines](CONTRIBUTING.md).
