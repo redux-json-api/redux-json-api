@@ -9,7 +9,7 @@ import {
 } from './state-mutation';
 import { apiRequest, noop, jsonContentTypes } from './utils';
 import {
-  API_SET_ENDPOINT_HOST, API_SET_ENDPOINT_PATH, API_SET_ACCESS_TOKEN, API_WILL_CREATE, API_CREATED, API_CREATE_FAILED, API_WILL_READ, API_READ, API_READ_FAILED, API_WILL_UPDATE, API_UPDATED, API_UPDATE_FAILED, API_WILL_DELETE, API_DELETED, API_DELETE_FAILED
+  API_SET_ENDPOINT_FETCH_MODE, API_SET_ENDPOINT_HOST, API_SET_ENDPOINT_PATH, API_SET_ACCESS_TOKEN, API_WILL_CREATE, API_CREATED, API_CREATE_FAILED, API_WILL_READ, API_READ, API_READ_FAILED, API_WILL_UPDATE, API_UPDATED, API_UPDATE_FAILED, API_WILL_DELETE, API_DELETED, API_DELETE_FAILED
 } from './constants';
 
 // Entity isInvalidating values
@@ -17,6 +17,7 @@ export const IS_DELETING = 'IS_DELETING';
 export const IS_UPDATING = 'IS_UPDATING';
 
 // Action creators
+export const setEndpointFetchMode = createAction(API_SET_ENDPOINT_FETCH_MODE);
 export const setEndpointHost = createAction(API_SET_ENDPOINT_HOST);
 export const setEndpointPath = createAction(API_SET_ENDPOINT_PATH);
 export const setAccessToken = createAction(API_SET_ACCESS_TOKEN);
@@ -95,12 +96,13 @@ export const createEntity = (entity, {
   return (dispatch, getState) => {
     dispatch(apiWillCreate(entity));
 
-    const { host: apiHost, path: apiPath, accessToken } = getState().api.endpoint;
+    const { host: apiHost, path: apiPath, fetchMode, accessToken } = getState().api.endpoint;
     const endpoint = `${apiHost}${apiPath}/${entity.type}`;
 
     return new Promise((resolve, reject) => {
       apiRequest(endpoint, accessToken, {
         method: 'POST',
+        mode: fetchMode,
         body: JSON.stringify({
           data: entity
         })
@@ -131,11 +133,13 @@ export const readEndpoint = (endpoint, {
   return (dispatch, getState) => {
     dispatch(apiWillRead(endpoint));
 
-    const { host: apiHost, path: apiPath, accessToken } = getState().api.endpoint;
+    const { host: apiHost, path: apiPath, fetchMode, accessToken } = getState().api.endpoint;
     const apiEndpoint = `${apiHost}${apiPath}/${endpoint}`;
 
     return new Promise((resolve, reject) => {
-      apiRequest(`${apiEndpoint}`, accessToken)
+      apiRequest(`${apiEndpoint}`, accessToken, {
+        mode: fetchMode
+      })
         .then(json => {
           dispatch(apiRead({ endpoint, ...json }));
           onSuccess(json);
@@ -164,12 +168,13 @@ export const updateEntity = (entity, {
   return (dispatch, getState) => {
     dispatch(apiWillUpdate(entity));
 
-    const { host: apiHost, path: apiPath, accessToken } = getState().api.endpoint;
+    const { host: apiHost, path: apiPath, fetchMode, accessToken } = getState().api.endpoint;
     const endpoint = `${apiHost}${apiPath}/${entity.type}/${entity.id}`;
 
     return new Promise((resolve, reject) => {
       apiRequest(endpoint, accessToken, {
         method: 'PATCH',
+        mode: fetchMode,
         body: JSON.stringify({
           data: entity
         })
@@ -200,12 +205,13 @@ export const deleteEntity = (entity, {
   return (dispatch, getState) => {
     dispatch(apiWillDelete(entity));
 
-    const { host: apiHost, path: apiPath, accessToken } = getState().api.endpoint;
+    const { host: apiHost, path: apiPath, fetchMode, accessToken } = getState().api.endpoint;
     const endpoint = `${apiHost}${apiPath}/${entity.type}/${entity.id}`;
 
     return new Promise((resolve, reject) => {
       apiRequest(endpoint, accessToken, {
-        method: 'DELETE'
+        method: 'DELETE',
+        mode: fetchMode
       }).then(() => {
         dispatch(apiDeleted(entity));
         onSuccess();
@@ -250,6 +256,10 @@ export const reducer = handleActions({
 
   [API_SET_ACCESS_TOKEN]: (state, { payload: accessToken }) => {
     return Imm.fromJS(state).setIn(['endpoint', 'accessToken'], accessToken).toJS();
+  },
+
+  [API_SET_ENDPOINT_FETCH_MODE]: (state, { payload: fetchMode }) => {
+    return Imm.fromJS(state).setIn(['endpoint', 'fetchMode'], fetchMode).toJS();
   },
 
   [API_SET_ENDPOINT_HOST]: (state, { payload: host }) => {
@@ -362,6 +372,7 @@ export const reducer = handleActions({
   endpoint: {
     host: null,
     path: null,
-    accessToken: null
+    accessToken: null,
+    fetchMode: 'same-origin'
   }
 });
