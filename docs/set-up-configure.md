@@ -34,9 +34,20 @@ Since most of _redux-json-api_'s are async it is required to configure your stor
 
 ## Configure API endpoints and access token
 
-As _redux-json-api_ will automatically make request to your API, it requires to know about API host, root path and access token.
+As _redux-json-api_ will automatically make requests to your API, it requires to know about API host, root path and any headers, such as an access token.
 
-There are one method for each of these, and they should be dispatched before dispatching any CRUD actions.
+#### Defaults
+
+By default, without the host and root path being set, all requests will be made to the current host at root (example: `/tasks`) with the following headers:
+
+```js
+  headers: {
+    'Content-Type': 'application/vnd.api+json',
+    Accept: 'application/vnd.api+json'
+  }
+```
+
+To change any of the defaults, the appropriate `set` methods should be dispatched before dispatching any CRUD actions.
 
 #### `setEndpointHost( hostWithProtocol: string ): object`
 
@@ -64,4 +75,24 @@ dispatch(setEndpointPath('v1'));
 
 #### `setAccessToken( accessToken: string ): object`
 
-Dispatch this action to configure an access token to include in all requests. At the moment, _redux-json-api_ only supports authorizing requests through the `Authorization: Bearer <accessToken>` header.
+Dispatch this action to configure an access token to include in all requests.
+This will in turn dispatch a setHeader request, setting the header up as
+`Authorization: Bearer <accessToken>`.
+
+#### `setHeader( headers: object ): object`
+
+Dispatch this action to configure any headers to be included in all requests.
+The singular 'setHeader' action will merge in the given header(s).
+
+#### `setHeaders( headers: object ): object`
+
+Dispatch this action to completely reset the headers, removing all defaults.
+The equivalent of ```dispatch(setAccessToken('myToken123'))``` is:
+
+```js
+dispatch(setHeaders({
+  Authorization: `Bearer myToken123`,
+  'Content-Type': 'application/vnd.api+json',
+  Accept: 'application/vnd.api+json'
+}));
+```
