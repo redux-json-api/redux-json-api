@@ -9,6 +9,7 @@ import {
   setAccessToken,
   setEndpointHost,
   setEndpointPath,
+  setEndpointFetchMode,
   IS_DELETING,
   IS_UPDATING
 } from '../src/jsonapi';
@@ -386,10 +387,15 @@ describe('Endpoint values', () => {
   it('should update to provided endpoint host and path', () => {
     const host = 'https://api.example.com';
     const path = '/api/v1';
+    const fetchMode = 'cors';
 
     expect(state.endpoint.host).toNotEqual(host);
     const stateWithHost = reducer(state, setEndpointHost(host));
     expect(stateWithHost.endpoint.host).toEqual(host);
+
+    expect(state.endpoint.fetchMode).toNotEqual(fetchMode);
+    const stateWithFetchMode = reducer(state, setEndpointFetchMode(fetchMode));
+    expect(stateWithFetchMode.endpoint.fetchMode).toEqual(fetchMode);
 
     expect(state.endpoint.path).toNotEqual(path);
     const stateWithPath = reducer(state, setEndpointPath(path));
