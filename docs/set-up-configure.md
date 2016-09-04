@@ -65,3 +65,7 @@ dispatch(setEndpointPath('v1'));
 #### `setAccessToken( accessToken: string ): object`
 
 Dispatch this action to configure an access token to include in all requests. At the moment, _redux-json-api_ only supports authorizing requests through the `Authorization: Bearer <accessToken>` header.
+
+#### `setEndpointFetchMode( fetchMode: string ): object`
+
+Dispatch this action to configure Request.mode for fetch in all requests. It requires one argument. May be useful for endpoint under CORS.

@@ -1,6 +1,7 @@
 import keykey from 'keykey';
 
 export default keykey(
+  'API_SET_ENDPOINT_FETCH_MODE',
   'API_SET_ENDPOINT_HOST',
   'API_SET_ENDPOINT_PATH',
   'API_SET_ACCESS_TOKEN',
