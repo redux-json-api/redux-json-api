@@ -16,6 +16,5 @@ node_modules
 .node_repl_history
 
 lib
-
-# node version manager settings
+.DS_Store
 .nvmrc
