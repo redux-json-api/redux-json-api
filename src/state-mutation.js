@@ -93,7 +93,12 @@ export const removeEntityFromState = (state, entity) => {
       curVal => curVal.filter(l => l.get('id') !== entity.get('id'))
     );
 
-    entity.get('relationships').forEach(relationship => {
+    const rels = entity.get('relationships');
+    if (!rels) {
+      return;
+    }
+
+    rels.forEach(relationship => {
       const entityPath = [
         relationship.getIn(['data', 'type']),
         'data'

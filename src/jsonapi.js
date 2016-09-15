@@ -1,5 +1,5 @@
 import { createAction, handleActions } from 'redux-actions';
-import fetch from 'isomorphic-fetch';
+import 'isomorphic-fetch';
 import Imm from 'immutable';
 
 import {
