@@ -442,9 +442,9 @@ describe('Invalidating flag', () => {
 
 describe('apiRequest', () => {
   it('should parse the response body on success', () => {
-    fetchMock.mock('*', { status: 200, body: { data: 1 }, headers: { 'Content-Type': 'application/json'}});
-    return apiRequest('fakeurl').then(function(data) {
-      expect(data).toEqual({ data: 1 })
+    fetchMock.mock('*', { status: 200, body: { data: 1 }, headers: { 'Content-Type': 'application/json' } });
+    return apiRequest('fakeurl').then((data) => {
+      expect(data).toEqual({ data: 1 });
     });
   });
 
@@ -452,9 +452,9 @@ describe('apiRequest', () => {
     fetchMock.restore();
     fetchMock.mock('*', { status: 204, body: null });
 
-    return apiRequest('fakeurl').then(function(data) {
+    return apiRequest('fakeurl').then((data) => {
       expect(data.statusText).toEqual('No Content');
       expect(data.status).toEqual(204);
-    })
+    });
   });
 });
