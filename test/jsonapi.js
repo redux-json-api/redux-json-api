@@ -14,7 +14,7 @@ import {
   IS_UPDATING
 } from '../src/jsonapi';
 
-const fetchMock = require('fetch-mock');
+import fetchMock from 'fetch-mock';
 import { apiRequest } from '../src/utils';
 
 const apiCreated = createAction('API_CREATED');
