@@ -14,6 +14,9 @@ import {
   IS_UPDATING
 } from '../src/jsonapi';
 
+import fetchMock from 'fetch-mock';
+import { apiRequest } from '../src/utils';
+
 const apiCreated = createAction('API_CREATED');
 const apiRead = createAction('API_READ');
 const apiUpdated = createAction('API_UPDATED');
@@ -434,5 +437,24 @@ describe('Invalidating flag', () => {
       apiUpdated(state.users.data[0])
     );
     expect(updatedState.users.data[0].isInvalidating).toNotExist();
+  });
+});
+
+describe('apiRequest', () => {
+  it('should parse the response body on success', () => {
+    fetchMock.mock('*', { status: 200, body: { data: 1 }, headers: { 'Content-Type': 'application/json' } });
+    return apiRequest('fakeurl').then((data) => {
+      expect(data).toEqual({ data: 1 });
+    });
+  });
+
+  it('should return Body object when response is 204', () => {
+    fetchMock.restore();
+    fetchMock.mock('*', { status: 204, body: null });
+
+    return apiRequest('fakeurl').then((data) => {
+      expect(data.statusText).toEqual('No Content');
+      expect(data.status).toEqual(204);
+    });
   });
 });
