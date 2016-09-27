@@ -9,7 +9,7 @@ export const jsonContentTypes = [
 export const noop = () => {};
 
 export const apiRequest = (url, options = {}) => {
-  const allOptions = Imm.fromJs(options)
+  const allOptions = Imm.fromJS(options)
     .set('url', url)
     .setIn(['headers', 'Content-Type'], 'application/vnd.api+json')
     .toJS();
