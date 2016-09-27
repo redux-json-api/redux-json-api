@@ -58,7 +58,7 @@ export const uploadFile = (file, {
     data.append('file', file);
 
     const options = {
-      ...axiosConfig,
+      ... axiosConfig,
       method: 'POST',
       body: data
     };
@@ -96,16 +96,17 @@ export const createEntity = (entity, {
     dispatch(apiWillCreate(entity));
 
     const { axiosConfig } = getState().api.endpoint;
-    const endpoint = `${axiosConfig.baseURL}/${entity.type}`;
 
     const options = {
-      ...axiosConfig,
+      ... axiosConfig,
       method: 'POST',
-      body: JSON.stringify({ data: entity })
+      data: {
+        data: entity
+      }
     };
 
     return new Promise((resolve, reject) => {
-      apiRequest(endpoint, options)
+      apiRequest(entity.type, options)
         .then(json => {
           dispatch(apiCreated(json.data));
           onSuccess(json);
@@ -134,10 +135,9 @@ export const readEndpoint = (endpoint, {
     dispatch(apiWillRead(endpoint));
 
     const { axiosConfig } = getState().api.endpoint;
-    const apiEndpoint = `${axiosConfig.baseURL}/${endpoint}`;
 
     return new Promise((resolve, reject) => {
-      apiRequest(apiEndpoint, axiosConfig)
+      apiRequest(endpoint, axiosConfig)
         .then(json => {
           dispatch(apiRead({ endpoint, ...json }));
           onSuccess(json);
@@ -167,26 +167,31 @@ export const updateEntity = (entity, {
     dispatch(apiWillUpdate(entity));
 
     const { axiosConfig } = getState().api.endpoint;
-    const endpoint = `${axiosConfig.baseURL}/${entity.id}`;
+    const endpoint = `${entity.type}/${entity.id}`;
+
+    const options = {
+      ... axiosConfig,
+      method: 'PATCH',
+      data: {
+        data: entity
+      }
+    };
 
     return new Promise((resolve, reject) => {
-      apiRequest(endpoint, {
-        method: 'PATCH',
-        body: JSON.stringify({
-          data: entity
+      apiRequest(endpoint, options)
+        .then(json => {
+          dispatch(apiUpdated(json.data));
+          onSuccess(json);
+          resolve(json);
         })
-      }).then(json => {
-        dispatch(apiUpdated(json.data));
-        onSuccess(json);
-        resolve(json);
-      }).catch(error => {
-        const err = error;
-        err.entity = entity;
+        .catch(error => {
+          const err = error;
+          err.entity = entity;
 
-        dispatch(apiUpdateFailed(err));
-        onError(err);
-        reject(err);
-      });
+          dispatch(apiUpdateFailed(err));
+          onError(err);
+          reject(err);
+        });
     });
   };
 };
@@ -203,23 +208,28 @@ export const deleteEntity = (entity, {
     dispatch(apiWillDelete(entity));
 
     const { axiosConfig } = getState().api.endpoint;
-    const endpoint = `${axiosConfig.baseURL}/${entity.type}/${entity.id}`;
+    const endpoint = `${entity.type}/${entity.id}`;
+
+    const options = {
+      ... axiosConfig,
+      method: 'DELETE'
+    };
 
     return new Promise((resolve, reject) => {
-      apiRequest(endpoint, {
-        method: 'DELETE'
-      }).then(() => {
-        dispatch(apiDeleted(entity));
-        onSuccess();
-        resolve();
-      }).catch(error => {
-        const err = error;
-        err.entity = entity;
+      apiRequest(endpoint, options)
+        .then(() => {
+          dispatch(apiDeleted(entity));
+          onSuccess();
+          resolve();
+        })
+        .catch(error => {
+          const err = error;
+          err.entity = entity;
 
-        dispatch(apiDeleteFailed(err));
-        onError(err);
-        reject(err);
-      });
+          dispatch(apiDeleteFailed(err));
+          onError(err);
+          reject(err);
+        });
     });
   };
 };
