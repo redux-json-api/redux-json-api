@@ -1,5 +1,5 @@
 import axios from 'axios';
-import createError from 'axios/lib/createError';
+import createError from 'axios/lib/core/createError';
 import Imm from 'immutable';
 
 export const jsonContentTypes = [
