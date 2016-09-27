@@ -8,7 +8,7 @@ export const jsonContentTypes = [
 ];
 
 const hasValidContentType = response => jsonContentTypes.some(
-  contentType => response.headers.get('Content-Type').indexOf(contentType) > -1
+  contentType => response.headers['content-type'].indexOf(contentType) > -1
 );
 
 export const noop = () => {};
