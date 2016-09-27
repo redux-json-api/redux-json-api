@@ -10,10 +10,16 @@ const updateReverseRelationship = (
   }
 ) => {
   return (foreignEntities) => {
+    const idx = foreignEntities.findIndex(
+      item => item.get('id') === relationship.getIn(['data', 'id'])
+    );
+
+    if (idx === -1) {
+      return foreignEntities;
+    }
+
     return foreignEntities.update(
-      foreignEntities.findIndex(
-        item => item.get('id') === relationship.getIn(['data', 'id'])
-      ),
+      idx,
       foreignEntity => {
         const [singular, plural] = [1, 2].map(i => pluralize(entity.get('type'), i));
         const relCase = [singular, plural].find(r => foreignEntity.hasIn(['relationships', r]));
@@ -87,7 +93,12 @@ export const removeEntityFromState = (state, entity) => {
       curVal => curVal.filter(l => l.get('id') !== entity.get('id'))
     );
 
-    entity.get('relationships').forEach(relationship => {
+    const rels = entity.get('relationships');
+    if (!rels) {
+      return;
+    }
+
+    rels.forEach(relationship => {
       const entityPath = [
         relationship.getIn(['data', 'type']),
         'data'

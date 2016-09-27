@@ -35,6 +35,12 @@ const apiDeleted = createAction(API_DELETED);
 const apiDeleteFailed = createAction(API_DELETE_FAILED);
 
 // Actions
+export const setAccessToken = (at) => {
+  return (dispatch) => {
+    dispatch(setHeader({ Authorization: `Bearer ${at}` }));
+  };
+};
+
 export const uploadFile = (file, {
   companyId,
   fileableType: fileableType = null,
