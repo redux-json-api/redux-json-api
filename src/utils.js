@@ -21,6 +21,10 @@ export const apiRequest = (url, options = {}) => {
 
   return axios(allOptions)
     .then(res => {
+      if (res.status === 204) {
+        return res;
+      }
+
       if (hasValidContentType(res) === false) {
         throw createError(
           'Invalid Content-Type in response',
