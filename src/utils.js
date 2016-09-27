@@ -17,8 +17,5 @@ export const apiRequest = (url, options = {}) => {
   return axios(allOptions)
     .then(res => {
       return res.data;
-    })
-    .catch(res => {
-      throw res;
     });
 };
