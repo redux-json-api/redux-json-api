@@ -370,8 +370,6 @@ export const reducer = handleActions({
   isUpdating: 0,
   isDeleting: 0,
   endpoint: {
-    host: null,
-    path: null,
     axiosConfig: {}
   }
 });
