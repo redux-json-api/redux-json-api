@@ -6,6 +6,10 @@ export const jsonContentTypes = [
   'application/vnd.api+json'
 ];
 
+const hasValidContentType = response => jsonContentTypes.some(
+  contentType => response.headers.get('Content-Type').indexOf(contentType) > -1
+);
+
 export const noop = () => {};
 
 export const apiRequest = (url, options = {}) => {
