@@ -56,8 +56,8 @@ class viewComp extends Component {
       <div>
         <h2>React 💜 Redux-JSON-API News</h2>
         <div>
-          <button className="btn btn-sm btn-primary" onClick={this.fetchPosts}>Get some posts</button>
-          <button className="btn btn-sm btn-primary" onClick={this.fetchPostsWithIncludes}>Get some posts with creators</button>
+          <button className="btn btn-sm btn-primary" onClick={this.fetchPosts}>Get news</button>
+          <button className="btn btn-sm btn-primary" onClick={this.fetchPostsWithIncludes}>Include author</button>
         </div>
         {
           posts.length > 0
