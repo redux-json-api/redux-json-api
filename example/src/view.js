@@ -4,18 +4,16 @@ import {
   setEndpointHost,
   setEndpointPath,
   readEndpoint,
-  deleteEntity,
   createEntity
 } from 'redux-json-api';
-import Post from 'views/posts';
+
+import Post from './views/post';
 
 const mapStateToProps = ({
   api: {
-    posts,
-    users
+    posts
   }
 }) => ({
-  users: (users || { data: [] }).data,
   posts: (posts || { data: [] }).data
 });
 class viewComp extends Component {
@@ -54,17 +52,6 @@ class viewComp extends Component {
     dispatch(readEndpoint('posts?include=posts.createe'));
   }
 
-  deletePost(post) {
-    const { dispatch } = this.props;
-    dispatch(deleteEntity(post));
-  }
-
-  createe(userId) {
-    const { users } = this.props;
-    const postUser = users.find(user => user.id === userId);
-    return postUser ? postUser.attributes.name : '';
-  }
-
   handleChange(e) {
     this.setState({ post: e.target.value });
   }
@@ -94,14 +81,7 @@ class viewComp extends Component {
   }
 
   mapPostsToView(post) {
-    return (
-      <div key={post.id} style={{ marginBottom: '20px' }} onClick={this.deletePost.bind(this, post)}>
-        <div>{post.attributes.value}</div>
-        <div>
-          <i>Written by:</i> <strong>{this.createe(post.relationships.createe.data.id)}</strong>
-        </div>
-      </div>
-    );
+    return <Post key={post.id} post={post} onDelete={this.deletePost} />;
   }
 
   render() {

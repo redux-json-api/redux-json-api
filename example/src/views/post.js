@@ -1,17 +1,42 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { deleteEntity } from 'redux-json-api';
 
-class post extends Component {
+const mapStateToProps = ({
+  api: {
+    users
+  }
+}) => ({
+  users: (users || { data: [] }).data,
+});
+class Post extends Component {
+
+  constructor() {
+    super();
+
+    this.handleDelete = this.handleDelete.bind(this);
+    this.createe = this.createe.bind(this);
+  }
 
   static propTypes = {
     post: React.PropTypes.object.isRequired
-    onDelete: React.PropTypes.func.isRequired
   };
 
+  createe(userId) {
+    const { users } = this.props;
+    const postUser = users.find(user => user.id === userId);
+    return postUser ? postUser.attributes.name : '';
+  }
+
+  handleDelete() {
+    const { post, dispatch } = this.props;
+    dispatch(deleteEntity(post));
+  }
+
   render() {
-    const { post, onDelete } = this.props
+    const { post } = this.props;
     return (
-      <div key={post.id} style={{ marginBottom: '20px'}} onClick={onDelete}>
+      <div key={post.id} style={{ marginBottom: '20px' }} onClick={this.handleDelete}>
         <div>{post.attributes.value}</div>
         <div>
           <i>Written by:</i> <strong>{this.createe(post.relationships.createe.data.id)}</strong>
@@ -22,4 +47,4 @@ class post extends Component {
 
 }
 
-export default connect()(post);
+export default connect(mapStateToProps)(Post);
