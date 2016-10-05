@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { deleteEntity } from 'redux-json-api';
 
+import styles from './post.scss'
+
 const mapStateToProps = ({
   api: {
     users
@@ -35,12 +37,14 @@ class Post extends Component {
 
   render() {
     const { post } = this.props;
+    // onClick={this.handleDelete}
     return (
-      <div key={post.id} style={{ marginBottom: '20px' }} onClick={this.handleDelete}>
-        <div>{post.attributes.value}</div>
-        <div>
+      <div key={post.id} className={styles['post-item']}>
+        <p>{post.attributes.value}</p>
+        <div className={styles.byline}>
           <i>Written by:</i> <strong>{this.createe(post.relationships.createe.data.id)}</strong>
         </div>
+        <button className="btn btn-xs btn-link glyphicon glyphicon-trash" onClick={this.handleDelete} />
       </div>
     );
   }
