@@ -1,0 +1,45 @@
+{
+  "data": [{
+    "type": "posts",
+    "id": "1",
+    "attributes": {
+      "value": "This is sparta!"
+    },
+    "relationships": {
+      "createe": {
+        "data": {
+          "id": "1",
+          "type": "users"
+        }
+      }
+    }
+  }, {
+    "type": "posts",
+    "id": "2",
+    "attributes": {
+      "value": "Lars remember to no fuck this shit up... please!"
+    },
+    "relationships": {
+      "createe": {
+        "data": {
+          "id": "1",
+          "type": "users"
+        }
+      }
+    }
+  }, {
+    "type": "posts",
+    "id": "3",
+    "attributes": {
+      "value": "Shit is cool!"
+    },
+    "relationships": {
+      "createe": {
+        "data": {
+          "id": "1",
+          "type": "users"
+        }
+      }
+    }
+  }]
+}

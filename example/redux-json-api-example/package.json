@@ -1,0 +1,56 @@
+{
+  "name": "dixie-react-comments",
+  "version": "1.0.0",
+  "description": "React comments component, made with <3 by the Dixie Team",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server --hot --inline"
+  },
+  "repository": {
+    "type": "git",
+    "url": "none"
+  },
+  "keywords": [
+    "React",
+    "Comments",
+    "Component"
+  ],
+  "author": "Lars Krieger",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.14.0",
+    "babel-core": "^6.14.0",
+    "babel-loader": "^6.2.5",
+    "babel-preset-es2015": "^6.14.0",
+    "babel-preset-react": "^6.11.1",
+    "babel-preset-stage-0": "^6.5.0",
+    "cors": "^2.8.1",
+    "css-loader": "^0.24.0",
+    "file-loader": "^0.9.0",
+    "node-sass": "^3.8.0",
+    "react-hot-loader": "^1.3.0",
+    "remote-redux-devtools": "^0.4.8",
+    "sass-loader": "^4.0.0",
+    "source-map": "^0.5.6",
+    "style-loader": "^0.13.1",
+    "webpack": "^1.13.2",
+    "webpack-dev-server": "^1.15.1"
+  },
+  "dependencies": {
+    "babel-runtime": "^6.11.6",
+    "body-parser": "^1.15.2",
+    "classnames": "^2.2.5",
+    "express": "^4.14.0",
+    "immutable": "^3.8.1",
+    "moment": "^2.14.1",
+    "postcss": "^5.1.2",
+    "react": "^15.3.1",
+    "react-bootstrap": "^0.30.3",
+    "react-dom": "^15.3.1",
+    "react-redux": "^4.4.5",
+    "redux": "^3.6.0",
+    "redux-actions": "^0.12.0",
+    "redux-json-api": "^1.5.1",
+    "redux-thunk": "^2.1.0"
+  }
+}
