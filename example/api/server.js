@@ -34,7 +34,10 @@ app.post('/api/posts', (req, res) => {
 app.delete('/api/posts/:postId', (req, res) => {
   const responsePosts = Imm.fromJS(posts)
     .updateIn(['data'], immPosts => {
-      const postIdx = immPosts.findIndex(post => post.id === req.params.postId);
+      const postIdx = immPosts.findIndex(post => {
+        return post.get('id') === req.params.postId;
+      });
+
       if (postIdx === -1) {
         res.status(404).send('Could not find post, please see request object.');
         return false;
