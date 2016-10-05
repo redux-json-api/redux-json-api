@@ -88,16 +88,16 @@ class viewComp extends Component {
     const posts = this.props.posts.map(this.mapPostsToView);
     return (
       <div>
-        <button onClick={this.fetchPosts}>Get some posts</button>
-        <button onClick={this.fetchPostsWithIncludes}>Get some posts with creators</button>
+        <h2>React 💜 Redux-JSON-API News</h2>
         <div>
-          <h1>Posts</h1>
-          {
-            posts.length > 0
-            ? posts
-            : <div>These are not the posts you're looking for! </div>
-          }
+          <button className="btn btn-sm btn-primary" onClick={this.fetchPosts}>Get some posts</button>
+          <button className="btn btn-sm btn-primary" onClick={this.fetchPostsWithIncludes}>Get some posts with creators</button>
         </div>
+        {
+          posts.length > 0
+          ? posts
+          : <div>These are not the posts you're looking for! </div>
+        }
         <hr />
         <form onSubmit={this.handleSubmit}>
           <fieldset>
