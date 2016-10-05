@@ -7,7 +7,7 @@ import {
   createEntity
 } from 'redux-json-api';
 
-import Post from './views/post';
+import Post from './post';
 
 const mapStateToProps = ({
   api: {

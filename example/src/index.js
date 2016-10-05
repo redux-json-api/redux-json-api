@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux'
+import { Provider } from 'react-redux';
 import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
-import rootReducer from './reducers/rootReducer'
+import rootReducer from './reducers/rootReducer';
 
 const store = createStore(
   rootReducer,
@@ -13,12 +13,12 @@ const store = createStore(
     window.devToolsExtension && window.devToolsExtension()
   ));
 
-import ViewComp from './view';
+import List from './views/list';
 
 ReactDOM
   .render(
     <Provider store={store}>
-      <ViewComp />
+      <List />
     </Provider>,
     document.getElementById('root')
   );
