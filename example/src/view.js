@@ -15,8 +15,8 @@ const mapStateToProps = ({
     users
   }
 }) => ({
-  users: (users || { data: [] }).data,
-  posts: (posts || { data: [] }).data
+  users: (users || { data: [] }).data,
+  posts: (posts || { data: [] }).data
 });
 class viewComp extends Component {
 
@@ -29,7 +29,7 @@ class viewComp extends Component {
 
     this.state = {
       post: ''
-    }
+    };
 
     this.fetchPosts = this.fetchPosts.bind(this);
     this.fetchPostsWithIncludes = this.fetchPostsWithIncludes.bind(this);
@@ -46,24 +46,23 @@ class viewComp extends Component {
 
   fetchPosts() {
     const { dispatch } = this.props;
-    dispatch(readEndpoint('posts'))
+    dispatch(readEndpoint('posts'));
   }
 
   fetchPostsWithIncludes() {
     const { dispatch } = this.props;
-    dispatch(readEndpoint('posts?include=posts.createe'))
+    dispatch(readEndpoint('posts?include=posts.createe'));
   }
 
   deletePost(post) {
     const { dispatch } = this.props;
-    debugger;
     dispatch(deleteEntity(post));
   }
 
   createe(userId) {
     const { users } = this.props;
-    const postUser = users.find(user => user.id === userId)
-    return postUser ? postUser.attributes.name : '';
+    const postUser = users.find(user => user.id === userId);
+    return postUser ? postUser.attributes.name : '';
   }
 
   handleChange(e) {
@@ -91,22 +90,22 @@ class viewComp extends Component {
           }
         }
       }
-    }))
+    }));
   }
 
   mapPostsToView(post) {
     return (
-      <div key={post.id} style={{ marginBottom: '20px'}} onClick={this.deletePost.bind(this, post)}>
+      <div key={post.id} style={{ marginBottom: '20px' }} onClick={this.deletePost.bind(this, post)}>
         <div>{post.attributes.value}</div>
         <div>
           <i>Written by:</i> <strong>{this.createe(post.relationships.createe.data.id)}</strong>
         </div>
       </div>
-    )
+    );
   }
 
   render() {
-    const posts = this.props.posts.map(this.mapPostsToView)
+    const posts = this.props.posts.map(this.mapPostsToView);
     return (
       <div>
         <button onClick={this.fetchPosts}>Get some posts</button>
