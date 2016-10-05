@@ -3,11 +3,11 @@ import { connect } from 'react-redux';
 import {
   setEndpointHost,
   setEndpointPath,
-  readEndpoint,
-  createEntity
+  readEndpoint
 } from 'redux-json-api';
 
 import Post from './post';
+import Form from './form';
 
 const mapStateToProps = ({
   api: {
@@ -25,15 +25,9 @@ class viewComp extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      post: ''
-    };
-
     this.fetchPosts = this.fetchPosts.bind(this);
     this.fetchPostsWithIncludes = this.fetchPostsWithIncludes.bind(this);
     this.mapPostsToView = this.mapPostsToView.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleChange = this.handleChange.bind(this);
   }
 
   componentWillMount() {
@@ -50,34 +44,6 @@ class viewComp extends Component {
   fetchPostsWithIncludes() {
     const { dispatch } = this.props;
     dispatch(readEndpoint('posts?include=posts.createe'));
-  }
-
-  handleChange(e) {
-    this.setState({ post: e.target.value });
-  }
-
-  handleSubmit(e) {
-    e.preventDefault();
-    if (this.state.post.length === 0) {
-      alert('Please write some post content.');
-      return;
-    }
-
-    const { dispatch } = this.props;
-    dispatch(createEntity({
-      type: 'posts',
-      attributes: {
-        value: this.state.post
-      },
-      relationships: {
-        createe: {
-          data: {
-            type: 'users',
-            id: '1'
-          }
-        }
-      }
-    }));
   }
 
   mapPostsToView(post) {
@@ -99,13 +65,7 @@ class viewComp extends Component {
           : <div>These are not the posts you're looking for! </div>
         }
         <hr />
-        <form onSubmit={this.handleSubmit}>
-          <fieldset>
-            <legend>New Post</legend>
-            <input placeholder="New post text" onChange={this.handleChange} />
-            <button type="submit">Create new post</button>
-          </fieldset>
-        </form>
+        <Form />
       </div>
     );
   }
