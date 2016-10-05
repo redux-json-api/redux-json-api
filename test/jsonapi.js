@@ -6,12 +6,16 @@ import { createAction } from 'redux-actions';
 import expect from 'expect';
 import {
   reducer,
-  setAccessToken,
+  setHeaders,
+  setHeader,
   setEndpointHost,
   setEndpointPath,
   IS_DELETING,
   IS_UPDATING
 } from '../src/jsonapi';
+
+import fetchMock from 'fetch-mock';
+import { apiRequest } from '../src/utils';
 
 const apiCreated = createAction('API_CREATED');
 const apiRead = createAction('API_READ');
@@ -25,7 +29,10 @@ const state = {
   endpoint: {
     host: null,
     path: null,
-    accessToken: null
+    headers: {
+      'Content-Type': 'application/vnd.api+json',
+      Accept: 'application/vnd.api+json'
+    }
   },
   users: {
     data: [
@@ -376,11 +383,27 @@ describe('Delete entities', () => {
 });
 
 describe('Endpoint values', () => {
-  it('should update to provided access token', () => {
+  it('should default to jsonapi content type and accept headers', () => {
+    const initialState = reducer(undefined, { type: '@@INIT' });
+    expect(initialState.endpoint.headers).toEqual({
+      'Content-Type': 'application/vnd.api+json',
+      Accept: 'application/vnd.api+json'
+    });
+  });
+
+  it('should update provided header, such as an access token', () => {
     const at = 'abcdef0123456789';
-    expect(state.endpoint.accessToken).toNotEqual(at);
-    const updatedState = reducer(state, setAccessToken(at));
-    expect(updatedState.endpoint.accessToken).toEqual(at);
+    const header = { Authorization: `Bearer ${at}` };
+    expect(state.endpoint.headers).toNotMatch(header);
+    const updatedState = reducer(state, setHeader(header));
+    expect(updatedState.endpoint.headers).toMatch(header);
+  });
+
+  it('should update to provided custom headers', () => {
+    const headers = { Custom: 'headers' };
+    expect(state.endpoint.headers).toNotEqual(headers);
+    const updatedState = reducer(state, setHeaders(headers));
+    expect(updatedState.endpoint.headers).toEqual(headers);
   });
 
   it('should update to provided endpoint host and path', () => {
@@ -414,5 +437,24 @@ describe('Invalidating flag', () => {
       apiUpdated(state.users.data[0])
     );
     expect(updatedState.users.data[0].isInvalidating).toNotExist();
+  });
+});
+
+describe('apiRequest', () => {
+  it('should parse the response body on success', () => {
+    fetchMock.mock('*', { status: 200, body: { data: 1 }, headers: { 'Content-Type': 'application/json' } });
+    return apiRequest('fakeurl').then((data) => {
+      expect(data).toEqual({ data: 1 });
+    });
+  });
+
+  it('should return Body object when response is 204', () => {
+    fetchMock.restore();
+    fetchMock.mock('*', { status: 204, body: null });
+
+    return apiRequest('fakeurl').then((data) => {
+      expect(data.statusText).toEqual('No Content');
+      expect(data.status).toEqual(204);
+    });
   });
 });

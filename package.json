@@ -1,6 +1,6 @@
 {
   "name": "redux-json-api",
-  "version": "1.4.4",
+  "version": "1.5.2",
   "description": "A bunch of Redux actions, action creators and reducers to integrate with a JSON API",
   "main": "lib/jsonapi.js",
   "scripts": {
@@ -25,6 +25,9 @@
     "url": "https://github.com/dixieio/redux-json-api/issues"
   },
   "homepage": "https://github.com/dixieio/redux-json-api#readme",
+  "peerDependencies": {
+    "redux-thunk": ">=1.0.0"
+  },
   "devDependencies": {
     "babel-core": "^6.4.5",
     "babel-eslint": "^5.0.0-beta6",
@@ -38,6 +41,7 @@
     "eslint": "^1.10.3",
     "eslint-config-airbnb": "^4.0.0",
     "expect": "^1.14.0",
+    "fetch-mock": "^5.1.2",
     "mocha": "^2.4.5",
     "rimraf": "^2.5.1",
     "webpack": "^1.12.12"
