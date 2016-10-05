@@ -6,6 +6,7 @@ import {
   readEndpoint
 } from 'redux-json-api';
 
+import styles from './list.scss';
 import Post from './post';
 import Form from './form';
 
@@ -53,18 +54,19 @@ class viewComp extends Component {
   render() {
     const posts = this.props.posts.map(this.mapPostsToView);
     return (
-      <div>
+      <div className={styles['news-wrapper']}>
+        <div className={styles['news-header']}>
         <h2>React 💜 Redux-JSON-API News</h2>
-        <div>
-          <button className="btn btn-sm btn-primary" onClick={this.fetchPosts}>Get news</button>
-          <button className="btn btn-sm btn-primary" onClick={this.fetchPostsWithIncludes}>Include author</button>
+          <button className="btn btn-sm btn-link" onClick={this.fetchPosts}>Get news</button>
+          <button className="btn btn-sm btn-link" onClick={this.fetchPostsWithIncludes}>Include author</button>
         </div>
-        {
-          posts.length > 0
-          ? posts
-          : <div>These are not the posts you're looking for! </div>
-        }
-        <hr />
+        <div className={styles['news-list']}>
+          {
+            posts.length > 0
+            ? posts
+            : <div>These are not the posts you're looking for! </div>
+          }
+        </div>
         <Form />
       </div>
     );
