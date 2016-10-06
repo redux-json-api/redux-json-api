@@ -47,6 +47,18 @@ const state = {
             data: null
           }
         }
+      },
+      {
+        type: 'users',
+        id: '2',
+        attributes: {
+          name: 'Emily Jane'
+        },
+        relationships: {
+          companies: {
+            data: null
+          }
+        }
       }
     ]
   },
@@ -355,11 +367,14 @@ describe('Reading entities', () => {
   });
 });
 
+const zip = rows => rows[0].map((_, c) => rows.map(row => row[c]));
+
 describe('Updating entities', () => {
-  it('should persist in state', () => {
+  it('should persist in state and preserve order', () => {
     const updatedState = reducer(state, apiUpdated(updatedUser));
     expect(state.users.data[0].attributes.name).toNotEqual(updatedUser.attributes.name);
     expect(updatedState.users.data[0].attributes.name).toEqual(updatedUser.attributes.name);
+    zip([updatedState.users.data, state.users.data]).forEach((a, b) => a.id === b.id);
   });
 });
 
