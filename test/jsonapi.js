@@ -374,7 +374,7 @@ describe('Updating entities', () => {
     const updatedState = reducer(state, apiUpdated(updatedUser));
     expect(state.users.data[0].attributes.name).toNotEqual(updatedUser.attributes.name);
     expect(updatedState.users.data[0].attributes.name).toEqual(updatedUser.attributes.name);
-    zip([updatedState.users.data, state.users.data]).forEach((a, b) => a.id === b.id);
+    zip([updatedState.users.data, state.users.data]).forEach((a, b) => expect(a.id).toEqual(b.id));
   });
 });
 
