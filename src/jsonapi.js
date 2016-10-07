@@ -145,9 +145,9 @@ export const readEndpoint = (endpoint, {
 
     return new Promise((resolve, reject) => {
       apiRequest(`${apiEndpoint}`, {
-          headers,
-          credentials: 'include' 
-        })
+        headers,
+        credentials: 'include'
+      })
         .then(json => {
           dispatch(apiRead({ endpoint, ...json }));
           onSuccess(json);
