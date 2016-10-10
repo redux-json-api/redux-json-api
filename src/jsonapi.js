@@ -1,5 +1,5 @@
 import { createAction, handleActions } from 'redux-actions';
-import fetch from 'isomorphic-fetch';
+import 'isomorphic-fetch';
 import Imm from 'immutable';
 
 import {
@@ -109,6 +109,7 @@ export const createEntity = (entity, {
       apiRequest(endpoint, {
         headers,
         method: 'POST',
+        credentials: 'include',
         body: JSON.stringify({
           data: entity
         })
@@ -143,7 +144,10 @@ export const readEndpoint = (endpoint, {
     const apiEndpoint = `${apiHost}${apiPath}/${endpoint}`;
 
     return new Promise((resolve, reject) => {
-      apiRequest(`${apiEndpoint}`, { headers })
+      apiRequest(`${apiEndpoint}`, {
+        headers,
+        credentials: 'include'
+      })
         .then(json => {
           dispatch(apiRead({ endpoint, ...json }));
           onSuccess(json);
@@ -179,6 +183,7 @@ export const updateEntity = (entity, {
       apiRequest(endpoint, {
         headers,
         method: 'PATCH',
+        credentials: 'include',
         body: JSON.stringify({
           data: entity
         })
@@ -215,7 +220,8 @@ export const deleteEntity = (entity, {
     return new Promise((resolve, reject) => {
       apiRequest(endpoint, {
         headers,
-        method: 'DELETE'
+        method: 'DELETE',
+        credentials: 'include'
       }).then(() => {
         dispatch(apiDeleted(entity));
         onSuccess();

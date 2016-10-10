@@ -1,6 +1,6 @@
 {
   "name": "redux-json-api",
-  "version": "1.5.1",
+  "version": "1.5.4",
   "description": "A bunch of Redux actions, action creators and reducers to integrate with a JSON API",
   "main": "lib/jsonapi.js",
   "scripts": {
@@ -41,6 +41,7 @@
     "eslint": "^1.10.3",
     "eslint-config-airbnb": "^4.0.0",
     "expect": "^1.14.0",
+    "fetch-mock": "^5.1.2",
     "mocha": "^2.4.5",
     "rimraf": "^2.5.1",
     "webpack": "^1.12.12"
@@ -48,7 +49,6 @@
   "dependencies": {
     "immutable": "^3.7.6",
     "isomorphic-fetch": "^2.2.1",
-    "keykey": "^2.1.1",
     "pluralize": "^1.2.1",
     "redux-actions": "^0.9.1"
   }

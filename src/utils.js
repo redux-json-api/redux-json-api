@@ -9,11 +9,11 @@ export const apiRequest = (url, options = {}) => {
   return fetch(url, options)
     .then(res => {
       if (res.status >= 200 && res.status < 300) {
-        if (jsonContentTypes.some(contentType => res.headers.get('Content-Type').indexOf(contentType) > -1)) {
+        if (res.status === 204) {
+          return res;
+        } else if (jsonContentTypes.some(contentType => res.headers.get('Content-Type').indexOf(contentType) > -1)) {
           return res.json();
         }
-
-        return res;
       }
 
       const e = new Error(res.statusText);

@@ -14,6 +14,9 @@ import {
   IS_UPDATING
 } from '../src/jsonapi';
 
+import fetchMock from 'fetch-mock';
+import { apiRequest } from '../src/utils';
+
 const apiCreated = createAction('API_CREATED');
 const apiRead = createAction('API_READ');
 const apiUpdated = createAction('API_UPDATED');
@@ -38,6 +41,18 @@ const state = {
         id: '1',
         attributes: {
           name: 'John Doe'
+        },
+        relationships: {
+          companies: {
+            data: null
+          }
+        }
+      },
+      {
+        type: 'users',
+        id: '2',
+        attributes: {
+          name: 'Emily Jane'
         },
         relationships: {
           companies: {
@@ -352,11 +367,14 @@ describe('Reading entities', () => {
   });
 });
 
+const zip = rows => rows[0].map((_, c) => rows.map(row => row[c]));
+
 describe('Updating entities', () => {
-  it('should persist in state', () => {
+  it('should persist in state and preserve order', () => {
     const updatedState = reducer(state, apiUpdated(updatedUser));
     expect(state.users.data[0].attributes.name).toNotEqual(updatedUser.attributes.name);
     expect(updatedState.users.data[0].attributes.name).toEqual(updatedUser.attributes.name);
+    zip([updatedState.users.data, state.users.data]).forEach((a, b) => expect(a.id).toEqual(b.id));
   });
 });
 
@@ -434,5 +452,24 @@ describe('Invalidating flag', () => {
       apiUpdated(state.users.data[0])
     );
     expect(updatedState.users.data[0].isInvalidating).toNotExist();
+  });
+});
+
+describe('apiRequest', () => {
+  it('should parse the response body on success', () => {
+    fetchMock.mock('*', { status: 200, body: { data: 1 }, headers: { 'Content-Type': 'application/json' } });
+    return apiRequest('fakeurl').then((data) => {
+      expect(data).toEqual({ data: 1 });
+    });
+  });
+
+  it('should return Body object when response is 204', () => {
+    fetchMock.restore();
+    fetchMock.mock('*', { status: 204, body: null });
+
+    return apiRequest('fakeurl').then((data) => {
+      expect(data.statusText).toEqual('No Content');
+      expect(data.status).toEqual(204);
+    });
   });
 });
