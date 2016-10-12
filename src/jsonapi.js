@@ -1,6 +1,7 @@
 import { createAction, handleActions } from 'redux-actions';
 import 'isomorphic-fetch';
 import Imm from 'immutable';
+import ImmOP from 'object-path-immutable';
 
 import {
   removeEntityFromState,
@@ -356,13 +357,10 @@ export const reducer = handleActions({
       .toJS();
   },
 
-  [API_DELETED]: (rawState, { payload: rawEntity }) => {
-    const state = Imm.fromJS(rawState);
-    const entity = Imm.fromJS(rawEntity);
-
+  [API_DELETED]: (state, { payload: entity }) => {
     return removeEntityFromState(state, entity)
-      .update('isDeleting', v => v - 1)
-      .toJS();
+      .set('isDeleting', state.isDeleting - 1)
+      .value();
   },
 
   [API_DELETE_FAILED]: (rawState, { payload: { entity } }) => {

@@ -1,5 +1,7 @@
 import Imm from 'immutable';
+import ImmOP from 'object-path-immutable';
 import pluralize from 'pluralize';
+import { hasOwnProperties } from './utils';
 
 const updateReverseRelationship = (
   entity,
@@ -86,33 +88,31 @@ const updateOrInsertEntity = (state, entity) => {
 };
 
 export const removeEntityFromState = (state, entity) => {
-  return state.withMutations(newState => {
-    newState.updateIn(
-      [entity.get('type'), 'data'],
-      curVal => curVal.filter(l => l.get('id') !== entity.get('id'))
-    );
+  const index = state[entity.type].data.findIndex(e => e.id === entity.id);
+  const path = [entity.type, 'data', index];
+  const entityRelationships = entity.relationships;
 
-    const rels = entity.get('relationships');
-    if (!rels) {
-      return;
+  return Object.keys(entityRelationships).reduce((newState, key) => {
+    if (entity.relationships[key].data === null) {
+      return newState;
     }
 
-    rels.forEach(relationship => {
-      const entityPath = [
-        relationship.getIn(['data', 'type']),
-        'data'
-      ];
+    const entityPath = [entity.relationships[key].data.type, 'data'];
 
-      if (newState.hasIn(entityPath) === false) {
-        return;
-      }
-
-      newState.updateIn(
+    if (hasOwnProperties(state, entityPath)) {
+      return newState.set(
         entityPath,
-        updateReverseRelationship(entity, relationship, null)
+        updateReverseRelationship(
+          Imm.fromJS(entity),
+          Imm.fromJS(entity.relationships[key]), null
+        )(
+          Imm.fromJS(state[entity.relationships[key].data.type].data)
+        ).toJS()
       );
-    });
-  });
+    }
+
+    return newState;
+  }, ImmOP(state).del(path));
 };
 
 export const updateOrInsertEntitiesIntoState = (state, entities) => {
