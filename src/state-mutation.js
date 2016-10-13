@@ -172,20 +172,16 @@ export const updateOrInsertEntitiesIntoState = (state, entities) => {
   );
 };
 
-export const setIsInvalidatingForExistingEntity = (state, { type, id }, value) => {
-  return state.updateIn(
-    [type, 'data'],
-    entities => {
-      return entities.update(
-        entities.findIndex(
-          item => item.get('id') === id && item.get('type') === type
-        ),
-        entity => (
-          value === null
-          ? entity.delete('isInvalidating')
-          : entity.set('isInvalidating', value)
-        )
-      );
-    }
+export const setIsInvalidatingForExistingEntity = (state, { type, id }, value = null) => {
+  const idx = state[type].data
+    .findIndex(e => e.id === id && e.type === type);
+
+  const updatePath = [type, 'data', idx, 'isInvalidating'];
+
+  const newState = ImmOP(state);
+
+  return (value === null
+    ? newState.del(updatePath)
+    : newState.set(updatePath, value)
   );
 };

@@ -319,13 +319,12 @@ export const reducer = handleActions({
     return Imm.fromJS(state).update('isReading', v => v - 1).toJS();
   },
 
-  [API_WILL_UPDATE]: (rawState, { payload: entity }) => {
+  [API_WILL_UPDATE]: (state, { payload: entity }) => {
     const { type, id } = entity;
-    const state = Imm.fromJS(rawState);
 
     return setIsInvalidatingForExistingEntity(state, { type, id }, IS_UPDATING)
-      .update('isUpdating', v => v + 1)
-      .toJS();
+      .set('isUpdating', state.isUpdating + 1)
+      .value();
   },
 
   [API_UPDATED]: (rawState, { payload: rawEntities }) => {
@@ -339,22 +338,20 @@ export const reducer = handleActions({
       .toJS();
   },
 
-  [API_UPDATE_FAILED]: (rawState, { payload: { entity } }) => {
+  [API_UPDATE_FAILED]: (state, { payload: { entity } }) => {
     const { type, id } = entity;
-    const state = Imm.fromJS(rawState);
 
     return setIsInvalidatingForExistingEntity(state, { type, id }, IS_UPDATING)
-      .update('isUpdating', v => v - 1)
-      .toJS();
+      .set('isUpdating', state.isUpdating + 1)
+      .value();
   },
 
-  [API_WILL_DELETE]: (rawState, { payload: entity }) => {
+  [API_WILL_DELETE]: (state, { payload: entity }) => {
     const { type, id } = entity;
-    const state = Imm.fromJS(rawState);
 
     return setIsInvalidatingForExistingEntity(state, { type, id }, IS_DELETING)
-      .update('isDeleting', v => v + 1)
-      .toJS();
+      .set('isDeleting', state.isDeleting + 1)
+      .value();
   },
 
   [API_DELETED]: (state, { payload: entity }) => {
@@ -363,13 +360,12 @@ export const reducer = handleActions({
       .value();
   },
 
-  [API_DELETE_FAILED]: (rawState, { payload: { entity } }) => {
+  [API_DELETE_FAILED]: (state, { payload: { entity } }) => {
     const { type, id } = entity;
-    const state = Imm.fromJS(rawState);
 
     return setIsInvalidatingForExistingEntity(state, { type, id }, IS_DELETING)
-      .update('isDeleting', v => v - 1)
-      .toJS();
+      .set('isDeleting', state.isDeleting + 1)
+      .value();
   }
 
 }, {
