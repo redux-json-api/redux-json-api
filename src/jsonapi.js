@@ -266,7 +266,7 @@ export const requireEntity = (entityType, endpoint = entityType, {
 export const reducer = handleActions({
 
   [API_SET_HEADERS]: (state, { payload: headers }) => {
-    return Imm.fromJS(state).setIn(['endpoint', 'headers'], headers).toJS();
+    return ImmOP(state).set(['endpoint', 'headers'], headers).value();
   },
 
   [API_SET_HEADER]: (state, { payload: header }) => {
