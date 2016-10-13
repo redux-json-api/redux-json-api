@@ -7,28 +7,6 @@ import {
 
 import { IS_UPDATING } from '../src/jsonapi';
 
-const initState = {
-  transactions: {
-    data: [{
-      type: 'transactions',
-      id: '35',
-      attributes: {
-        description: 'DEF',
-        createdAt: '2016-02-12T13:35:01+0000',
-        updatedAt: '2016-02-19T11:52:43+0000',
-      },
-      relationships: {
-        task: {
-          data: null
-        }
-      },
-      links: {
-        self: 'http://localhost/transactions/35'
-      }
-    }]
-  }
-};
-
 const entity = {
   type: 'tasks',
   id: '43',
@@ -55,51 +33,7 @@ const entity = {
     self: 'http://localhost/tasks/43'
   }
 };
-
-const expectedState = [{
-  type: 'transactions',
-  id: '35',
-  attributes: {
-    description: 'DEF',
-    createdAt: '2016-02-12T13:35:01+0000',
-    updatedAt: '2016-02-19T11:52:43+0000',
-  },
-  relationships: {
-    task: {
-      data: {
-        id: '43',
-        type: 'tasks'
-      }
-    }
-  },
-  links: {
-    self: 'http://localhost/transactions/35'
-  }
-}];
-
-describe(`[State Mutation] Update or Reverse relationships`, () => {
-  it('Should update a entity relationship', () => {
-    const updatedEnteties = _updateReverseRelationship(
-      entity,
-      entity.relationships.transaction
-    )(initState.transactions.data);
-
-    expect(updatedEnteties[0].relationships.task.data)
-      .toEqual({ id: entity.id, type: entity.type });
-  });
-
-  it('Should nullify a entity relationship', () => {
-    const updatedEnteties = _updateReverseRelationship(
-      entity,
-      entity.relationships.transaction,
-      null
-    )(initState.transactions.data);
-
-    expect(updatedEnteties[0].relationships.task.data).toEqual(null);
-  });
-});
-
-const isInvalidatingState = {
+const state = {
   endpoint: {
     host: null,
     path: null,
@@ -140,7 +74,23 @@ const isInvalidatingState = {
     data: [
       {
         type: 'transactions',
-        id: '34',
+        id: '35',
+        attributes: {
+          description: 'ABC',
+          createdAt: '2016-02-12T13:34:01+0000',
+          updatedAt: '2016-02-19T11:52:43+0000',
+        },
+        relationships: {
+          task: {
+            data: null
+          }
+        },
+        links: {
+          self: 'http://localhost/transactions/34'
+        }
+      }, {
+        type: 'transactions',
+        id: '36',
         attributes: {
           description: 'ABC',
           createdAt: '2016-02-12T13:34:01+0000',
@@ -163,13 +113,61 @@ const isInvalidatingState = {
   isDeleting: 0
 };
 
+describe(`[State Mutation] Update or Reverse relationships`, () => {
+  it('Should update a entity relationship', () => {
+    const updatedEnteties = _updateReverseRelationship(
+      entity,
+      entity.relationships.transaction
+    )(state.transactions.data);
+
+    expect(updatedEnteties[0].relationships.task.data)
+      .toEqual({ id: entity.id, type: entity.type });
+  });
+
+  it('Should nullify a entity relationship', () => {
+    const updatedEnteties = _updateReverseRelationship(
+      entity,
+      entity.relationships.transaction,
+      null
+    )(state.transactions.data);
+
+    expect(updatedEnteties[0].relationships.task.data).toEqual(null);
+  });
+});
+
+
 describe('[State Mutation]: Set is invalidating for existing entity', () => {
   it('Should set a ivalidating type for entity to IS_UPDATING', () => {
-    const { id, type } = isInvalidatingState.users.data[0];
+    const { id, type } = state.users.data[0];
     const updatedState = setIsInvalidatingForExistingEntity(
-      isInvalidatingState,
-      { type, id }
-      , IS_UPDATING).value();
+      state,
+      { type, id },
+      IS_UPDATING
+    ).value();
     expect(updatedState.users.data[0].isInvalidating).toEqual(IS_UPDATING);
+  });
+});
+
+describe('[State Mutation]: Create new reference when Object is mutated', () => {
+  it('Should keep proper refrences when setting isInvalidating', () => {
+    const { id, type } = state.users.data[0];
+    const updatedState = setIsInvalidatingForExistingEntity(
+      state,
+      { type, id },
+      IS_UPDATING
+    ).value();
+
+    expect(updatedState.users.data[0]).toNotBe(state.users.data[0]);
+    expect(updatedState.users.data[1]).toBe(state.users.data[1]);
+  });
+
+  it('Should keep proper refrences when updating reverse relationships', () => {
+    const updatedEnteties = _updateReverseRelationship(
+      entity,
+      entity.relationships.transaction
+    )(state.transactions.data);
+
+    expect(updatedEnteties[0]).toNotBe(state.transactions.data[0]);
+    expect(updatedEnteties[1]).toBe(state.transactions.data[1]);
   });
 });
