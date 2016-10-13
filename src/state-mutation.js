@@ -49,6 +49,57 @@ const updateReverseRelationship = (
   };
 };
 
+export const _updateReverseRelationship = (
+  entity,
+  relationship,
+  newRelation = {
+    type: entity.type,
+    id: entity.id
+  }
+) => {
+  return (foreignEntities) => {
+    const idx = foreignEntities.findIndex(item => (
+      item.id === relationship.data.id
+    ));
+
+    if (idx === -1) {
+      return foreignEntities;
+    }
+
+    const [singular, plural] = [1, 2].map(i => pluralize(entity.type, i));
+    const relCase = [singular, plural]
+      .find(r => (
+        hasOwnProperties(foreignEntities[idx], ['relationships', r])
+      )
+    );
+
+    if (!relCase) {
+      return foreignEntities;
+    }
+
+    const relPath = ['relationships', relCase, 'data'];
+    const idxRelPath = [idx].concat(relPath);
+
+    const immutableForeingEntities = ImmOP(foreignEntities);
+
+    if (!hasOwnProperties(foreignEntities[idx], relPath)) {
+      return immutableForeingEntities
+      .push(idxRelPath, newRelation)
+      .value();
+    }
+
+    if (relCase === singular) {
+      return immutableForeingEntities
+        .set(idxRelPath, newRelation)
+        .value();
+    }
+
+    return immutableForeingEntities
+      .push(idxRelPath, newRelation)
+      .value();
+  };
+};
+
 const updateOrInsertEntity = (state, entity) => {
   if (Imm.Map.isMap(entity) === false) {
     return state;
@@ -102,12 +153,11 @@ export const removeEntityFromState = (state, entity) => {
     if (hasOwnProperties(state, entityPath)) {
       return newState.set(
         entityPath,
-        updateReverseRelationship(
-          Imm.fromJS(entity),
-          Imm.fromJS(entity.relationships[key]), null
-        )(
-          Imm.fromJS(state[entity.relationships[key].data.type].data)
-        ).toJS()
+        _updateReverseRelationship(
+          entity,
+          entity.relationships[key],
+          null
+        )(state[entity.relationships[key].data.type].data)
       );
     }
 
