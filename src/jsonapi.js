@@ -301,7 +301,7 @@ export const reducer = handleActions({
   },
 
   [API_WILL_READ]: (state) => {
-    return Imm.fromJS(state).update('isReading', v => v + 1).toJS();
+    return ImmOP(state).set(['isReading'], state.isReading + 1).value();
   },
 
   [API_READ]: (rawState, { payload }) => {
@@ -316,7 +316,7 @@ export const reducer = handleActions({
   },
 
   [API_READ_FAILED]: (state) => {
-    return Imm.fromJS(state).update('isReading', v => v - 1).toJS();
+    return ImmOP(state).set(['isReading'], state.isReading - 1).value();
   },
 
   [API_WILL_UPDATE]: (state, { payload: entity }) => {
