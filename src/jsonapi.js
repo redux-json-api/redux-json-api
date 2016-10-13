@@ -282,7 +282,7 @@ export const reducer = handleActions({
   },
 
   [API_WILL_CREATE]: (state) => {
-    return Imm.fromJS(state).update('isCreating', v => v + 1).toJS();
+    return ImmOP(state).set(['isCreating'], state.isCreating + 1).value();
   },
 
   [API_CREATED]: (rawState, { payload: rawEntities }) => {
