@@ -274,11 +274,11 @@ export const reducer = handleActions({
   },
 
   [API_SET_ENDPOINT_HOST]: (state, { payload: host }) => {
-    return Imm.fromJS(state).setIn(['endpoint', 'host'], host).toJS();
+    return ImmOP(state).set(['endpoint', 'host'], host).value();
   },
 
   [API_SET_ENDPOINT_PATH]: (state, { payload: path }) => {
-    return Imm.fromJS(state).setIn(['endpoint', 'path'], path).toJS();
+    return ImmOP(state).set(['endpoint', 'path'], path).value();
   },
 
   [API_WILL_CREATE]: (state) => {
