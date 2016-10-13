@@ -297,7 +297,7 @@ export const reducer = handleActions({
   },
 
   [API_CREATE_FAILED]: (state) => {
-    return Imm.fromJS(state).update('isCreating', v => v - 1).toJS();
+    return ImmOP(state).set(['isCreating'], state.isCreating - 1).value();
   },
 
   [API_WILL_READ]: (state) => {
