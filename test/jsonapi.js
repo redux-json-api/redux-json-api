@@ -409,9 +409,13 @@ describe('Endpoint values', () => {
   it('should update provided header, such as an access token', () => {
     const at = 'abcdef0123456789';
     const header = { Authorization: `Bearer ${at}` };
-    expect(state.endpoint.headers).toNotMatch(header);
+    expect(state.endpoint.headers).toNotEqual(header);
     const updatedState = reducer(state, setHeader(header));
-    expect(updatedState.endpoint.headers).toMatch(header);
+    expect(updatedState.endpoint.headers).toEqual({
+      'Content-Type': 'application/vnd.api+json',
+      Accept: 'application/vnd.api+json',
+      Authorization: `Bearer ${at}`
+    });
   });
 
   it('should update to provided custom headers', () => {
