@@ -100,42 +100,58 @@ export const _updateReverseRelationship = (
   };
 };
 
-const updateOrInsertEntity = (state, entity) => {
-  if (Imm.Map.isMap(entity) === false) {
+const _updateOrInsertEntity = (state, entity) => {
+  if (typeof entity !== 'object') {
     return state;
   }
 
-  return state.withMutations(s => {
-    s.updateIn(
-      [entity.get('type'), 'data'],
-      (list = new Imm.List()) => {
-        const index = list.find(e => e.get('id') === entity.get('id'));
-        return list.filter(e => e.get('id') !== entity.get('id')).insert(index, entity);
-      }
-    );
+  const newState = ImmOP(state);
 
-    const rels = entity.get('relationships');
+  const updatePath = [entity.type, 'data'];
 
-    if (!rels) {
+  if (!hasOwnProperties(state, updatePath)) {
+    newState
+      .push(updatePath, entity);
+  } else {
+    const idx = state[entity.type].data.findIndex(item => item.id === entity.id);
+
+    if (idx === -1) {
+      newState
+        .push(updatePath, entity);
+    } else {
+      newState
+        .set(updatePath.concat(idx), entity);
+    }
+  }
+
+  const rels = entity.relationships;
+
+  if (!rels) {
+    return newState.value();
+  }
+
+  Object.keys(rels).forEach(relKey => {
+    if (!hasOwnProperties(rels[relKey], ['data', 'type'])) {
       return;
     }
 
-    rels.forEach(relationship => {
-      const entityPath = [
-        relationship.getIn(['data', 'type']),
-        'data'
-      ];
+    const entityPath = [
+      rels[relKey].data.type,
+      'data',
+    ];
 
-      if (s.hasIn(entityPath) === false) {
-        return;
-      }
+    if (!hasOwnProperties(state, entityPath)) {
+      return;
+    }
 
-      s.updateIn(
+    newState
+      .set(
         entityPath,
-        updateReverseRelationship(entity, relationship)
+        _updateReverseRelationship(entity, rels[relKey])(state[rels[relKey].data.type].data)
       );
-    });
   });
+
+  return newState.value();
 };
 
 export const removeEntityFromState = (state, entity) => {
@@ -167,7 +183,7 @@ export const removeEntityFromState = (state, entity) => {
 
 export const updateOrInsertEntitiesIntoState = (state, entities) => {
   return entities.reduce(
-    updateOrInsertEntity,
+    _updateOrInsertEntity,
     state
   );
 };

@@ -290,15 +290,15 @@ export const reducer = handleActions({
     return ImmOP(state).set(['isCreating'], state.isCreating + 1).value();
   },
 
-  [API_CREATED]: (rawState, { payload: rawEntities }) => {
-    const state = Imm.fromJS(rawState);
-    const entities = Imm.fromJS(
-      Array.isArray(rawEntities) ? rawEntities : [rawEntities]
+  [API_CREATED]: (state, { payload: entities }) => {
+    const newState = updateOrInsertEntitiesIntoState(
+      state,
+      Array.isArray(entities) ? entities : [entities]
     );
 
-    return updateOrInsertEntitiesIntoState(state, entities)
-      .update('isCreating', v => v - 1)
-      .toJS();
+    return ImmOP(newState)
+      .set('isCreating', state.isCreating - 1)
+      .value();
   },
 
   [API_CREATE_FAILED]: (state) => {
@@ -309,15 +309,18 @@ export const reducer = handleActions({
     return ImmOP(state).set(['isReading'], state.isReading + 1).value();
   },
 
-  [API_READ]: (rawState, { payload }) => {
-    const state = Imm.fromJS(rawState);
-    const entities = Imm.fromJS(
-      Array.isArray(payload.data) ? payload.data : [payload.data]
-    ).concat(Imm.fromJS(payload.included || []));
+  [API_READ]: (state, { payload }) => {
+    const entities =
+    (Array.isArray(payload.data)
+      ? payload.data
+      : [payload.data]
+    ).concat(payload.included || []);
 
-    return updateOrInsertEntitiesIntoState(state, entities)
-      .update('isReading', v => v - 1)
-      .toJS();
+    const newState = updateOrInsertEntitiesIntoState(state, entities);
+
+    return ImmOP(newState)
+      .set('isReading', state.isReading - 1)
+      .value();
   },
 
   [API_READ_FAILED]: (state) => {
@@ -332,15 +335,15 @@ export const reducer = handleActions({
       .value();
   },
 
-  [API_UPDATED]: (rawState, { payload: rawEntities }) => {
-    const state = Imm.fromJS(rawState);
-    const entities = Imm.fromJS(
-      Array.isArray(rawEntities) ? rawEntities : [rawEntities]
+  [API_UPDATED]: (state, { payload: entities }) => {
+    const newState = updateOrInsertEntitiesIntoState(
+      newState,
+      Array.isArray(entities) ? entities : [entities]
     );
 
-    return updateOrInsertEntitiesIntoState(state, entities)
-      .update('isUpdating', v => v - 1)
-      .toJS();
+    return ImmOP(newState)
+      .set('isUpdating', state.isUpdating - 1)
+      .value();
   },
 
   [API_UPDATE_FAILED]: (state, { payload: { entity } }) => {
