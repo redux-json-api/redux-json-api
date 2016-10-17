@@ -1,53 +1,6 @@
-import Imm from 'immutable';
 import ImmOP from 'object-path-immutable';
 import pluralize from 'pluralize';
 import { hasOwnProperties } from './utils';
-
-const updateReverseRelationship = (
-  entity,
-  relationship,
-  newRelation = {
-    type: entity.get('type'),
-    id: entity.get('id')
-  }
-) => {
-  return (foreignEntities) => {
-    const idx = foreignEntities.findIndex(
-      item => item.get('id') === relationship.getIn(['data', 'id'])
-    );
-
-    if (idx === -1) {
-      return foreignEntities;
-    }
-
-    return foreignEntities.update(
-      idx,
-      foreignEntity => {
-        const [singular, plural] = [1, 2].map(i => pluralize(entity.get('type'), i));
-        const relCase = [singular, plural].find(r => foreignEntity.hasIn(['relationships', r]));
-
-        if (!relCase) {
-          return foreignEntity;
-        }
-
-        return foreignEntity.updateIn(
-          ['relationships', relCase, 'data'],
-          relation => {
-            if (relCase === singular) {
-              return newRelation;
-            }
-
-            if (!relation) {
-              return new Imm.List([newRelation]);
-            }
-
-            return relation.push(newRelation);
-          }
-        );
-      }
-    );
-  };
-};
 
 export const _updateReverseRelationship = (
   entity,

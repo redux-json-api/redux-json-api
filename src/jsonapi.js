@@ -1,6 +1,5 @@
 import { createAction, handleActions } from 'redux-actions';
 import 'isomorphic-fetch';
-import Imm from 'immutable';
 import ImmOP from 'object-path-immutable';
 
 import {
