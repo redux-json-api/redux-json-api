@@ -1,7 +1,7 @@
 import expect from 'expect';
 
 import {
-  _updateReverseRelationship,
+  updateReverseRelationship,
   setIsInvalidatingForExistingEntity
 } from '../src/state-mutation';
 
@@ -115,7 +115,7 @@ const state = {
 
 describe(`[State Mutation] Update or Reverse relationships`, () => {
   it('Should update a entity relationship', () => {
-    const updatedEnteties = _updateReverseRelationship(
+    const updatedEnteties = updateReverseRelationship(
       entity,
       entity.relationships.transaction
     )(state.transactions.data);
@@ -125,7 +125,7 @@ describe(`[State Mutation] Update or Reverse relationships`, () => {
   });
 
   it('Should nullify a entity relationship', () => {
-    const updatedEnteties = _updateReverseRelationship(
+    const updatedEnteties = updateReverseRelationship(
       entity,
       entity.relationships.transaction,
       null
@@ -162,7 +162,7 @@ describe('[State Mutation]: Create new reference when Object is mutated', () => 
   });
 
   it('Should keep proper refrences when updating reverse relationships', () => {
-    const updatedEnteties = _updateReverseRelationship(
+    const updatedEnteties = updateReverseRelationship(
       entity,
       entity.relationships.transaction
     )(state.transactions.data);
