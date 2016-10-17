@@ -53,7 +53,7 @@ export const _updateReverseRelationship = (
   };
 };
 
-const _updateOrInsertEntity = (state, entity) => {
+const updateOrInsertEntity = (state, entity) => {
   if (typeof entity !== 'object') {
     return state;
   }
@@ -136,7 +136,7 @@ export const removeEntityFromState = (state, entity) => {
 
 export const updateOrInsertEntitiesIntoState = (state, entities) => {
   return entities.reduce(
-    _updateOrInsertEntity,
+    updateOrInsertEntity,
     state
   );
 };
