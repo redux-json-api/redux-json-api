@@ -270,7 +270,12 @@ export const reducer = handleActions({
   },
 
   [API_SET_HEADER]: (state, { payload: header }) => {
-    return Imm.fromJS(state).mergeIn(['endpoint', 'headers'], header).toJS();
+    const newState = ImmOP(state);
+    Object.keys(header).forEach(key => {
+      newState.set(['endpoint', 'headers', key], header[key]);
+    });
+
+    return newState.value();
   },
 
   [API_SET_ENDPOINT_HOST]: (state, { payload: host }) => {
