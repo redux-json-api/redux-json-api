@@ -2,7 +2,8 @@ import expect from 'expect';
 
 import {
   updateReverseRelationship,
-  setIsInvalidatingForExistingEntity
+  setIsInvalidatingForExistingEntity,
+  updateOrInsertEntity
 } from '../src/state-mutation';
 
 import { IS_UPDATING } from '../src/jsonapi';
@@ -169,5 +170,23 @@ describe('[State Mutation]: Create new reference when Object is mutated', () => 
 
     expect(updatedEnteties[0]).toNotBe(state.transactions.data[0]);
     expect(updatedEnteties[1]).toBe(state.transactions.data[1]);
+  });
+
+  it('Should only replace updated resource', () => {
+    const updatedState = updateOrInsertEntity(state, {
+      type: 'users',
+      id: '1',
+      attributes: {
+        name: 'John Doe'
+      },
+      relationships: {
+        companies: {
+          data: null
+        }
+      }
+    });
+
+    expect(updatedState.users.data[0]).toNotBe(state.users.data[0]);
+    expect(updatedState.users.data[1]).toBe(state.users.data[1]);
   });
 });
