@@ -254,7 +254,7 @@ export const requireEntity = (entityType, endpoint = entityType, {
   return (dispatch, getState) => {
     return new Promise((resolve, reject) => {
       const state = getState();
-      const api = Imm.Iterable.isIterable(state) ? getState().get('api') : state.api;
+      const api = Imm.Iterable.isIterable(state) ? state.get('api') : state.api;
       if (api.hasOwnProperty(entityType)) {
         resolve();
         return onSuccess();
