@@ -56,7 +56,8 @@ export const uploadFile = (file, {
   console.warn('uploadFile has been deprecated and will no longer be supported by redux-json-api https://github.com/dixieio/redux-json-api/issues/2');
 
   return (dispatch, getState) => {
-    const accessToken = getState().api.endpoint.accessToken;
+    const state = getState();
+    const {accessToken} = Imm.Iterable.isIterable(state) ? state.get('api').endpoint : state.api.endpoint;
     const path = [companyId, fileableType, fileableId].filter(o => !!o).join('/');
     const url = `${__API_HOST__}/upload/${path}?access_token=${accessToken}`;
 
@@ -102,7 +103,8 @@ export const createEntity = (entity, {
   return (dispatch, getState) => {
     dispatch(apiWillCreate(entity));
 
-    const { host: apiHost, path: apiPath, headers } = getState().api.endpoint;
+    const state = getState()
+    const { host: apiHost, path: apiPath, headers } = Imm.Iterable.isIterable(state) ? state.get('api').endpoint : state.api.endpoint;
     const endpoint = `${apiHost}${apiPath}/${entity.type}`;
 
     return new Promise((resolve, reject) => {
@@ -140,7 +142,8 @@ export const readEndpoint = (endpoint, {
   return (dispatch, getState) => {
     dispatch(apiWillRead(endpoint));
 
-    const { host: apiHost, path: apiPath, headers } = getState().api.endpoint;
+    const state = getState();
+    const { host: apiHost, path: apiPath, headers } = Imm.Iterable.isIterable(state) ? state.get('api').endpoint : state.api.endpoint;
     const apiEndpoint = `${apiHost}${apiPath}/${endpoint}`;
 
     return new Promise((resolve, reject) => {
@@ -176,7 +179,8 @@ export const updateEntity = (entity, {
   return (dispatch, getState) => {
     dispatch(apiWillUpdate(entity));
 
-    const { host: apiHost, path: apiPath, headers } = getState().api.endpoint;
+    const state = getState();
+    const { host: apiHost, path: apiPath, headers } = Imm.Iterable.isIterable(state) ? state.get('api').endpoint : state.api.endpoint;
     const endpoint = `${apiHost}${apiPath}/${entity.type}/${entity.id}`;
 
     return new Promise((resolve, reject) => {
@@ -214,7 +218,8 @@ export const deleteEntity = (entity, {
   return (dispatch, getState) => {
     dispatch(apiWillDelete(entity));
 
-    const { host: apiHost, path: apiPath, headers } = getState().api.endpoint;
+    const state = getState();
+    const { host: apiHost, path: apiPath, headers } = Imm.Iterable.isIterable(state) ? state.get('api').endpoint : state.api.endpoint;
     const endpoint = `${apiHost}${apiPath}/${entity.type}/${entity.id}`;
 
     return new Promise((resolve, reject) => {
@@ -248,7 +253,7 @@ export const requireEntity = (entityType, endpoint = entityType, {
 
   return (dispatch, getState) => {
     return new Promise((resolve, reject) => {
-      const { api } = getState();
+      const api = Imm.Iterable.isIterable(state) ? getState().get('api') : state.api;
       if (api.hasOwnProperty(entityType)) {
         resolve();
         return onSuccess();
