@@ -57,7 +57,7 @@ export const uploadFile = (file, {
 
   return (dispatch, getState) => {
     const state = getState();
-    const {accessToken} = Imm.Iterable.isIterable(state) ? state.get('api').endpoint : state.api.endpoint;
+    const { accessToken } = Imm.Iterable.isIterable(state) ? state.get('api').endpoint : state.api.endpoint;
     const path = [companyId, fileableType, fileableId].filter(o => !!o).join('/');
     const url = `${__API_HOST__}/upload/${path}?access_token=${accessToken}`;
 
@@ -103,7 +103,7 @@ export const createEntity = (entity, {
   return (dispatch, getState) => {
     dispatch(apiWillCreate(entity));
 
-    const state = getState()
+    const state = getState();
     const { host: apiHost, path: apiPath, headers } = Imm.Iterable.isIterable(state) ? state.get('api').endpoint : state.api.endpoint;
     const endpoint = `${apiHost}${apiPath}/${entity.type}`;
 
@@ -253,6 +253,7 @@ export const requireEntity = (entityType, endpoint = entityType, {
 
   return (dispatch, getState) => {
     return new Promise((resolve, reject) => {
+      const state = getState();
       const api = Imm.Iterable.isIterable(state) ? getState().get('api') : state.api;
       if (api.hasOwnProperty(entityType)) {
         resolve();
