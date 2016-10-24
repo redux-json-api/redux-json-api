@@ -1,6 +1,6 @@
 import { createAction, handleActions } from 'redux-actions';
 import 'isomorphic-fetch';
-import ImmOP from 'object-path-immutable';
+import imm from 'object-path-immutable';
 
 import {
   removeEntityFromState,
@@ -265,11 +265,11 @@ export const requireEntity = (entityType, endpoint = entityType, {
 export const reducer = handleActions({
 
   [API_SET_HEADERS]: (state, { payload: headers }) => {
-    return ImmOP(state).set(['endpoint', 'headers'], headers).value();
+    return imm(state).set(['endpoint', 'headers'], headers).value();
   },
 
   [API_SET_HEADER]: (state, { payload: header }) => {
-    const newState = ImmOP(state);
+    const newState = imm(state);
     Object.keys(header).forEach(key => {
       newState.set(['endpoint', 'headers', key], header[key]);
     });
@@ -278,15 +278,15 @@ export const reducer = handleActions({
   },
 
   [API_SET_ENDPOINT_HOST]: (state, { payload: host }) => {
-    return ImmOP(state).set(['endpoint', 'host'], host).value();
+    return imm(state).set(['endpoint', 'host'], host).value();
   },
 
   [API_SET_ENDPOINT_PATH]: (state, { payload: path }) => {
-    return ImmOP(state).set(['endpoint', 'path'], path).value();
+    return imm(state).set(['endpoint', 'path'], path).value();
   },
 
   [API_WILL_CREATE]: (state) => {
-    return ImmOP(state).set(['isCreating'], state.isCreating + 1).value();
+    return imm(state).set(['isCreating'], state.isCreating + 1).value();
   },
 
   [API_CREATED]: (state, { payload: entities }) => {
@@ -295,17 +295,17 @@ export const reducer = handleActions({
       Array.isArray(entities) ? entities : [entities]
     );
 
-    return ImmOP(newState)
+    return imm(newState)
       .set('isCreating', state.isCreating - 1)
       .value();
   },
 
   [API_CREATE_FAILED]: (state) => {
-    return ImmOP(state).set(['isCreating'], state.isCreating - 1).value();
+    return imm(state).set(['isCreating'], state.isCreating - 1).value();
   },
 
   [API_WILL_READ]: (state) => {
-    return ImmOP(state).set(['isReading'], state.isReading + 1).value();
+    return imm(state).set(['isReading'], state.isReading + 1).value();
   },
 
   [API_READ]: (state, { payload }) => {
@@ -317,13 +317,13 @@ export const reducer = handleActions({
 
     const newState = updateOrInsertEntitiesIntoState(state, entities);
 
-    return ImmOP(newState)
+    return imm(newState)
       .set('isReading', state.isReading - 1)
       .value();
   },
 
   [API_READ_FAILED]: (state) => {
-    return ImmOP(state).set(['isReading'], state.isReading - 1).value();
+    return imm(state).set(['isReading'], state.isReading - 1).value();
   },
 
   [API_WILL_UPDATE]: (state, { payload: entity }) => {
@@ -340,7 +340,7 @@ export const reducer = handleActions({
       Array.isArray(entities) ? entities : [entities]
     );
 
-    return ImmOP(newState)
+    return imm(newState)
       .set('isUpdating', state.isUpdating - 1)
       .value();
   },

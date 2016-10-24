@@ -1,4 +1,4 @@
-import ImmOP from 'object-path-immutable';
+import imm from 'object-path-immutable';
 import pluralize from 'pluralize';
 import { hasOwnProperties } from './utils';
 
@@ -33,7 +33,7 @@ export const updateReverseRelationship = (
     const relPath = ['relationships', relCase, 'data'];
     const idxRelPath = [idx].concat(relPath);
 
-    const immutableForeingEntities = ImmOP(foreignEntities);
+    const immutableForeingEntities = imm(foreignEntities);
 
     if (!hasOwnProperties(foreignEntities[idx], relPath)) {
       return immutableForeingEntities
@@ -58,7 +58,7 @@ export const updateOrInsertEntity = (state, entity) => {
     return state;
   }
 
-  const newState = ImmOP(state);
+  const newState = imm(state);
 
   const updatePath = [entity.type, 'data'];
 
@@ -131,7 +131,7 @@ export const removeEntityFromState = (state, entity) => {
     }
 
     return newState;
-  }, ImmOP(state).del(path));
+  }, imm(state).del(path));
 };
 
 export const updateOrInsertEntitiesIntoState = (state, entities) => {
@@ -147,7 +147,7 @@ export const setIsInvalidatingForExistingEntity = (state, { type, id }, value = 
 
   const updatePath = [type, 'data', idx, 'isInvalidating'];
 
-  const newState = ImmOP(state);
+  const newState = imm(state);
 
   return (value === null
     ? newState.del(updatePath)
