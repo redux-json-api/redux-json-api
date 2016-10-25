@@ -1,83 +1,91 @@
-import ImmOP from 'object-path-immutable';
+import imm from 'object-path-immutable';
 import pluralize from 'pluralize';
 import { hasOwnProperties } from './utils';
+import equal from 'deep-equal';
 
-export const updateReverseRelationship = (
-  entity,
+export const makeUpdateReverseRelationship = (
+  resource,
   relationship,
   newRelation = {
-    type: entity.type,
-    id: entity.id
+    type: resource.type,
+    id: resource.id
   }
 ) => {
-  return (foreignEntities) => {
-    const idx = foreignEntities.findIndex(item => (
+  return (foreignResources) => {
+    const idx = foreignResources.findIndex(item => (
       item.id === relationship.data.id
     ));
 
     if (idx === -1) {
-      return foreignEntities;
+      return foreignResources;
     }
 
-    const [singular, plural] = [1, 2].map(i => pluralize(entity.type, i));
+    const [singular, plural] = [1, 2].map(i => pluralize(resource.type, i));
     const relCase = [singular, plural]
       .find(r => (
-        hasOwnProperties(foreignEntities[idx], ['relationships', r])
+        hasOwnProperties(foreignResources[idx], ['relationships', r])
       )
     );
 
     if (!relCase) {
-      return foreignEntities;
+      return foreignResources;
     }
 
     const relPath = ['relationships', relCase, 'data'];
     const idxRelPath = [idx].concat(relPath);
 
-    const immutableForeingEntities = ImmOP(foreignEntities);
+    const immutableForeingResources = imm(foreignResources);
 
-    if (!hasOwnProperties(foreignEntities[idx], relPath)) {
-      return immutableForeingEntities
-      .push(idxRelPath, newRelation)
-      .value();
+    if (!hasOwnProperties(foreignResources[idx], relPath)) {
+      return immutableForeingResources
+        .push(idxRelPath, newRelation)
+        .value();
     }
 
     if (relCase === singular) {
-      return immutableForeingEntities
+      return immutableForeingResources
         .set(idxRelPath, newRelation)
         .value();
     }
 
-    return immutableForeingEntities
+    return immutableForeingResources
       .push(idxRelPath, newRelation)
       .value();
   };
 };
 
-export const updateOrInsertEntity = (state, entity) => {
-  if (typeof entity !== 'object') {
+const stateContainsResource = (state, resource) => {
+  const updatePath = [resource.type, 'data'];
+
+  if (hasOwnProperties(state, updatePath)) {
+    return state[resource.type].data.findIndex(
+      item => item.id === resource.id
+    ) > -1;
+  }
+
+  return false;
+};
+
+export const updateOrInsertResource = (state, resource) => {
+  if (typeof resource !== 'object') {
     return state;
   }
 
-  const newState = ImmOP(state);
+  const newState = imm(state);
+  const updatePath = [resource.type, 'data'];
 
-  const updatePath = [entity.type, 'data'];
+  if (stateContainsResource(state, resource)) {
+    const resources = state[resource.type].data;
+    const idx = resources.findIndex(item => item.id === resource.id);
 
-  if (!hasOwnProperties(state, updatePath)) {
-    newState
-      .push(updatePath, entity);
-  } else {
-    const idx = state[entity.type].data.findIndex(item => item.id === entity.id);
-
-    if (idx === -1) {
-      newState
-        .push(updatePath, entity);
-    } else {
-      newState
-        .set(updatePath.concat(idx), entity);
+    if (!equal(resources[idx], resource)) {
+      newState.set(updatePath.concat(idx), resource);
     }
+  } else {
+    newState.push(updatePath, resource);
   }
 
-  const rels = entity.relationships;
+  const rels = resource.relationships;
 
   if (!rels) {
     return newState.value();
@@ -88,69 +96,65 @@ export const updateOrInsertEntity = (state, entity) => {
       return;
     }
 
-    const entityPath = [
-      rels[relKey].data.type,
-      'data',
-    ];
+    const entityPath = [rels[relKey].data.type, 'data'];
 
     if (!hasOwnProperties(state, entityPath)) {
       return;
     }
 
-    newState
-      .set(
-        entityPath,
-        updateReverseRelationship(entity, rels[relKey])(state[rels[relKey].data.type].data)
-      );
+    const updateReverseRelationship = makeUpdateReverseRelationship(
+      resource, rels[relKey]
+    );
+
+    newState.set(
+      entityPath,
+      updateReverseRelationship(state[rels[relKey].data.type].data)
+    );
   });
 
   return newState.value();
 };
 
-export const removeEntityFromState = (state, entity) => {
-  const index = state[entity.type].data.findIndex(e => e.id === entity.id);
-  const path = [entity.type, 'data', index];
-  const entityRelationships = entity.relationships;
+export const removeResourceFromState = (state, resource) => {
+  const index = state[resource.type].data.findIndex(e => e.id === resource.id);
+  const path = [resource.type, 'data', index];
+  const entityRelationships = resource.relationships;
 
   return Object.keys(entityRelationships).reduce((newState, key) => {
-    if (entity.relationships[key].data === null) {
+    if (resource.relationships[key].data === null) {
       return newState;
     }
 
-    const entityPath = [entity.relationships[key].data.type, 'data'];
+    const entityPath = [resource.relationships[key].data.type, 'data'];
 
     if (hasOwnProperties(state, entityPath)) {
+      const updateReverseRelationship = makeUpdateReverseRelationship(
+        resource,
+        resource.relationships[key],
+        null
+      );
+
       return newState.set(
         entityPath,
         updateReverseRelationship(
-          entity,
-          entity.relationships[key],
-          null
-        )(state[entity.relationships[key].data.type].data)
+          state[resource.relationships[key].data.type].data
+        )
       );
     }
 
     return newState;
-  }, ImmOP(state).del(path));
+  }, imm(state).del(path));
 };
 
-export const updateOrInsertEntitiesIntoState = (state, entities) => {
-  return entities.reduce(
-    updateOrInsertEntity,
-    state
-  );
-};
+export const updateOrInsertResourcesIntoState = (state, resources) => (
+  resources.reduce(updateOrInsertResource, state)
+);
 
-export const setIsInvalidatingForExistingEntity = (state, { type, id }, value = null) => {
-  const idx = state[type].data
-    .findIndex(e => e.id === id && e.type === type);
-
+export const setIsInvalidatingForExistingResource = (state, { type, id }, value = null) => {
+  const idx = state[type].data.findIndex(e => e.id === id && e.type === type);
   const updatePath = [type, 'data', idx, 'isInvalidating'];
 
-  const newState = ImmOP(state);
-
-  return (value === null
-    ? newState.del(updatePath)
-    : newState.set(updatePath, value)
-  );
+  return value === null
+    ? imm(state).del(updatePath)
+    : imm(state).set(updatePath, value);
 };

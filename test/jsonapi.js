@@ -157,7 +157,7 @@ const updatedUser = {
   }
 };
 
-const multipleEntities = [
+const multipleResources = [
   {
     ... taskWithTransaction
   }
@@ -192,7 +192,7 @@ const readResponseWithIncluded = {
   ]
 };
 
-const responseDataWithSingleEntity = {
+const responseDataWithSingleResource = {
   data: {
     type: 'companies',
     id: '1',
@@ -302,13 +302,13 @@ const responseDataWithOneToManyRelationship = {
 
 const payloadWithNonMatchingReverseRelationships = require('./payloads/withNonMatchingReverseRelationships.json');
 
-describe('Creation of new entities', () => {
-  it('should automatically organize new entity in new key on state', () => {
+describe('Creation of new resources', () => {
+  it('should automatically organize new resource in new key on state', () => {
     const updatedState = reducer(state, apiCreated(taskWithoutRelationship));
     expect(updatedState.tasks).toBeAn('object');
   });
 
-  it('should add reverse relationship when inserting new entity', () => {
+  it('should add reverse relationship when inserting new resource', () => {
     const updatedState = reducer(state, apiCreated(taskWithTransaction));
 
     const { data: taskRelationship } = updatedState.transactions.data[0].relationships.task;
@@ -318,20 +318,20 @@ describe('Creation of new entities', () => {
     expect(updatedState.isCreating).toEqual(state.isCreating - 1);
   });
 
-  it('should handle multiple entities', () => {
-    const updatedState = reducer(state, apiCreated(multipleEntities));
+  it('should handle multiple resources', () => {
+    const updatedState = reducer(state, apiCreated(multipleResources));
     expect(updatedState.tasks).toBeAn('object');
   });
 });
 
-describe('Reading entities', () => {
-  it('should append read entities to state', () => {
+describe('Reading resources', () => {
+  it('should append read resources to state', () => {
     const updatedState = reducer(state, apiRead(readResponse));
     expect(updatedState.tasks).toBeAn('object');
     expect(updatedState.tasks.data.length).toEqual(1);
   });
 
-  it('should append included entities in state', () => {
+  it('should append included resources in state', () => {
     const updatedState = reducer(state, apiRead(readResponseWithIncluded));
     expect(
       updatedState.transactions.data.length
@@ -341,7 +341,7 @@ describe('Reading entities', () => {
   });
 
   it('should handle response where data is an object', () => {
-    const updatedState = reducer(undefined, apiRead(responseDataWithSingleEntity));
+    const updatedState = reducer(undefined, apiRead(responseDataWithSingleResource));
     expect(updatedState.users).toBeAn('object');
     expect(updatedState.companies).toBeAn('object');
   });
@@ -353,11 +353,11 @@ describe('Reading entities', () => {
     expect(updatedState.users.data[0].relationships.companies.data).toBeAn('array');
   });
 
-  it('should ignore reverse relationship with no matching entity', () => {
+  it('should ignore reverse relationship with no matching resource', () => {
     const updatedState = reducer(state, apiRead(payloadWithNonMatchingReverseRelationships));
 
     payloadWithNonMatchingReverseRelationships.included
-      .filter(entity => entity.type === 'reports')
+      .filter(resource => resource.type === 'reports')
       .forEach(
         payloadReport => {
           const stateReport = updatedState.reports.data.find(r => payloadReport.id === r.id);
@@ -369,7 +369,7 @@ describe('Reading entities', () => {
 
 const zip = rows => rows[0].map((_, c) => rows.map(row => row[c]));
 
-describe('Updating entities', () => {
+describe('Updating resources', () => {
   it('should persist in state and preserve order', () => {
     const updatedState = reducer(state, apiUpdated(updatedUser));
     expect(state.users.data[0].attributes.name).toNotEqual(updatedUser.attributes.name);
@@ -378,8 +378,8 @@ describe('Updating entities', () => {
   });
 });
 
-describe('Delete entities', () => {
-  it('should remove entity from state', () => {
+describe('Delete resources', () => {
+  it('should remove resource from state', () => {
     const updatedState = reducer(state, apiDeleted(transactionToDelete));
     expect(updatedState.transactions.data.length).toEqual(0);
   });

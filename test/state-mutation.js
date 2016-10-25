@@ -1,14 +1,14 @@
 import expect from 'expect';
 
 import {
-  updateReverseRelationship,
-  setIsInvalidatingForExistingEntity,
-  updateOrInsertEntity
+  makeUpdateReverseRelationship,
+  setIsInvalidatingForExistingResource,
+  updateOrInsertResource
 } from '../src/state-mutation';
 
 import { IS_UPDATING } from '../src/jsonapi';
 
-const entity = {
+const resource = {
   type: 'tasks',
   id: '43',
   attributes: {
@@ -115,20 +115,20 @@ const state = {
 };
 
 describe(`[State Mutation] Update or Reverse relationships`, () => {
-  it('Should update a entity relationship', () => {
-    const updatedEnteties = updateReverseRelationship(
-      entity,
-      entity.relationships.transaction
+  it('Should update a resource relationship', () => {
+    const updatedEnteties = makeUpdateReverseRelationship(
+      resource,
+      resource.relationships.transaction
     )(state.transactions.data);
 
     expect(updatedEnteties[0].relationships.task.data)
-      .toEqual({ id: entity.id, type: entity.type });
+      .toEqual({ id: resource.id, type: resource.type });
   });
 
-  it('Should nullify a entity relationship', () => {
-    const updatedEnteties = updateReverseRelationship(
-      entity,
-      entity.relationships.transaction,
+  it('Should nullify a resource relationship', () => {
+    const updatedEnteties = makeUpdateReverseRelationship(
+      resource,
+      resource.relationships.transaction,
       null
     )(state.transactions.data);
 
@@ -137,10 +137,10 @@ describe(`[State Mutation] Update or Reverse relationships`, () => {
 });
 
 
-describe('[State Mutation]: Set is invalidating for existing entity', () => {
-  it('Should set a ivalidating type for entity to IS_UPDATING', () => {
+describe('[State Mutation]: Set is invalidating for existing resource', () => {
+  it('Should set a ivalidating type for resource to IS_UPDATING', () => {
     const { id, type } = state.users.data[0];
-    const updatedState = setIsInvalidatingForExistingEntity(
+    const updatedState = setIsInvalidatingForExistingResource(
       state,
       { type, id },
       IS_UPDATING
@@ -152,7 +152,7 @@ describe('[State Mutation]: Set is invalidating for existing entity', () => {
 describe('[State Mutation]: Create new reference when Object is mutated', () => {
   it('Should keep proper refrences when setting isInvalidating', () => {
     const { id, type } = state.users.data[0];
-    const updatedState = setIsInvalidatingForExistingEntity(
+    const updatedState = setIsInvalidatingForExistingResource(
       state,
       { type, id },
       IS_UPDATING
@@ -163,17 +163,35 @@ describe('[State Mutation]: Create new reference when Object is mutated', () => 
   });
 
   it('Should keep proper refrences when updating reverse relationships', () => {
-    const updatedEnteties = updateReverseRelationship(
-      entity,
-      entity.relationships.transaction
+    const updatedResources = makeUpdateReverseRelationship(
+      resource,
+      resource.relationships.transaction
     )(state.transactions.data);
 
-    expect(updatedEnteties[0]).toNotBe(state.transactions.data[0]);
-    expect(updatedEnteties[1]).toBe(state.transactions.data[1]);
+    expect(updatedResources[0]).toNotBe(state.transactions.data[0]);
+    expect(updatedResources[1]).toBe(state.transactions.data[1]);
   });
 
   it('Should only replace updated resource', () => {
-    const updatedState = updateOrInsertEntity(state, {
+    const updatedState = updateOrInsertResource(state, {
+      type: 'users',
+      id: '1',
+      attributes: {
+        name: 'Mr. John Doe'
+      },
+      relationships: {
+        companies: {
+          data: null
+        }
+      }
+    });
+
+    expect(updatedState.users.data[0]).toNotBe(state.users.data[0]);
+    expect(updatedState.users.data[1]).toBe(state.users.data[1]);
+  });
+
+  it('Should keep object reference on update or insert when resource hasn\'t changed', () => {
+    const updatedState = updateOrInsertResource(state, {
       type: 'users',
       id: '1',
       attributes: {
@@ -186,7 +204,6 @@ describe('[State Mutation]: Create new reference when Object is mutated', () => 
       }
     });
 
-    expect(updatedState.users.data[0]).toNotBe(state.users.data[0]);
-    expect(updatedState.users.data[1]).toBe(state.users.data[1]);
+    expect(updatedState.users.data[0]).toBe(state.users.data[0]);
   });
 });
