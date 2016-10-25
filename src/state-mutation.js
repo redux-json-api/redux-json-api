@@ -146,12 +146,9 @@ export const removeEntityFromState = (state, entity) => {
   }, imm(state).del(path));
 };
 
-export const updateOrInsertEntitiesIntoState = (state, entities) => {
-  return entities.reduce(
-    updateOrInsertEntity,
-    state
-  );
-};
+export const updateOrInsertEntitiesIntoState = (state, entities) => (
+  entities.reduce(updateOrInsertEntity, state)
+);
 
 export const setIsInvalidatingForExistingEntity = (state, { type, id }, value = null) => {
   const idx = state[type].data.findIndex(e => e.id === id && e.type === type);
