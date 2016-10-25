@@ -177,7 +177,7 @@ describe('[State Mutation]: Create new reference when Object is mutated', () => 
       type: 'users',
       id: '1',
       attributes: {
-        name: 'John Doe'
+        name: 'Mr. John Doe'
       },
       relationships: {
         companies: {
@@ -188,5 +188,22 @@ describe('[State Mutation]: Create new reference when Object is mutated', () => 
 
     expect(updatedState.users.data[0]).toNotBe(state.users.data[0]);
     expect(updatedState.users.data[1]).toBe(state.users.data[1]);
+  });
+
+  it('Should keep object reference on update or insert when resource hasn\'t changed', () => {
+    const updatedState = updateOrInsertEntity(state, {
+      type: 'users',
+      id: '1',
+      attributes: {
+        name: 'John Doe'
+      },
+      relationships: {
+        companies: {
+          data: null
+        }
+      }
+    });
+
+    expect(updatedState.users.data[0]).toBe(state.users.data[0]);
   });
 });
