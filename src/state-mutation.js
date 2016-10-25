@@ -141,8 +141,7 @@ export const updateOrInsertEntitiesIntoState = (state, entities) => {
 };
 
 export const setIsInvalidatingForExistingEntity = (state, { type, id }, value = null) => {
-  const idx = state[type].data
-    .findIndex(e => e.id === id && e.type === type);
+  const idx = state[type].data.findIndex(e => e.id === id && e.type === type);
 
   const updatePath = [type, 'data', idx, 'isInvalidating'];
 
