@@ -147,8 +147,7 @@ export const setIsInvalidatingForExistingEntity = (state, { type, id }, value = 
 
   const newState = imm(state);
 
-  return (value === null
+  return value === null
     ? newState.del(updatePath)
-    : newState.set(updatePath, value)
-  );
+    : newState.set(updatePath, value);
 };
