@@ -4,88 +4,88 @@ import { hasOwnProperties } from './utils';
 import equal from 'deep-equal';
 
 export const makeUpdateReverseRelationship = (
-  entity,
+  resource,
   relationship,
   newRelation = {
-    type: entity.type,
-    id: entity.id
+    type: resource.type,
+    id: resource.id
   }
 ) => {
-  return (foreignEntities) => {
-    const idx = foreignEntities.findIndex(item => (
+  return (foreignResources) => {
+    const idx = foreignResources.findIndex(item => (
       item.id === relationship.data.id
     ));
 
     if (idx === -1) {
-      return foreignEntities;
+      return foreignResources;
     }
 
-    const [singular, plural] = [1, 2].map(i => pluralize(entity.type, i));
+    const [singular, plural] = [1, 2].map(i => pluralize(resource.type, i));
     const relCase = [singular, plural]
       .find(r => (
-        hasOwnProperties(foreignEntities[idx], ['relationships', r])
+        hasOwnProperties(foreignResources[idx], ['relationships', r])
       )
     );
 
     if (!relCase) {
-      return foreignEntities;
+      return foreignResources;
     }
 
     const relPath = ['relationships', relCase, 'data'];
     const idxRelPath = [idx].concat(relPath);
 
-    const immutableForeingEntities = imm(foreignEntities);
+    const immutableForeingResources = imm(foreignResources);
 
-    if (!hasOwnProperties(foreignEntities[idx], relPath)) {
-      return immutableForeingEntities
+    if (!hasOwnProperties(foreignResources[idx], relPath)) {
+      return immutableForeingResources
         .push(idxRelPath, newRelation)
         .value();
     }
 
     if (relCase === singular) {
-      return immutableForeingEntities
+      return immutableForeingResources
         .set(idxRelPath, newRelation)
         .value();
     }
 
-    return immutableForeingEntities
+    return immutableForeingResources
       .push(idxRelPath, newRelation)
       .value();
   };
 };
 
-const stateContainsEntity = (state, entity) => {
-  const updatePath = [entity.type, 'data'];
+const stateContainsResource = (state, resource) => {
+  const updatePath = [resource.type, 'data'];
 
   if (hasOwnProperties(state, updatePath)) {
-    return state[entity.type].data.findIndex(
-      item => item.id === entity.id
+    return state[resource.type].data.findIndex(
+      item => item.id === resource.id
     ) > -1;
   }
 
   return false;
 };
 
-export const updateOrInsertEntity = (state, entity) => {
-  if (typeof entity !== 'object') {
+export const updateOrInsertResource = (state, resource) => {
+  if (typeof resource !== 'object') {
     return state;
   }
 
   const newState = imm(state);
-  const updatePath = [entity.type, 'data'];
+  const updatePath = [resource.type, 'data'];
 
-  if (stateContainsEntity(state, entity)) {
-    const entities = state[entity.type].data;
-    const idx = entities.findIndex(item => item.id === entity.id);
+  if (stateContainsResource(state, resource)) {
+    const resources = state[resource.type].data;
+    const idx = resources.findIndex(item => item.id === resource.id);
 
-    if (!equal(entities[idx], entity)) {
-      newState.set(updatePath.concat(idx), entity);
+    if (!equal(resources[idx], resource)) {
+      newState.set(updatePath.concat(idx), resource);
     }
   } else {
-    newState.push(updatePath, entity);
+    newState.push(updatePath, resource);
   }
 
-  const rels = entity.relationships;
+  const rels = resource.relationships;
 
   if (!rels) {
     return newState.value();
@@ -103,7 +103,7 @@ export const updateOrInsertEntity = (state, entity) => {
     }
 
     const updateReverseRelationship = makeUpdateReverseRelationship(
-      entity, rels[relKey]
+      resource, rels[relKey]
     );
 
     newState.set(
@@ -115,29 +115,29 @@ export const updateOrInsertEntity = (state, entity) => {
   return newState.value();
 };
 
-export const removeEntityFromState = (state, entity) => {
-  const index = state[entity.type].data.findIndex(e => e.id === entity.id);
-  const path = [entity.type, 'data', index];
-  const entityRelationships = entity.relationships;
+export const removeResourceFromState = (state, resource) => {
+  const index = state[resource.type].data.findIndex(e => e.id === resource.id);
+  const path = [resource.type, 'data', index];
+  const entityRelationships = resource.relationships;
 
   return Object.keys(entityRelationships).reduce((newState, key) => {
-    if (entity.relationships[key].data === null) {
+    if (resource.relationships[key].data === null) {
       return newState;
     }
 
-    const entityPath = [entity.relationships[key].data.type, 'data'];
+    const entityPath = [resource.relationships[key].data.type, 'data'];
 
     if (hasOwnProperties(state, entityPath)) {
       const updateReverseRelationship = makeUpdateReverseRelationship(
-        entity,
-        entity.relationships[key],
+        resource,
+        resource.relationships[key],
         null
       );
 
       return newState.set(
         entityPath,
         updateReverseRelationship(
-          state[entity.relationships[key].data.type].data
+          state[resource.relationships[key].data.type].data
         )
       );
     }
@@ -146,11 +146,11 @@ export const removeEntityFromState = (state, entity) => {
   }, imm(state).del(path));
 };
 
-export const updateOrInsertEntitiesIntoState = (state, entities) => (
-  entities.reduce(updateOrInsertEntity, state)
+export const updateOrInsertResourcesIntoState = (state, resources) => (
+  resources.reduce(updateOrInsertResource, state)
 );
 
-export const setIsInvalidatingForExistingEntity = (state, { type, id }, value = null) => {
+export const setIsInvalidatingForExistingResource = (state, { type, id }, value = null) => {
   const idx = state[type].data.findIndex(e => e.id === id && e.type === type);
   const updatePath = [type, 'data', idx, 'isInvalidating'];
 
