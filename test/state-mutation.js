@@ -163,13 +163,13 @@ describe('[State Mutation]: Create new reference when Object is mutated', () => 
   });
 
   it('Should keep proper refrences when updating reverse relationships', () => {
-    const updatedEnteties = makeUpdateReverseRelationship(
+    const updatedEntities = makeUpdateReverseRelationship(
       entity,
       entity.relationships.transaction
     )(state.transactions.data);
 
-    expect(updatedEnteties[0]).toNotBe(state.transactions.data[0]);
-    expect(updatedEnteties[1]).toBe(state.transactions.data[1]);
+    expect(updatedEntities[0]).toNotBe(state.transactions.data[0]);
+    expect(updatedEntities[1]).toBe(state.transactions.data[1]);
   });
 
   it('Should only replace updated resource', () => {
