@@ -1,6 +1,7 @@
 import imm from 'object-path-immutable';
 import pluralize from 'pluralize';
 import { hasOwnProperties } from './utils';
+import equal from 'deep-equal';
 
 export const makeUpdateReverseRelationship = (
   entity,
@@ -74,11 +75,12 @@ export const updateOrInsertEntity = (state, entity) => {
   const updatePath = [entity.type, 'data'];
 
   if (stateContainsEntity(state, entity)) {
-    const idx = state[entity.type].data.findIndex(
-      item => item.id === entity.id
-    );
+    const entities = state[entity.type].data;
+    const idx = entities.findIndex(item => item.id === entity.id);
 
-    newState.set(updatePath.concat(idx), entity);
+    if (!equal(entities[idx], entity)) {
+      newState.set(updatePath.concat(idx), entity);
+    }
   } else {
     newState.push(updatePath, entity);
   }
