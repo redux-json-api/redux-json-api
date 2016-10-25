@@ -309,10 +309,10 @@ export const reducer = handleActions({
   },
 
   [API_READ]: (state, { payload }) => {
-    const resources =
-    (Array.isArray(payload.data)
-      ? payload.data
-      : [payload.data]
+    const resources = (
+      Array.isArray(payload.data)
+        ? payload.data
+        : [payload.data]
     ).concat(payload.included || []);
 
     const newState = updateOrInsertResourcesIntoState(state, resources);
