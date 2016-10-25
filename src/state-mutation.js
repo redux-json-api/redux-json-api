@@ -97,11 +97,10 @@ export const updateOrInsertEntity = (state, entity) => {
       return;
     }
 
-    newState
-      .set(
-        entityPath,
-        updateReverseRelationship(entity, rels[relKey])(state[rels[relKey].data.type].data)
-      );
+    newState.set(
+      entityPath,
+      updateReverseRelationship(entity, rels[relKey])(state[rels[relKey].data.type].data)
+    );
   });
 
   return newState.value();
