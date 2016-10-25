@@ -91,7 +91,7 @@ export const uploadFile = (file, {
   };
 };
 
-export const createResource = (resource, {
+export const createEntity = (resource, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
 } = {}) => {
@@ -165,7 +165,7 @@ export const readEndpoint = (endpoint, {
   };
 };
 
-export const updateResource = (resource, {
+export const updateEntity = (resource, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
 } = {}) => {
@@ -203,7 +203,7 @@ export const updateResource = (resource, {
   };
 };
 
-export const deleteResource = (resource, {
+export const deleteEntity = (resource, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
 } = {}) => {
