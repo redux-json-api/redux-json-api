@@ -38,8 +38,8 @@ export const makeUpdateReverseRelationship = (
 
     if (!hasOwnProperties(foreignEntities[idx], relPath)) {
       return immutableForeingEntities
-      .push(idxRelPath, newRelation)
-      .value();
+        .push(idxRelPath, newRelation)
+        .value();
     }
 
     if (relCase === singular) {
