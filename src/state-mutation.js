@@ -2,7 +2,7 @@ import imm from 'object-path-immutable';
 import pluralize from 'pluralize';
 import { hasOwnProperties } from './utils';
 
-export const updateReverseRelationship = (
+export const makeUpdateReverseRelationship = (
   entity,
   relationship,
   newRelation = {
@@ -99,7 +99,7 @@ export const updateOrInsertEntity = (state, entity) => {
 
     newState.set(
       entityPath,
-      updateReverseRelationship(entity, rels[relKey])(state[rels[relKey].data.type].data)
+      makeUpdateReverseRelationship(entity, rels[relKey])(state[rels[relKey].data.type].data)
     );
   });
 
@@ -121,7 +121,7 @@ export const removeEntityFromState = (state, entity) => {
     if (hasOwnProperties(state, entityPath)) {
       return newState.set(
         entityPath,
-        updateReverseRelationship(
+        makeUpdateReverseRelationship(
           entity,
           entity.relationships[key],
           null
