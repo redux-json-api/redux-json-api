@@ -59,21 +59,19 @@ export const updateOrInsertEntity = (state, entity) => {
   }
 
   const newState = imm(state);
-
   const updatePath = [entity.type, 'data'];
 
   if (!hasOwnProperties(state, updatePath)) {
-    newState
-      .push(updatePath, entity);
+    newState.push(updatePath, entity);
   } else {
-    const idx = state[entity.type].data.findIndex(item => item.id === entity.id);
+    const idx = state[entity.type].data.findIndex(
+      item => item.id === entity.id
+    );
 
     if (idx === -1) {
-      newState
-        .push(updatePath, entity);
+      newState.push(updatePath, entity);
     } else {
-      newState
-        .set(updatePath.concat(idx), entity);
+      newState.set(updatePath.concat(idx), entity);
     }
   }
 
