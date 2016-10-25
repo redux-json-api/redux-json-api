@@ -97,9 +97,13 @@ export const updateOrInsertEntity = (state, entity) => {
       return;
     }
 
+    const updateReverseRelationship = makeUpdateReverseRelationship(
+      entity, rels[relKey]
+    );
+
     newState.set(
       entityPath,
-      makeUpdateReverseRelationship(entity, rels[relKey])(state[rels[relKey].data.type].data)
+      updateReverseRelationship(state[rels[relKey].data.type].data)
     );
   });
 
@@ -119,13 +123,17 @@ export const removeEntityFromState = (state, entity) => {
     const entityPath = [entity.relationships[key].data.type, 'data'];
 
     if (hasOwnProperties(state, entityPath)) {
+      const updateReverseRelationship = makeUpdateReverseRelationship(
+        entity,
+        entity.relationships[key],
+        null
+      );
+
       return newState.set(
         entityPath,
-        makeUpdateReverseRelationship(
-          entity,
-          entity.relationships[key],
-          null
-        )(state[entity.relationships[key].data.type].data)
+        updateReverseRelationship(
+          state[entity.relationships[key].data.type].data
+        )
       );
     }
 
