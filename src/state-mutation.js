@@ -96,10 +96,7 @@ export const updateOrInsertEntity = (state, entity) => {
       return;
     }
 
-    const entityPath = [
-      rels[relKey].data.type,
-      'data',
-    ];
+    const entityPath = [rels[relKey].data.type, 'data'];
 
     if (!hasOwnProperties(state, entityPath)) {
       return;
