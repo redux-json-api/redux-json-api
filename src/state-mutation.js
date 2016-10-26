@@ -118,7 +118,7 @@ export const updateOrInsertResource = (state, resource) => {
 export const removeResourceFromState = (state, resource) => {
   const index = state[resource.type].data.findIndex(e => e.id === resource.id);
   const path = [resource.type, 'data', index];
-  const entityRelationships = resource.relationships;
+  const entityRelationships = resource.relationships || {};
 
   return Object.keys(entityRelationships).reduce((newState, key) => {
     if (resource.relationships[key].data === null) {
