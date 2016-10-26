@@ -336,7 +336,7 @@ export const reducer = handleActions({
 
   [API_UPDATED]: (state, { payload: resources }) => {
     const newState = updateOrInsertResourcesIntoState(
-      newState,
+      state,
       Array.isArray(resources) ? resources : [resources]
     );
 
