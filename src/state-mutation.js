@@ -42,6 +42,17 @@ export const makeUpdateReverseRelationship = (
         .value();
     }
 
+    const foreignResourceRel = foreignResources[idx].relationships[relCase].data;
+
+    if (
+      newRelation !== null &&
+      foreignResourceRel !== null &&
+      foreignResourceRel.id === newRelation.id
+      && foreignResourceRel.type === newRelation.type
+    ) {
+      return foreignResources;
+    }
+
     if (relCase === singular) {
       return immutableForeingResources
         .set(idxRelPath, newRelation)
