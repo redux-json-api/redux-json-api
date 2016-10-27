@@ -105,6 +105,26 @@ const state = {
         links: {
           self: 'http://localhost/transactions/34'
         }
+      },
+      {
+        type: 'transactions',
+        id: '37',
+        attributes: {
+          description: 'ABC',
+          createdAt: '2016-02-12T13:34:01+0000',
+          updatedAt: '2016-02-19T11:52:43+0000',
+        },
+        relationships: {
+          task: {
+            data: {
+              type: 'tasks',
+              id: '43'
+            }
+          }
+        },
+        links: {
+          self: 'http://localhost/transactions/34'
+        }
       }
     ]
   },
@@ -123,6 +143,43 @@ describe(`[State Mutation] Update or Reverse relationships`, () => {
 
     expect(updatedEnteties[0].relationships.task.data)
       .toEqual({ id: resource.id, type: resource.type });
+  });
+
+  it('Should not mutate relationship, if new relationship is not null', () => {
+    const localresource = {
+      type: 'tasks',
+      id: '43',
+      attributes: {
+        name: 'ABC',
+        createdAt: '2016-02-19T11:52:43+0000',
+        updatedAt: '2016-02-19T11:52:43+0000'
+      },
+      relationships: {
+        taskList: {
+          data: {
+            type: 'taskLists',
+            id: '1'
+          }
+        },
+        transaction: {
+          data: {
+            type: 'transactions',
+            id: '37'
+          }
+        }
+      },
+      links: {
+        self: 'http://localhost/tasks/43'
+      }
+    };
+
+    const updatedEnteties = makeUpdateReverseRelationship(
+      localresource,
+      localresource.relationships.transaction
+    )(state.transactions.data);
+
+    expect(updatedEnteties[2].relationships.task.data)
+      .toBe(state.transactions.data[2].relationships.task.data);
   });
 
   it('Should nullify a resource relationship', () => {
