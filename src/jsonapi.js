@@ -91,7 +91,7 @@ export const uploadFile = (file, {
   };
 };
 
-export const createEntity = (entity, {
+export const createResource = (entity, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
 } = {}) => {
@@ -165,7 +165,7 @@ export const readEndpoint = (endpoint, {
   };
 };
 
-export const updateEntity = (entity, {
+export const updateResource = (entity, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
 } = {}) => {
@@ -203,7 +203,7 @@ export const updateEntity = (entity, {
   };
 };
 
-export const deleteEntity = (entity, {
+export const deleteResource = (entity, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
 } = {}) => {
@@ -238,7 +238,7 @@ export const deleteEntity = (entity, {
   };
 };
 
-export const requireEntity = (entityType, endpoint = entityType, {
+export const requireResource = (entityType, endpoint = entityType, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
 } = {}) => {
@@ -259,6 +259,26 @@ export const requireEntity = (entityType, endpoint = entityType, {
         .catch(reject);
     });
   };
+};
+
+export const createEntity = (...args) => {
+  console.warn('createEntity is deprecated and will be removed in v2.0 in favor of new method createResource');
+  return createResource(...args);
+};
+
+export const updateEntity = (...args) => {
+  console.warn('updateEntity is deprecated and will be removed in v2.0 in favor of new method updateResource');
+  return updateResource(...args);
+};
+
+export const deleteEntity = (...args) => {
+  console.warn('deleteEntity is deprecated and will be removed in v2.0 in favor of new method deleteResource');
+  return deleteResource(...args);
+};
+
+export const requireEntity = (...args) => {
+  console.warn('requireEntity is deprecated and will be removed in v2.0 in favor of new method requireResource');
+  return requireResource(...args);
 };
 
 // Reducers
