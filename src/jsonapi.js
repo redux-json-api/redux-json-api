@@ -232,7 +232,7 @@ export const deleteResource = (entity, {
   };
 };
 
-export const requireEntity = (entityType, endpoint = entityType, {
+export const requireResource = (entityType, endpoint = entityType, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
 } = {}) => {
