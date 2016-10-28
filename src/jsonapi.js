@@ -238,7 +238,7 @@ export const deleteEntity = (resource, {
   };
 };
 
-export const requireResource = (resourceType, endpoint = resourceType, {
+export const requireEntity = (resourceType, endpoint = resourceType, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
 } = {}) => {
