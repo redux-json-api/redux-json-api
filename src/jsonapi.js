@@ -1,5 +1,5 @@
 import { createAction, handleActions } from 'redux-actions';
-import 'isomorphic-fetch';
+import 'fetch-everywhere';
 import imm from 'object-path-immutable';
 
 import {
