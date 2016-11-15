@@ -1,10 +1,20 @@
 import expect from 'expect';
+import { createAction } from 'redux-actions';
 
 import {
   makeUpdateReverseRelationship,
   setIsInvalidatingForExistingResource,
   updateOrInsertResource
 } from '../src/state-mutation';
+
+import {
+  reducer
+} from '../src/jsonapi';
+
+import {
+  apiState,
+  patchedResource
+} from './payloads/failingReverseRelationshipUpdate';
 
 import { IS_UPDATING } from '../src/jsonapi';
 
@@ -190,6 +200,15 @@ describe(`[State Mutation] Update or Reverse relationships`, () => {
     )(state.transactions.data);
 
     expect(updatedEnteties[0].relationships.task.data).toEqual(null);
+  });
+
+  it('should not duplicate existing reverse relationships', () => {
+    const apiUpdated = createAction('API_UPDATED');
+    const updatedState = reducer(apiState, apiUpdated(patchedResource));
+
+    expect(
+      updatedState.zenAccounts.data[0].relationships.expenseItems.data.length
+    ).toEqual(1);
   });
 });
 
