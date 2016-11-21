@@ -45,10 +45,18 @@ export const makeUpdateReverseRelationship = (
     const foreignResourceRel = foreignResources[idx].relationships[relCase].data;
 
     if (
-      newRelation !== null &&
-      foreignResourceRel !== null &&
-      foreignResourceRel.id === newRelation.id
-      && foreignResourceRel.type === newRelation.type
+      (
+        Array.isArray(foreignResourceRel)
+        && ~foreignResourceRel.findIndex(
+          rel => rel.id === newRelation.id && rel.type === newRelation.type
+        )
+      )
+      || (
+        newRelation
+        && foreignResourceRel
+        && foreignResourceRel.id === newRelation.id
+        && foreignResourceRel.type === newRelation.type
+      )
     ) {
       return foreignResources;
     }
