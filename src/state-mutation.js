@@ -82,7 +82,7 @@ export const updateOrInsertResource = (state, resource) => {
     return state;
   }
 
-  const newState = imm(state);
+  let newState = state;
   const updatePath = [resource.type, 'data'];
 
   if (stateContainsResource(state, resource)) {
@@ -90,16 +90,16 @@ export const updateOrInsertResource = (state, resource) => {
     const idx = resources.findIndex(item => item.id === resource.id);
 
     if (!equal(resources[idx], resource)) {
-      newState.set(updatePath.concat(idx), resource);
+      newState = imm.set(newState, updatePath.concat(idx), resource);
     }
   } else {
-    newState.push(updatePath, resource);
+    newState = imm.push(newState, updatePath, resource);
   }
 
   const rels = resource.relationships;
 
   if (!rels) {
-    return newState.value();
+    return newState;
   }
 
   Object.keys(rels).forEach(relKey => {
@@ -109,7 +109,7 @@ export const updateOrInsertResource = (state, resource) => {
 
     const entityPath = [rels[relKey].data.type, 'data'];
 
-    if (!hasOwnProperties(state, entityPath)) {
+    if (!hasOwnProperties(newState, entityPath)) {
       return;
     }
 
@@ -117,13 +117,14 @@ export const updateOrInsertResource = (state, resource) => {
       resource, rels[relKey]
     );
 
-    newState.set(
+    newState = imm.set(
+      newState,
       entityPath,
-      updateReverseRelationship(state[rels[relKey].data.type].data)
+      updateReverseRelationship(newState[rels[relKey].data.type].data)
     );
   });
 
-  return newState.value();
+  return newState;
 };
 
 export const removeResourceFromState = (state, resource) => {

@@ -3,10 +3,13 @@ import expect from 'expect';
 import {
   makeUpdateReverseRelationship,
   setIsInvalidatingForExistingResource,
-  updateOrInsertResource
+  updateOrInsertResource,
+  updateOrInsertResourcesIntoState
 } from '../src/state-mutation';
 
 import { IS_UPDATING } from '../src/jsonapi';
+
+import topics from './payloads/topics.json';
 
 const resource = {
   type: 'tasks',
@@ -133,6 +136,16 @@ const state = {
   isUpdating: 0,
   isDeleting: 0
 };
+
+describe('[State mutation] Insertion of resources', () => {
+  it('should read and insert all resources into state', () => {
+    const updatedState = updateOrInsertResourcesIntoState(
+      state, topics.data
+    );
+
+    expect(updatedState.topics.data.length).toEqual(topics.data.length);
+  });
+});
 
 describe(`[State Mutation] Update or Reverse relationships`, () => {
   it('Should update a resource relationship', () => {
