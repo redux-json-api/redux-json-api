@@ -290,11 +290,10 @@ export const reducer = handleActions({
 
   [API_CREATED]: (state, { payload: resources }) => {
     const entities = Array.isArray(resources.data) ? resources.data : [resources.data];
-    entities.concat(resources.included || []);
 
     const newState = updateOrInsertResourcesIntoState(
       state,
-      entities
+      entities.concat(resources.included || [])
     );
 
     return imm(newState)
@@ -338,11 +337,10 @@ export const reducer = handleActions({
 
   [API_UPDATED]: (state, { payload: resources }) => {
     const entities = Array.isArray(resources.data) ? resources.data : [resources.data];
-    entities.concat(resources.included || []);
 
     const newState = updateOrInsertResourcesIntoState(
       state,
-      entities
+      entities.concat(resources.included || [])
     );
 
     return imm(newState)
