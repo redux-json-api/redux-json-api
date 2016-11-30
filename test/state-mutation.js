@@ -157,14 +157,14 @@ describe('[State mutation] Insertion of resources', () => {
   });
 });
 
-describe(`[State Mutation] Update or Reverse relationships`, () => {
+describe('[State Mutation] Update or Reverse relationships', () => {
   it('Should update a resource relationship', () => {
-    const updatedEnteties = makeUpdateReverseRelationship(
+    const updatedEntities = makeUpdateReverseRelationship(
       resource,
       resource.relationships.transaction
     )(state.transactions.data);
 
-    expect(updatedEnteties[0].relationships.task.data)
+    expect(updatedEntities[0].relationships.task.data)
       .toEqual({ id: resource.id, type: resource.type });
   });
 
