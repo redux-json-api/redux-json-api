@@ -320,10 +320,10 @@ describe('Creation of new resources', () => {
   it('should add reverse relationship when inserting new resource', () => {
     const updatedState = reducer(state, apiCreated(taskWithTransaction));
 
-    const taskRelationship = updatedState.transactions.data[0].relationships.task;
+    const { data: taskRelationship } = updatedState.transactions.data[0].relationships.task;
 
-    expect(taskRelationship.type).toEqual(taskWithTransaction.type);
-    expect(taskRelationship.id).toEqual(taskWithTransaction.id);
+    expect(taskRelationship.type).toEqual(taskWithTransaction.data.type);
+    expect(taskRelationship.id).toEqual(taskWithTransaction.data.id);
     expect(updatedState.isCreating).toEqual(state.isCreating - 1);
   });
 
