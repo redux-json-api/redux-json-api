@@ -86,7 +86,7 @@ const stateContainsResource = (state, resource) => {
 };
 
 export const addLinksToState = (state, links) => {
-  let newState = state;
+  const newState = state;
   newState.links = links;
 
   return newState;
