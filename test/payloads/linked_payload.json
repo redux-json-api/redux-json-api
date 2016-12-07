@@ -1,0 +1,59 @@
+{
+  "data": [
+    {
+      "id": "1",
+      "type": "posts",
+      "attributes": {
+        "title": "First post"
+      },
+      "relationships": {
+        "comments": {
+          "data": [
+            {
+              "id": "5",
+              "type": "comments"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "2",
+      "type": "posts",
+      "attributes": {
+        "title": "Second post"
+      },
+      "relationships": {
+        "comments": {
+          "data": [
+            {
+              "id": "3",
+              "type": "comments"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "included": [
+    {
+      "id": "3",
+      "type": "comments",
+      "attributes": {
+        "body": "first!"
+      }
+    },
+    {
+      "id": "5",
+      "type": "comments",
+      "attributes": {
+        "body": "inane drivel"
+      }
+    }
+  ],
+  "links": {
+    "self": "http://api-host/api_path/api_endpoint?page%5Bnumber%5D=1&page%5Bsize%5D=100",
+    "next": "http://api-host/api_path/api_endpoint?page%5Bnumber%5D=2&page%5Bsize%5D=100",
+    "last": "http://api-host/api_path/api_endpoint?page%5Bnumber%5D=20&page%5Bsize%5D=100"
+  }
+}

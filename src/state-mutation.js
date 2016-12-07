@@ -85,6 +85,13 @@ const stateContainsResource = (state, resource) => {
   return false;
 };
 
+export const addLinksToState = (state, links) => {
+  let newState = state;
+  newState.links = links;
+
+  return newState;
+};
+
 export const updateOrInsertResource = (state, resource) => {
   if (typeof resource !== 'object') {
     return state;

@@ -3,6 +3,7 @@ import 'fetch-everywhere';
 import imm from 'object-path-immutable';
 
 import {
+  addLinksToState,
   removeResourceFromState,
   updateOrInsertResourcesIntoState,
   setIsInvalidatingForExistingResource
@@ -315,7 +316,8 @@ export const reducer = handleActions({
         : [payload.data]
     ).concat(payload.included || []);
 
-    const newState = updateOrInsertResourcesIntoState(state, resources);
+    const links = payload.links || {};
+    const newState = addLinksToState(updateOrInsertResourcesIntoState(state, resources), links);
 
     return imm(newState)
       .set('isReading', state.isReading - 1)
