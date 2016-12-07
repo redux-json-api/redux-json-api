@@ -1,7 +1,7 @@
 import expect from 'expect';
-import linked_payload from './payloads/linked_payload.json';
 import { createAction } from 'redux-actions';
 
+import linked_payload from './payloads/linked_payload.json';
 import { reducer } from '../src/jsonapi';
 
 const state = {};
