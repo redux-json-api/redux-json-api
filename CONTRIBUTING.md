@@ -31,6 +31,12 @@ To continuously watch and run tests, run the following:
 npm run test:watch
 ```
 
+### Linting
+Before submitting a PR check for stylistic errors by linting the project:
+```
+npm run lint
+```
+
 ### Building
 
 To build run:
