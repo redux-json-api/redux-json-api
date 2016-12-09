@@ -1,0 +1,25 @@
+{
+  "data": {
+    "id": "1",
+    "type": "posts",
+    "attributes": {
+      "title": "Commented post"
+    },
+    "relationships": {
+      "comment": {
+        "data": [
+          {
+          "id": "1",
+          "type": "comment"
+          }
+        ]
+      }
+    },
+    "included": [
+      {
+        "id": "1",
+        "body": "Example comment"
+      }
+    ]
+  }
+}
