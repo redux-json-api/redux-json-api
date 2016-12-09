@@ -310,16 +310,17 @@ export const reducer = handleActions({
   },
 
   [API_READ]: (state, { payload }) => {
+    const primary_data = Array.isArray(payload.data) ? payload.data : [payload.data]
     const resources = (
-      Array.isArray(payload.data)
-        ? payload.data
-        : [payload.data]
+      primary_data
     ).concat(payload.included || []);
 
-    const links = payload.links || {};
-    const newState = addLinksToState(updateOrInsertResourcesIntoState(state, resources), links);
+    const resourcedState = updateOrInsertResourcesIntoState(state, resources);
 
-    return imm(newState)
+    const links = payload.links;
+    const linkedState = addLinksToState(resourcedState, links, primary_data);
+
+    return imm(linkedState)
       .set('isReading', state.isReading - 1)
       .value();
   },

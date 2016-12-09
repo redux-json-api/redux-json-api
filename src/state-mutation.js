@@ -85,9 +85,15 @@ const stateContainsResource = (state, resource) => {
   return false;
 };
 
-export const addLinksToState = (state, links) => {
+export const addLinksToState = (state, links, primary_data) => {
   const newState = state;
-  newState.links = links;
+
+  if (links != undefined) {
+    const primary_data_type = primary_data[0].type
+    const typed_links = {}
+    typed_links[primary_data_type] = links
+    newState.links = Object.assign({}, state.links, typed_links);
+  }
 
   return newState;
 };
