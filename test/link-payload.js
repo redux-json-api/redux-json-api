@@ -14,8 +14,6 @@ describe('[State mutation] Insertion of links', () => {
     const updatedState = reducer(state, apiRead(postsPayload));
     const finalState = reducer(updatedState, apiRead(authorPayload));
 
-    console.log(finalState);
-
     expect(finalState.posts.data.length).toEqual(postsPayload.data.length);
     expect(finalState.comments.data.length).toEqual(postsPayload.included.length);
     expect(finalState.authors.data.length).toEqual(authorPayload.data.length);

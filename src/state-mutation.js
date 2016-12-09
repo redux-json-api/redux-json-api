@@ -90,8 +90,10 @@ export const addLinksToState = (state, links, primary_data) => {
 
   if (links != undefined) {
     const primary_data_type = primary_data[0].type
-    const typed_links = {}
-    typed_links[primary_data_type] = links
+    
+    const typed_links = {},
+          typed_links[primary_data_type] = links
+    
     newState.links = Object.assign({}, state.links, typed_links);
   }
 
