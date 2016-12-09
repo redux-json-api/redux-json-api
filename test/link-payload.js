@@ -2,7 +2,7 @@ import expect from 'expect';
 import { createAction } from 'redux-actions';
 
 import postsPayload from './payloads/linked_payload.json';
-import authorPayload from './payloads/another_linked_payload.json';
+import authorPayload from './payloads/linked_payload_2.json';
 
 import { reducer } from '../src/jsonapi';
 
