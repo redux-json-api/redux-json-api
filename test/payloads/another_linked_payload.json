@@ -1,0 +1,23 @@
+{
+  "data": [
+    {
+      "id": "1",
+      "type": "authors",
+      "attributes": {
+        "name": "Phillip K Dick"
+      }
+    },
+    {
+      "id": "2",
+      "type": "authors",
+      "attributes": {
+        "name": "William Gibson"
+      }
+    }
+  ],
+  "links": {
+    "self": "http://api-host/api_path/authors?page%5Bnumber%5D=1&page%5Bsize%5D=2",
+    "next": "http://api-host/api_path/authors?page%5Bnumber%5D=2&page%5Bsize%5D=2",
+    "last": "http://api-host/api_path/authors?page%5Bnumber%5D=20&page%5Bsize%5D=2"
+  }
+}
