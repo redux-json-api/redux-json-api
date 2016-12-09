@@ -17,6 +17,8 @@ import {
 import fetchMock from 'fetch-mock';
 import { apiRequest } from '../src/utils';
 
+import { stateWithTransactionRelationships } from './states/stateWithTransactionRelationships';
+
 const apiCreated = createAction('API_CREATED');
 const apiRead = createAction('API_READ');
 const apiUpdated = createAction('API_UPDATED');
@@ -141,6 +143,18 @@ const transactionToDelete = {
   },
   links: {
     self: 'http://localhost/transactions/34'
+  }
+};
+
+const transactionToDeleteWithTask = {
+  ... transactionToDelete,
+  relationships: {
+    task: {
+      data: {
+        type: 'tasks',
+        id: '43'
+      }
+    }
   }
 };
 
@@ -379,21 +393,30 @@ describe('Updating resources', () => {
 });
 
 describe('Delete resources', () => {
-  it('should remove resource from state', () => {
-    const updatedState = reducer(state, apiDeleted(transactionToDelete));
-    expect(updatedState.transactions.data.length).toEqual(0);
+  describe('when single relationship', () => {
+    it('should remove resource from state', () => {
+      const updatedState = reducer(state, apiDeleted(transactionToDelete));
+      expect(updatedState.transactions.data.length).toEqual(0);
+    });
+
+    it('should remove reverse relationship', () => {
+      const stateWithTask = reducer(state, apiCreated(taskWithTransaction));
+
+      expect(stateWithTask.transactions.data[0].relationships.task.data.type).toEqual(taskWithTransaction.type);
+
+      const stateWithoutTask = reducer(stateWithTask, apiDeleted(taskWithTransaction));
+
+      const { data: relationship } = stateWithoutTask.transactions.data[0].relationships.task;
+
+      expect(relationship).toEqual(null);
+    });
   });
 
-  it('should remove reverse relationship', () => {
-    const stateWithTask = reducer(state, apiCreated(taskWithTransaction));
-
-    expect(stateWithTask.transactions.data[0].relationships.task.data.type).toEqual(taskWithTransaction.type);
-
-    const stateWithoutTask = reducer(stateWithTask, apiDeleted(taskWithTransaction));
-
-    const { data: relationship } = stateWithoutTask.transactions.data[0].relationships.task;
-
-    expect(relationship).toEqual(null);
+  describe('when multiple relationships', () => {
+    it('should remove resource from state', () => {
+      const updatedState = reducer(stateWithTransactionRelationships, apiDeleted(transactionToDeleteWithTask));
+      expect(updatedState.transactions.data.length).toEqual(1);
+    });
   });
 });
 
