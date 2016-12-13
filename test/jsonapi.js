@@ -393,29 +393,25 @@ describe('Updating resources', () => {
 });
 
 describe('Delete resources', () => {
-  describe('when single relationship', () => {
-    it('should remove resource from state', () => {
-      const updatedState = reducer(state, apiDeleted(transactionToDelete));
-      expect(updatedState.transactions.data.length).toEqual(0);
-    });
-
-    it('should remove reverse relationship', () => {
-      const stateWithTask = reducer(state, apiCreated(taskWithTransaction));
-
-      expect(stateWithTask.transactions.data[0].relationships.task.data.type).toEqual(taskWithTransaction.type);
-
-      const stateWithoutTask = reducer(stateWithTask, apiDeleted(taskWithTransaction));
-
-      const { data: relationship } = stateWithoutTask.transactions.data[0].relationships.task;
-
-      expect(relationship).toEqual(null);
-    });
+  it('should remove resource from state', () => {
+    const updatedState = reducer(state, apiDeleted(transactionToDelete));
+    expect(updatedState.transactions.data.length).toEqual(0);
   });
 
-  describe('when multiple relationships', () => {
-    it('should remove resource from state', () => {
+  it('should remove reverse relationship', () => {
+    const stateWithTask = reducer(state, apiCreated(taskWithTransaction));
+    expect(stateWithTask.transactions.data[0].relationships.task.data.type).toEqual(taskWithTransaction.type);
+    const stateWithoutTask = reducer(stateWithTask, apiDeleted(taskWithTransaction));
+    const { data: relationship } = stateWithoutTask.transactions.data[0].relationships.task;
+    expect(relationship).toEqual(null);
+  });
+
+  describe('when one-to-many relationship', () => {
+    it('should remove resource from state and update reverse relationship', () => {
       const updatedState = reducer(stateWithTransactionRelationships, apiDeleted(transactionToDeleteWithTask));
       expect(updatedState.transactions.data.length).toEqual(1);
+      const { data: relationship } = updatedState.tasks.data[0].relationships.transaction;
+      expect(relationship.length).toEqual(1);
     });
   });
 });

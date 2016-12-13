@@ -47,6 +47,7 @@ export const makeUpdateReverseRelationship = (
     if (
       (
         Array.isArray(foreignResourceRel)
+        && newRelation
         && ~foreignResourceRel.findIndex(
           rel => rel.id === newRelation.id && rel.type === newRelation.type
         )
@@ -58,6 +59,16 @@ export const makeUpdateReverseRelationship = (
         && foreignResourceRel.type === newRelation.type
       )
     ) {
+      return foreignResources;
+    } else if (Array.isArray(foreignResourceRel) && !newRelation) {
+      const relIdx = foreignResourceRel.findIndex(item => (
+        item.id === resource.id
+      ));
+
+      if (foreignResourceRel[relIdx]) {
+        foreignResourceRel.splice(relIdx, 1);
+      }
+
       return foreignResources;
     }
 
