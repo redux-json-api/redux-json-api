@@ -407,9 +407,13 @@ describe('Delete resources', () => {
   });
 
   describe('when one-to-many relationship', () => {
-    it('should remove resource from state and update reverse relationship', () => {
+    it('should remove resource from state', () => {
       const updatedState = reducer(stateWithTransactionRelationships, apiDeleted(transactionToDeleteWithTask));
       expect(updatedState.transactions.data.length).toEqual(1);
+    });
+
+    it('should update reverse relationship', () => {
+      const updatedState = reducer(stateWithTransactionRelationships, apiDeleted(transactionToDeleteWithTask));
       const { data: relationship } = updatedState.tasks.data[0].relationships.transaction;
       expect(relationship.length).toEqual(1);
     });
