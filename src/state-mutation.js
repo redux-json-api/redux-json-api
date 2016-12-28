@@ -46,8 +46,8 @@ export const makeUpdateReverseRelationship = (
 
     if (
       (
-        Array.isArray(foreignResourceRel)
-        && newRelation
+        newRelation
+        && Array.isArray(foreignResourceRel)
         && ~foreignResourceRel.findIndex(
           rel => rel.id === newRelation.id && rel.type === newRelation.type
         )
