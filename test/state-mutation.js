@@ -6,7 +6,7 @@ import {
   setIsInvalidatingForExistingResource,
   updateOrInsertResource,
   updateOrInsertResourcesIntoState,
-  insertResourcesTypeIntoState
+  ensureResourceTypeInState
 } from '../src/state-mutation';
 
 import {
@@ -161,7 +161,7 @@ describe('[State mutation] Insertion of resources', () => {
 describe('[State mutation] Insertion of empty resources type', () => {
   it('should insert empty resources type into state', () => {
     const resourcesType = 'newResourcesType';
-    const updatedState = insertResourcesTypeIntoState(
+    const updatedState = ensureResourceTypeInState(
       state, resourcesType
     );
 
@@ -170,7 +170,7 @@ describe('[State mutation] Insertion of empty resources type', () => {
 
   it('should not mutate state if resources type exists', () => {
     const resourcesType = 'users';
-    const updatedState = insertResourcesTypeIntoState(
+    const updatedState = ensureResourceTypeInState(
       state, resourcesType
     );
 

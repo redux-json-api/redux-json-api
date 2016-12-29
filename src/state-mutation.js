@@ -179,9 +179,9 @@ export const setIsInvalidatingForExistingResource = (state, { type, id }, value 
     : imm(state).set(updatePath, value);
 };
 
-export const insertResourcesTypeIntoState = (state, type) => {
+export const ensureResourceTypeInState = (state, type) => {
   const path = [type, 'data'];
-  return state[type]
+  return hasOwnProperties(state, [type])
     ? state
     : imm(state).set(path, []).value();
 };

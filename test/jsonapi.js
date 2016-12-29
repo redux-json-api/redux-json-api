@@ -89,6 +89,42 @@ const state = {
   isDeleting: 0
 };
 
+const stateWithoutUsersResource = {
+  endpoint: {
+    host: null,
+    path: null,
+    headers: {
+      'Content-Type': 'application/vnd.api+json',
+      Accept: 'application/vnd.api+json'
+    }
+  },
+  transactions: {
+    data: [
+      {
+        type: 'transactions',
+        id: '34',
+        attributes: {
+          description: 'ABC',
+          createdAt: '2016-02-12T13:34:01+0000',
+          updatedAt: '2016-02-19T11:52:43+0000',
+        },
+        relationships: {
+          task: {
+            data: null
+          }
+        },
+        links: {
+          self: 'http://localhost/transactions/34'
+        }
+      }
+    ]
+  },
+  isCreating: 0,
+  isReading: 0,
+  isUpdating: 0,
+  isDeleting: 0
+};
+
 const taskWithoutRelationship = {
   type: 'tasks',
   id: '43',
@@ -375,6 +411,13 @@ describe('Updating resources', () => {
     expect(state.users.data[0].attributes.name).toNotEqual(updatedUser.attributes.name);
     expect(updatedState.users.data[0].attributes.name).toEqual(updatedUser.attributes.name);
     zip([updatedState.users.data, state.users.data]).forEach((a, b) => expect(a.id).toEqual(b.id));
+  });
+
+  it('should be able to update a resource before type is in state', () => {
+    const userToUpdate = state.users.data[0];
+    const stateWithResourceType = reducer(stateWithoutUsersResource, apiWillUpdate(userToUpdate));
+    const updatedState = reducer(stateWithResourceType, apiUpdated(updatedUser));
+    expect(updatedState.users.data[0]).toEqual(updatedUser);
   });
 });
 
