@@ -11,7 +11,7 @@ describe('[State mutation] Insertion of links', () => {
   it('should not read and insert links into state when indexLinks is blank', () => {
     const state = {};
 
-    apiRead(postsPayload)
+    apiRead(postsPayload);
 
     const updatedState = reducer(state, apiRead(postsPayload));
 
@@ -22,8 +22,10 @@ describe('[State mutation] Insertion of links', () => {
   it('should read and insert links into state when indexLinks string is present', () => {
     const state = {};
 
-    postsPayload.indexLinks = 'posts'
-    apiRead(postsPayload)
+    const indexPayload = postsPayload
+    indexPayload.indexLinks = 'posts';
+
+    apiRead(indexPayload);
 
     const updatedState = reducer(state, apiRead(postsPayload));
 

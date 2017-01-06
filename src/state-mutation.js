@@ -86,12 +86,12 @@ const stateContainsResource = (state, resource) => {
 };
 
 export const addLinksToState = (state, links, linkName) => {
-  if (linkName == null) {
+  if (linkName === undefined) {
     return state;
   }
   const newState = state;
 
-  const typedLinks = {}
+  const typedLinks = {};
   typedLinks[linkName] = links;
   newState.links = Object.assign({}, state.links, typedLinks);
 
