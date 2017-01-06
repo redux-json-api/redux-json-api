@@ -22,7 +22,7 @@ describe('[State mutation] Insertion of links', () => {
   it('should read and insert links into state when indexLinks string is present', () => {
     const state = {};
 
-    const indexPayload = postsPayload
+    const indexPayload = postsPayload;
     indexPayload.indexLinks = 'posts';
 
     apiRead(indexPayload);
