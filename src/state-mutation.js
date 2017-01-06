@@ -85,6 +85,19 @@ const stateContainsResource = (state, resource) => {
   return false;
 };
 
+export const addLinksToState = (state, links, linkName) => {
+  if (linkName == null) {
+    return state;
+  }
+  const newState = state;
+
+  const typedLinks = {}
+  typedLinks[linkName] = links;
+  newState.links = Object.assign({}, state.links, typedLinks);
+
+  return newState;
+};
+
 export const updateOrInsertResource = (state, resource) => {
   if (typeof resource !== 'object') {
     return state;
