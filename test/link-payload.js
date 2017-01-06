@@ -8,7 +8,7 @@ import { reducer } from '../src/jsonapi';
 const apiRead = createAction('API_READ');
 
 describe('[State mutation] Insertion of links', () => {
-  it('should not read and insert links into state when indexLinks is blank', () => {
+  it('should not insert links into state when indexLinks is blank', () => {
     const state = {};
 
     apiRead(postsPayload);
