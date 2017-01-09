@@ -365,6 +365,14 @@ describe('Reading resources', () => {
         }
       );
   });
+
+  it('should remove clearTypes resources from state', () => {
+    const updatedState = reducer(state, apiRead({ clearTypes: ['users'], ...readResponse }));
+
+    console.log(updatedState);
+    expect(updatedState.users).toNotExist(); // removed users
+    expect(updatedState.tasks.data.length).toEqual(1); // still added tasks
+  });
 });
 
 const zip = rows => rows[0].map((_, c) => rows.map(row => row[c]));
