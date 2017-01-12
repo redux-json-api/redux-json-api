@@ -21,7 +21,7 @@ describe('[State mutation] Insertion of links', () => {
     const state = {};
 
     const indexPayload = postsPayload;
-    indexPayload.options = {indexLinks: 'posts'};
+    indexPayload.options = { indexLinks: 'posts' };
 
     const updatedState = reducer(state, apiRead(postsPayload));
 
