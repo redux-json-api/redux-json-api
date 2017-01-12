@@ -66,7 +66,8 @@ export const makeUpdateReverseRelationship = (
       ));
 
       if (foreignResourceRel[relIdx]) {
-        foreignResourceRel.splice(relIdx, 1);
+        const deletePath = [idx, 'relationships', singular, 'data', relIdx];
+        return imm(foreignResources).del(deletePath).value();
       }
 
       return foreignResources;
