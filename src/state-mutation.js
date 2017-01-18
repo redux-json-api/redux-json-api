@@ -89,11 +89,9 @@ export const addLinksToState = (state, links, options) => {
   if (options === undefined || options.indexLinks === undefined) {
     return state;
   }
-  const newState = state;
 
-  const typedLinks = {};
-  typedLinks[options.indexLinks] = links;
-  newState.links = Object.assign({}, state.links, typedLinks);
+  const indexLinkName = options.indexLinks
+  const newState = imm.set(state, `links.${indexLinkName}`, links)
 
   return newState;
 };
