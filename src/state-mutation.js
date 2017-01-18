@@ -90,8 +90,8 @@ export const addLinksToState = (state, links, options) => {
     return state;
   }
 
-  const indexLinkName = options.indexLinks
-  const newState = imm.set(state, `links.${indexLinkName}`, links)
+  const indexLinkName = options.indexLinks;
+  const newState = imm.set(state, `links.${indexLinkName}`, links);
 
   return newState;
 };
