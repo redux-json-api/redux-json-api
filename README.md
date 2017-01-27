@@ -17,6 +17,7 @@ Please raise any questions as an [Issue](https://github.com/dixieio/redux-json-a
 1. [Contributors](#contributors)
 
 ## Good reads
+- [__Working Example App__](https://github.com/tomharvey/redux-json-api-demo/) - Quickstart guide to a minimal implementation of Redux JSON API
 - [__Redux__](http://redux.js.org/) - Read about redux and core principles.
 - [__JSON API__](http://jsonapi.org/) - Read about the specifications for JSON API.
 

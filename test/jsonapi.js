@@ -89,6 +89,42 @@ const state = {
   isDeleting: 0
 };
 
+const stateWithoutUsersResource = {
+  endpoint: {
+    host: null,
+    path: null,
+    headers: {
+      'Content-Type': 'application/vnd.api+json',
+      Accept: 'application/vnd.api+json'
+    }
+  },
+  transactions: {
+    data: [
+      {
+        type: 'transactions',
+        id: '34',
+        attributes: {
+          description: 'ABC',
+          createdAt: '2016-02-12T13:34:01+0000',
+          updatedAt: '2016-02-19T11:52:43+0000',
+        },
+        relationships: {
+          task: {
+            data: null
+          }
+        },
+        links: {
+          self: 'http://localhost/transactions/34'
+        }
+      }
+    ]
+  },
+  isCreating: 0,
+  isReading: 0,
+  isUpdating: 0,
+  isDeleting: 0
+};
+
 const taskWithoutRelationship = {
   data: {
     type: 'tasks',
@@ -130,6 +166,35 @@ const taskWithTransaction = {
   }
 };
 
+const taskWithTransactions = {
+  type: 'tasks',
+  id: '43',
+  attributes: {
+    name: 'ABC',
+    createdAt: '2016-02-19T11:52:43+0000',
+    updatedAt: '2016-02-19T11:52:43+0000'
+  },
+  relationships: {
+    taskList: {
+      data: {
+        type: 'taskLists',
+        id: '1'
+      }
+    },
+    transaction: {
+      data: [
+        {
+          type: 'transactions',
+          id: '34'
+        }
+      ]
+    }
+  },
+  links: {
+    self: 'http://localhost/tasks/43'
+  }
+};
+
 const transactionToDelete = {
   type: 'transactions',
   id: '34',
@@ -145,6 +210,18 @@ const transactionToDelete = {
   },
   links: {
     self: 'http://localhost/transactions/34'
+  }
+};
+
+const transactionWithTask = {
+  ... transactionToDelete,
+  relationships: {
+    task: {
+      data: {
+        type: 'tasks',
+        id: '43'
+      }
+    }
   }
 };
 
@@ -385,6 +462,13 @@ describe('Updating resources', () => {
     expect(updatedState.users.data[0].attributes.name).toEqual(updatedUser.data.attributes.name);
     zip([updatedState.users.data, state.users.data]).forEach((a, b) => expect(a.id).toEqual(b.id));
   });
+
+  it('should be able to update a resource before type is in state', () => {
+    const userToUpdate = state.users.data[0];
+    const stateWithResourceType = reducer(stateWithoutUsersResource, apiWillUpdate(userToUpdate));
+    const updatedState = reducer(stateWithResourceType, apiUpdated(updatedUser));
+    expect(updatedState.users.data[0]).toEqual(updatedUser);
+  });
 });
 
 describe('Delete resources', () => {
@@ -396,12 +480,38 @@ describe('Delete resources', () => {
   it('should remove reverse relationship', () => {
     const stateWithTask = reducer(state, apiCreated(taskWithTransaction));
     expect(stateWithTask.transactions.data[0].relationships.task.data.type).toEqual(taskWithTransaction.data.type);
-
     const stateWithoutTask = reducer(stateWithTask, apiDeleted(taskWithTransaction.data));
-
     const { data: relationship } = stateWithoutTask.transactions.data[0].relationships.task;
-
     expect(relationship).toEqual(null);
+  });
+
+  describe('when one-to-many relationship', () => {
+    it('should update reverse relationship for transaction', () => {
+      // Add task with transactions to state
+      const stateWithTask = reducer(state, apiCreated(taskWithTransactions));
+      // Update relation between transaction and task
+      const stateWithTaskWithTransaction = reducer(stateWithTask, apiUpdated(transactionWithTask));
+
+      expect(stateWithTaskWithTransaction.transactions.data[0].relationships.task.data.type).toEqual(taskWithTransactions.type);
+
+      const stateWithoutTask = reducer(stateWithTask, apiDeleted(taskWithTransaction));
+      const { data: relationship } = stateWithoutTask.transactions.data[0].relationships.task;
+      expect(relationship).toEqual(null);
+    });
+
+    it('should update reverse relationship for task', () => {
+      // Add task with transactions to state
+      const stateWithTask = reducer(state, apiCreated(taskWithTransactions));
+      // Update relation between transaction and task
+      // TODO: check relationshiphs on create resource
+      const stateWithTaskWithTransaction = reducer(stateWithTask, apiUpdated(transactionWithTask));
+
+      expect(stateWithTaskWithTransaction.transactions.data[0].id).toEqual(taskWithTransactions.relationships.transaction.data[0].id);
+
+      const stateWithoutTransaction = reducer(stateWithTask, apiDeleted(transactionWithTask));
+      const { data: relationship } = stateWithoutTransaction.tasks.data[0].relationships.transaction;
+      expect(relationship).toEqual([]);
+    });
   });
 });
 
