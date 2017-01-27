@@ -3,6 +3,7 @@ import 'fetch-everywhere';
 import imm from 'object-path-immutable';
 
 import {
+  addLinksToState,
   removeResourceFromState,
   updateOrInsertResourcesIntoState,
   setIsInvalidatingForExistingResource,
@@ -132,7 +133,10 @@ export const createEntity = (resource, {
 
 export const readEndpoint = (endpoint, {
   onSuccess: onSuccess = noop,
-  onError: onError = noop
+  onError: onError = noop,
+  options = {
+    indexLinks: undefined,
+  }
 } = {}) => {
   if (onSuccess !== noop || onError !== noop) {
     console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
@@ -150,7 +154,7 @@ export const readEndpoint = (endpoint, {
         credentials: 'include'
       })
         .then(json => {
-          dispatch(apiRead({ endpoint, ...json }));
+          dispatch(apiRead({ endpoint, options, ...json }));
           onSuccess(json);
           resolve(json);
         })
@@ -317,8 +321,9 @@ export const reducer = handleActions({
     ).concat(payload.included || []);
 
     const newState = updateOrInsertResourcesIntoState(state, resources);
+    const finalState = addLinksToState(newState, payload.links, payload.options);
 
-    return imm(newState)
+    return imm(finalState)
       .set('isReading', state.isReading - 1)
       .value();
   },

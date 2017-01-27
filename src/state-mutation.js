@@ -97,6 +97,17 @@ const stateContainsResource = (state, resource) => {
   return false;
 };
 
+export const addLinksToState = (state, links, options) => {
+  if (options === undefined || options.indexLinks === undefined) {
+    return state;
+  }
+
+  const indexLinkName = options.indexLinks;
+  const newState = imm.set(state, `links.${indexLinkName}`, links);
+
+  return newState;
+};
+
 export const updateOrInsertResource = (state, resource) => {
   if (typeof resource !== 'object') {
     return state;
