@@ -1,18 +1,20 @@
 import { createAction, handleActions } from 'redux-actions';
-import 'isomorphic-fetch';
-import Imm from 'immutable';
+import 'fetch-everywhere';
+import imm from 'object-path-immutable';
 
 import {
-  removeEntityFromState,
-  updateOrInsertEntitiesIntoState,
-  setIsInvalidatingForExistingEntity
+  addLinksToState,
+  removeResourceFromState,
+  updateOrInsertResourcesIntoState,
+  setIsInvalidatingForExistingResource,
+  ensureResourceTypeInState
 } from './state-mutation';
 import { apiRequest, noop, jsonContentTypes } from './utils';
 import {
   API_SET_ENDPOINT_HOST, API_SET_ENDPOINT_PATH, API_SET_HEADERS, API_SET_HEADER, API_WILL_CREATE, API_CREATED, API_CREATE_FAILED, API_WILL_READ, API_READ, API_READ_FAILED, API_WILL_UPDATE, API_UPDATED, API_UPDATE_FAILED, API_WILL_DELETE, API_DELETED, API_DELETE_FAILED
 } from './constants';
 
-// Entity isInvalidating values
+// Resource isInvalidating values
 export const IS_DELETING = 'IS_DELETING';
 export const IS_UPDATING = 'IS_UPDATING';
 
@@ -91,7 +93,7 @@ export const uploadFile = (file, {
   };
 };
 
-export const createResource = (entity, {
+export const createResource = (resource, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
 } = {}) => {
@@ -100,10 +102,10 @@ export const createResource = (entity, {
   }
 
   return (dispatch, getState) => {
-    dispatch(apiWillCreate(entity));
+    dispatch(apiWillCreate(resource));
 
     const { host: apiHost, path: apiPath, headers } = getState().api.endpoint;
-    const endpoint = `${apiHost}${apiPath}/${entity.type}`;
+    const endpoint = `${apiHost}${apiPath}/${resource.type}`;
 
     return new Promise((resolve, reject) => {
       apiRequest(endpoint, {
@@ -111,15 +113,15 @@ export const createResource = (entity, {
         method: 'POST',
         credentials: 'include',
         body: JSON.stringify({
-          data: entity
+          data: resource
         })
       }).then(json => {
-        dispatch(apiCreated(json.data));
+        dispatch(apiCreated(json));
         onSuccess(json);
         resolve(json);
       }).catch(error => {
         const err = error;
-        err.entity = entity;
+        err.resource = resource;
 
         dispatch(apiCreateFailed(err));
         onError(err);
@@ -131,7 +133,10 @@ export const createResource = (entity, {
 
 export const readEndpoint = (endpoint, {
   onSuccess: onSuccess = noop,
-  onError: onError = noop
+  onError: onError = noop,
+  options = {
+    indexLinks: undefined,
+  }
 } = {}) => {
   if (onSuccess !== noop || onError !== noop) {
     console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
@@ -149,7 +154,7 @@ export const readEndpoint = (endpoint, {
         credentials: 'include'
       })
         .then(json => {
-          dispatch(apiRead({ endpoint, ...json }));
+          dispatch(apiRead({ endpoint, options, ...json }));
           onSuccess(json);
           resolve(json);
         })
@@ -165,19 +170,18 @@ export const readEndpoint = (endpoint, {
   };
 };
 
-export const updateResource = (entity, {
+export const updateResource = (resource, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
 } = {}) => {
   if (onSuccess !== noop || onError !== noop) {
     console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
   }
-
   return (dispatch, getState) => {
-    dispatch(apiWillUpdate(entity));
+    dispatch(apiWillUpdate(resource));
 
     const { host: apiHost, path: apiPath, headers } = getState().api.endpoint;
-    const endpoint = `${apiHost}${apiPath}/${entity.type}/${entity.id}`;
+    const endpoint = `${apiHost}${apiPath}/${resource.type}/${resource.id}`;
 
     return new Promise((resolve, reject) => {
       apiRequest(endpoint, {
@@ -185,15 +189,15 @@ export const updateResource = (entity, {
         method: 'PATCH',
         credentials: 'include',
         body: JSON.stringify({
-          data: entity
+          data: resource
         })
       }).then(json => {
-        dispatch(apiUpdated(json.data));
+        dispatch(apiUpdated(json));
         onSuccess(json);
         resolve(json);
       }).catch(error => {
         const err = error;
-        err.entity = entity;
+        err.resource = resource;
 
         dispatch(apiUpdateFailed(err));
         onError(err);
@@ -203,7 +207,7 @@ export const updateResource = (entity, {
   };
 };
 
-export const deleteResource = (entity, {
+export const deleteResource = (resource, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
 } = {}) => {
@@ -212,10 +216,10 @@ export const deleteResource = (entity, {
   }
 
   return (dispatch, getState) => {
-    dispatch(apiWillDelete(entity));
+    dispatch(apiWillDelete(resource));
 
     const { host: apiHost, path: apiPath, headers } = getState().api.endpoint;
-    const endpoint = `${apiHost}${apiPath}/${entity.type}/${entity.id}`;
+    const endpoint = `${apiHost}${apiPath}/${resource.type}/${resource.id}`;
 
     return new Promise((resolve, reject) => {
       apiRequest(endpoint, {
@@ -223,12 +227,12 @@ export const deleteResource = (entity, {
         method: 'DELETE',
         credentials: 'include'
       }).then(() => {
-        dispatch(apiDeleted(entity));
+        dispatch(apiDeleted(resource));
         onSuccess();
         resolve();
       }).catch(error => {
         const err = error;
-        err.entity = entity;
+        err.resource = resource;
 
         dispatch(apiDeleteFailed(err));
         onError(err);
@@ -238,7 +242,7 @@ export const deleteResource = (entity, {
   };
 };
 
-export const requireResource = (entityType, endpoint = entityType, {
+export const requireResource = (resourceType, endpoint = resourceType, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
 } = {}) => {
@@ -249,7 +253,7 @@ export const requireResource = (entityType, endpoint = entityType, {
   return (dispatch, getState) => {
     return new Promise((resolve, reject) => {
       const { api } = getState();
-      if (api.hasOwnProperty(entityType)) {
+      if (api.hasOwnProperty(resourceType)) {
         resolve();
         return onSuccess();
       }
@@ -285,113 +289,121 @@ export const requireEntity = (...args) => {
 export const reducer = handleActions({
 
   [API_SET_HEADERS]: (state, { payload: headers }) => {
-    return Imm.fromJS(state).setIn(['endpoint', 'headers'], headers).toJS();
+    return imm(state).set(['endpoint', 'headers'], headers).value();
   },
 
   [API_SET_HEADER]: (state, { payload: header }) => {
-    return Imm.fromJS(state).mergeIn(['endpoint', 'headers'], header).toJS();
+    const newState = imm(state);
+    Object.keys(header).forEach(key => {
+      newState.set(['endpoint', 'headers', key], header[key]);
+    });
+
+    return newState.value();
   },
 
   [API_SET_ENDPOINT_HOST]: (state, { payload: host }) => {
-    return Imm.fromJS(state).setIn(['endpoint', 'host'], host).toJS();
+    return imm(state).set(['endpoint', 'host'], host).value();
   },
 
   [API_SET_ENDPOINT_PATH]: (state, { payload: path }) => {
-    return Imm.fromJS(state).setIn(['endpoint', 'path'], path).toJS();
+    return imm(state).set(['endpoint', 'path'], path).value();
   },
 
   [API_WILL_CREATE]: (state) => {
-    return Imm.fromJS(state).update('isCreating', v => v + 1).toJS();
+    return imm(state).set(['isCreating'], state.isCreating + 1).value();
   },
 
-  [API_CREATED]: (rawState, { payload: rawEntities }) => {
-    const state = Imm.fromJS(rawState);
-    const entities = Imm.fromJS(
-      Array.isArray(rawEntities) ? rawEntities : [rawEntities]
+  [API_CREATED]: (state, { payload: resources }) => {
+    const entities = Array.isArray(resources.data) ? resources.data : [resources.data];
+
+    const newState = updateOrInsertResourcesIntoState(
+      state,
+      entities.concat(resources.included || [])
     );
 
-    return updateOrInsertEntitiesIntoState(state, entities)
-      .update('isCreating', v => v - 1)
-      .toJS();
+    return imm(newState)
+      .set('isCreating', state.isCreating - 1)
+      .value();
   },
 
   [API_CREATE_FAILED]: (state) => {
-    return Imm.fromJS(state).update('isCreating', v => v - 1).toJS();
+    return imm(state).set(['isCreating'], state.isCreating - 1).value();
   },
 
   [API_WILL_READ]: (state) => {
-    return Imm.fromJS(state).update('isReading', v => v + 1).toJS();
+    return imm(state).set(['isReading'], state.isReading + 1).value();
   },
 
-  [API_READ]: (rawState, { payload }) => {
-    const state = Imm.fromJS(rawState);
-    const entities = Imm.fromJS(
-      Array.isArray(payload.data) ? payload.data : [payload.data]
-    ).concat(Imm.fromJS(payload.included || []));
+  [API_READ]: (state, { payload }) => {
+    const resources = (
+      Array.isArray(payload.data)
+        ? payload.data
+        : [payload.data]
+    ).concat(payload.included || []);
 
-    return updateOrInsertEntitiesIntoState(state, entities)
-      .update('isReading', v => v - 1)
-      .toJS();
+    const newState = updateOrInsertResourcesIntoState(state, resources);
+    const finalState = addLinksToState(newState, payload.links, payload.options);
+
+    return imm(finalState)
+      .set('isReading', state.isReading - 1)
+      .value();
   },
 
   [API_READ_FAILED]: (state) => {
-    return Imm.fromJS(state).update('isReading', v => v - 1).toJS();
+    return imm(state).set(['isReading'], state.isReading - 1).value();
   },
 
-  [API_WILL_UPDATE]: (rawState, { payload: entity }) => {
-    const { type, id } = entity;
-    const state = Imm.fromJS(rawState);
+  [API_WILL_UPDATE]: (state, { payload: resource }) => {
+    const { type, id } = resource;
 
-    return setIsInvalidatingForExistingEntity(state, { type, id }, IS_UPDATING)
-      .update('isUpdating', v => v + 1)
-      .toJS();
+    const newState = ensureResourceTypeInState(state, type);
+
+    return setIsInvalidatingForExistingResource(newState, { type, id }, IS_UPDATING)
+      .set('isUpdating', state.isUpdating + 1)
+      .value();
   },
 
-  [API_UPDATED]: (rawState, { payload: rawEntities }) => {
-    const state = Imm.fromJS(rawState);
-    const entities = Imm.fromJS(
-      Array.isArray(rawEntities) ? rawEntities : [rawEntities]
+  [API_UPDATED]: (state, { payload: resources }) => {
+    const entities = Array.isArray(resources.data) ? resources.data : [resources.data];
+
+    const newState = updateOrInsertResourcesIntoState(
+      state,
+      entities.concat(resources.included || [])
     );
 
-    return updateOrInsertEntitiesIntoState(state, entities)
-      .update('isUpdating', v => v - 1)
-      .toJS();
+    return imm(newState)
+      .set('isUpdating', state.isUpdating - 1)
+      .value();
   },
 
-  [API_UPDATE_FAILED]: (rawState, { payload: { entity } }) => {
-    const { type, id } = entity;
-    const state = Imm.fromJS(rawState);
+  [API_UPDATE_FAILED]: (state, { payload: { resource } }) => {
+    const { type, id } = resource;
 
-    return setIsInvalidatingForExistingEntity(state, { type, id }, IS_UPDATING)
-      .update('isUpdating', v => v - 1)
-      .toJS();
+    return setIsInvalidatingForExistingResource(state, { type, id }, IS_UPDATING)
+      .set('isUpdating', state.isUpdating + 1)
+      .value();
   },
 
-  [API_WILL_DELETE]: (rawState, { payload: entity }) => {
-    const { type, id } = entity;
-    const state = Imm.fromJS(rawState);
+  [API_WILL_DELETE]: (state, { payload: resource }) => {
+    const { type, id } = resource;
 
-    return setIsInvalidatingForExistingEntity(state, { type, id }, IS_DELETING)
-      .update('isDeleting', v => v + 1)
-      .toJS();
+    return setIsInvalidatingForExistingResource(state, { type, id }, IS_DELETING)
+      .set('isDeleting', state.isDeleting + 1)
+      .value();
   },
 
-  [API_DELETED]: (rawState, { payload: rawEntity }) => {
-    const state = Imm.fromJS(rawState);
-    const entity = Imm.fromJS(rawEntity);
-
-    return removeEntityFromState(state, entity)
-      .update('isDeleting', v => v - 1)
-      .toJS();
+  [API_DELETED]: (state, { payload: resource }) => {
+    return removeResourceFromState(state, resource)
+      .set('isDeleting', state.isDeleting - 1)
+      .value();
   },
 
-  [API_DELETE_FAILED]: (rawState, { payload: { entity } }) => {
-    const { type, id } = entity;
-    const state = Imm.fromJS(rawState);
+  [API_DELETE_FAILED]: (state, { payload: { resource } }) => {
+    const { type, id } = resource;
 
-    return setIsInvalidatingForExistingEntity(state, { type, id }, IS_DELETING)
-      .update('isDeleting', v => v - 1)
-      .toJS();
+    return setIsInvalidatingForExistingResource(state, { type, id }, IS_DELETING)
+      .set('isDeleting', state.isDeleting + 1)
+      .value();
   }
 
 }, {

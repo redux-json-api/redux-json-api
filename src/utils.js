@@ -21,3 +21,18 @@ export const apiRequest = (url, options = {}) => {
       throw e;
     });
 };
+
+export const hasOwnProperties = (obj, propertyTree) => {
+  if ((obj instanceof Object) === false) {
+    return false;
+  }
+  const property = propertyTree[0];
+  const hasProperty = obj.hasOwnProperty(property);
+  if (hasProperty) {
+    if (propertyTree.length === 1) {
+      return hasProperty;
+    }
+    return hasOwnProperties(obj[property], propertyTree.slice(1));
+  }
+  return false;
+};
