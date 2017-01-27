@@ -5,7 +5,8 @@ import {
   makeUpdateReverseRelationship,
   setIsInvalidatingForExistingResource,
   updateOrInsertResource,
-  updateOrInsertResourcesIntoState
+  updateOrInsertResourcesIntoState,
+  ensureResourceTypeInState
 } from '../src/state-mutation';
 
 import {
@@ -154,6 +155,26 @@ describe('[State mutation] Insertion of resources', () => {
     );
 
     expect(updatedState.topics.data.length).toEqual(topics.data.length);
+  });
+});
+
+describe('[State mutation] Insertion of empty resources type', () => {
+  it('should insert empty resources type into state', () => {
+    const resourcesType = 'newResourcesType';
+    const updatedState = ensureResourceTypeInState(
+      state, resourcesType
+    );
+
+    expect(updatedState[resourcesType].data.length).toEqual(0);
+  });
+
+  it('should not mutate state if resources type exists', () => {
+    const resourcesType = 'users';
+    const updatedState = ensureResourceTypeInState(
+      state, resourcesType
+    );
+
+    expect(updatedState[resourcesType].data).toEqual(state[resourcesType].data);
   });
 });
 

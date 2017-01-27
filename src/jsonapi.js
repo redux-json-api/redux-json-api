@@ -5,7 +5,8 @@ import imm from 'object-path-immutable';
 import {
   removeResourceFromState,
   updateOrInsertResourcesIntoState,
-  setIsInvalidatingForExistingResource
+  setIsInvalidatingForExistingResource,
+  ensureResourceTypeInState
 } from './state-mutation';
 import { apiRequest, noop, jsonContentTypes } from './utils';
 import {
@@ -329,7 +330,9 @@ export const reducer = handleActions({
   [API_WILL_UPDATE]: (state, { payload: resource }) => {
     const { type, id } = resource;
 
-    return setIsInvalidatingForExistingResource(state, { type, id }, IS_UPDATING)
+    const newState = ensureResourceTypeInState(state, type);
+
+    return setIsInvalidatingForExistingResource(newState, { type, id }, IS_UPDATING)
       .set('isUpdating', state.isUpdating + 1)
       .value();
   },
