@@ -126,6 +126,35 @@ const taskWithTransaction = {
   }
 };
 
+const taskWithTransactions = {
+  type: 'tasks',
+  id: '43',
+  attributes: {
+    name: 'ABC',
+    createdAt: '2016-02-19T11:52:43+0000',
+    updatedAt: '2016-02-19T11:52:43+0000'
+  },
+  relationships: {
+    taskList: {
+      data: {
+        type: 'taskLists',
+        id: '1'
+      }
+    },
+    transaction: {
+      data: [
+        {
+          type: 'transactions',
+          id: '34'
+        }
+      ]
+    }
+  },
+  links: {
+    self: 'http://localhost/tasks/43'
+  }
+};
+
 const transactionToDelete = {
   type: 'transactions',
   id: '34',
@@ -141,6 +170,18 @@ const transactionToDelete = {
   },
   links: {
     self: 'http://localhost/transactions/34'
+  }
+};
+
+const transactionWithTask = {
+  ... transactionToDelete,
+  relationships: {
+    task: {
+      data: {
+        type: 'tasks',
+        id: '43'
+      }
+    }
   }
 };
 
@@ -386,14 +427,39 @@ describe('Delete resources', () => {
 
   it('should remove reverse relationship', () => {
     const stateWithTask = reducer(state, apiCreated(taskWithTransaction));
-
     expect(stateWithTask.transactions.data[0].relationships.task.data.type).toEqual(taskWithTransaction.type);
-
     const stateWithoutTask = reducer(stateWithTask, apiDeleted(taskWithTransaction));
-
     const { data: relationship } = stateWithoutTask.transactions.data[0].relationships.task;
-
     expect(relationship).toEqual(null);
+  });
+
+  describe('when one-to-many relationship', () => {
+    it('should update reverse relationship for transaction', () => {
+      // Add task with transactions to state
+      const stateWithTask = reducer(state, apiCreated(taskWithTransactions));
+      // Update relation between transaction and task
+      const stateWithTaskWithTransaction = reducer(stateWithTask, apiUpdated(transactionWithTask));
+
+      expect(stateWithTaskWithTransaction.transactions.data[0].relationships.task.data.type).toEqual(taskWithTransactions.type);
+
+      const stateWithoutTask = reducer(stateWithTask, apiDeleted(taskWithTransaction));
+      const { data: relationship } = stateWithoutTask.transactions.data[0].relationships.task;
+      expect(relationship).toEqual(null);
+    });
+
+    it('should update reverse relationship for task', () => {
+      // Add task with transactions to state
+      const stateWithTask = reducer(state, apiCreated(taskWithTransactions));
+      // Update relation between transaction and task
+      // TODO: check relationshiphs on create resource
+      const stateWithTaskWithTransaction = reducer(stateWithTask, apiUpdated(transactionWithTask));
+
+      expect(stateWithTaskWithTransaction.transactions.data[0].id).toEqual(taskWithTransactions.relationships.transaction.data[0].id);
+
+      const stateWithoutTransaction = reducer(stateWithTask, apiDeleted(transactionWithTask));
+      const { data: relationship } = stateWithoutTransaction.tasks.data[0].relationships.transaction;
+      expect(relationship).toEqual([]);
+    });
   });
 });
 

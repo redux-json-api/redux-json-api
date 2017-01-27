@@ -46,7 +46,8 @@ export const makeUpdateReverseRelationship = (
 
     if (
       (
-        Array.isArray(foreignResourceRel)
+        newRelation
+        && Array.isArray(foreignResourceRel)
         && ~foreignResourceRel.findIndex(
           rel => rel.id === newRelation.id && rel.type === newRelation.type
         )
@@ -58,6 +59,17 @@ export const makeUpdateReverseRelationship = (
         && foreignResourceRel.type === newRelation.type
       )
     ) {
+      return foreignResources;
+    } else if (Array.isArray(foreignResourceRel) && !newRelation) {
+      const relIdx = foreignResourceRel.findIndex(item => (
+        item.id === resource.id
+      ));
+
+      if (foreignResourceRel[relIdx]) {
+        const deletePath = [idx, 'relationships', singular, 'data', relIdx];
+        return imm(foreignResources).del(deletePath).value();
+      }
+
       return foreignResources;
     }
 
