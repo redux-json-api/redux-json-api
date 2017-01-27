@@ -131,8 +131,9 @@ export const createEntity = (resource, {
 };
 
 export const readEndpoint = (endpoint, {
-  onSuccess: onSuccess = noop,
-  onError: onError = noop
+  onSuccess = noop,
+  onError = noop,
+  clearTypes = [],
 } = {}) => {
   if (onSuccess !== noop || onError !== noop) {
     console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
@@ -150,7 +151,7 @@ export const readEndpoint = (endpoint, {
         credentials: 'include'
       })
         .then(json => {
-          dispatch(apiRead({ endpoint, ...json }));
+          dispatch(apiRead({ endpoint, clearTypes, ...json }));
           onSuccess(json);
           resolve(json);
         })
@@ -316,7 +317,7 @@ export const reducer = handleActions({
         : [payload.data]
     ).concat(payload.included || []);
 
-    const newState = updateOrInsertResourcesIntoState(state, resources);
+    const newState = updateOrInsertResourcesIntoState(state, resources, payload.clearTypes);
 
     return imm(newState)
       .set('isReading', state.isReading - 1)
