@@ -2,7 +2,7 @@
     "data": [
         {
         "type": "users",
-        "id": "1",
+        "id": "3",
         "attributes": {
             "name": "Chris Jowen",
             "github": "chrisjowen"
@@ -10,7 +10,7 @@
         },
         {
         "type": "users",
-        "id": "2",
+        "id": "4",
         "attributes": {
             "name": "Chris Manson",
             "github": "mansona"
