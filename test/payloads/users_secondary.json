@@ -1,0 +1,20 @@
+{
+    "data": [
+        {
+        "type": "users",
+        "id": "1",
+        "attributes": {
+            "name": "Chris Jowen",
+            "github": "chrisjowen"
+        }
+        },
+        {
+        "type": "users",
+        "id": "2",
+        "attributes": {
+            "name": "Chris Manson",
+            "github": "mansona"
+        }
+        }
+    ]
+}

@@ -1,0 +1,18 @@
+{
+    "data": [
+        {
+        "type": "users",
+        "id": "1",
+        "attributes": {
+            "name": "John Doe"
+        }
+        },
+        {
+        "type": "users",
+        "id": "2",
+        "attributes": {
+            "name": "Emily Jane"
+        }
+        }
+    ]
+}
