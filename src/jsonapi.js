@@ -136,6 +136,7 @@ export const readEndpoint = (endpoint, {
   onError: onError = noop,
   options = {
     indexLinks: undefined,
+    clearTypes: []
   }
 } = {}) => {
   if (onSuccess !== noop || onError !== noop) {
