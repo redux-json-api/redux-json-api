@@ -1,6 +1,6 @@
 {
   "name": "redux-json-api",
-  "version": "1.5.2",
+  "version": "1.5.4",
   "description": "A bunch of Redux actions, action creators and reducers to integrate with a JSON API",
   "main": "lib/jsonapi.js",
   "scripts": {
@@ -49,7 +49,6 @@
   "dependencies": {
     "immutable": "^3.7.6",
     "isomorphic-fetch": "^2.2.1",
-    "keykey": "^2.1.1",
     "pluralize": "^1.2.1",
     "redux-actions": "^0.9.1"
   }

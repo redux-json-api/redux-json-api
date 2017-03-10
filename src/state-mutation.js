@@ -56,9 +56,8 @@ const updateOrInsertEntity = (state, entity) => {
     s.updateIn(
       [entity.get('type'), 'data'],
       (list = new Imm.List()) => {
-        return list.filter(
-          e => e.get('id') !== entity.get('id')
-        ).push(entity);
+        const index = list.find(e => e.get('id') === entity.get('id'));
+        return list.filter(e => e.get('id') !== entity.get('id')).insert(index, entity);
       }
     );
 
