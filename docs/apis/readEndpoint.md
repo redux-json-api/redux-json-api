@@ -6,7 +6,7 @@ To read resource object from your API, you simply dispatch the function returned
 
 This action is very simple, in that the endpoint passed to the action creator is simply appended to the configured root path and endpoint.
 
-A dispatch of `readEndpoint('/tasks?include=createe')`, where root path/endpoint is configured to "https://api.example.org/v1", will make a `GET` request to "https://api.example.org/v1/tasks?include=createe".
+A dispatch of `readEndpoint('tasks?include=createe')`, where root path/endpoint is configured to "https://api.example.org/v1", will make a `GET` request to "https://api.example.org/v1/tasks?include=createe".
 
 ### Example
 
