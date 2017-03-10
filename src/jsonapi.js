@@ -1,4 +1,4 @@
-import { createAction, handleActions } from 'redux-actions'
+import { createAction, handleActions } from 'redux-actions';
 import 'fetch-everywhere';
 import imm from 'object-path-immutable';
 
