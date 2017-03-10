@@ -15,7 +15,9 @@ node_modules
 # Optional REPL history
 .node_repl_history
 
-lib
+# Vim
+*.sw*
 
-# node version manager settings
+lib
+.DS_Store
 .nvmrc

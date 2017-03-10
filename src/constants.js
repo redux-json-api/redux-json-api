@@ -1,9 +1,12 @@
-import keykey from 'keykey';
+// Action types of the library
+const actionTypes = {};
 
-export default keykey(
+// Format the elements
+[
   'API_SET_ENDPOINT_HOST',
   'API_SET_ENDPOINT_PATH',
-  'API_SET_ACCESS_TOKEN',
+  'API_SET_HEADERS',
+  'API_SET_HEADER',
   'API_WILL_CREATE',
   'API_CREATED',
   'API_CREATE_FAILED',
@@ -16,4 +19,6 @@ export default keykey(
   'API_WILL_DELETE',
   'API_DELETED',
   'API_DELETE_FAILED'
-);
+].forEach(action => { actionTypes[action] = action; });
+
+export default actionTypes;
