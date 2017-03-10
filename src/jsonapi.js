@@ -3,9 +3,11 @@ import 'fetch-everywhere';
 import imm from 'object-path-immutable';
 
 import {
+  addLinksToState,
   removeResourceFromState,
   updateOrInsertResourcesIntoState,
-  setIsInvalidatingForExistingResource
+  setIsInvalidatingForExistingResource,
+  ensureResourceTypeInState
 } from './state-mutation';
 import { apiRequest, noop, jsonContentTypes } from './utils';
 import {
@@ -91,7 +93,7 @@ export const uploadFile = (file, {
   };
 };
 
-export const createEntity = (resource, {
+export const createResource = (resource, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
 } = {}) => {
@@ -114,7 +116,7 @@ export const createEntity = (resource, {
           data: resource
         })
       }).then(json => {
-        dispatch(apiCreated(json.data));
+        dispatch(apiCreated(json));
         onSuccess(json);
         resolve(json);
       }).catch(error => {
@@ -131,7 +133,10 @@ export const createEntity = (resource, {
 
 export const readEndpoint = (endpoint, {
   onSuccess: onSuccess = noop,
-  onError: onError = noop
+  onError: onError = noop,
+  options = {
+    indexLinks: undefined,
+  }
 } = {}) => {
   if (onSuccess !== noop || onError !== noop) {
     console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
@@ -149,7 +154,7 @@ export const readEndpoint = (endpoint, {
         credentials: 'include'
       })
         .then(json => {
-          dispatch(apiRead({ endpoint, ...json }));
+          dispatch(apiRead({ endpoint, options, ...json }));
           onSuccess(json);
           resolve(json);
         })
@@ -165,14 +170,13 @@ export const readEndpoint = (endpoint, {
   };
 };
 
-export const updateEntity = (resource, {
+export const updateResource = (resource, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
 } = {}) => {
   if (onSuccess !== noop || onError !== noop) {
     console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
   }
-
   return (dispatch, getState) => {
     dispatch(apiWillUpdate(resource));
 
@@ -188,7 +192,7 @@ export const updateEntity = (resource, {
           data: resource
         })
       }).then(json => {
-        dispatch(apiUpdated(json.data));
+        dispatch(apiUpdated(json));
         onSuccess(json);
         resolve(json);
       }).catch(error => {
@@ -203,7 +207,7 @@ export const updateEntity = (resource, {
   };
 };
 
-export const deleteEntity = (resource, {
+export const deleteResource = (resource, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
 } = {}) => {
@@ -238,7 +242,7 @@ export const deleteEntity = (resource, {
   };
 };
 
-export const requireEntity = (resourceType, endpoint = resourceType, {
+export const requireResource = (resourceType, endpoint = resourceType, {
   onSuccess: onSuccess = noop,
   onError: onError = noop
 } = {}) => {
@@ -259,6 +263,26 @@ export const requireEntity = (resourceType, endpoint = resourceType, {
         .catch(reject);
     });
   };
+};
+
+export const createEntity = (...args) => {
+  console.warn('createEntity is deprecated and will be removed in v2.0 in favor of new method createResource');
+  return createResource(...args);
+};
+
+export const updateEntity = (...args) => {
+  console.warn('updateEntity is deprecated and will be removed in v2.0 in favor of new method updateResource');
+  return updateResource(...args);
+};
+
+export const deleteEntity = (...args) => {
+  console.warn('deleteEntity is deprecated and will be removed in v2.0 in favor of new method deleteResource');
+  return deleteResource(...args);
+};
+
+export const requireEntity = (...args) => {
+  console.warn('requireEntity is deprecated and will be removed in v2.0 in favor of new method requireResource');
+  return requireResource(...args);
 };
 
 // Reducers
@@ -290,9 +314,11 @@ export const reducer = handleActions({
   },
 
   [API_CREATED]: (state, { payload: resources }) => {
+    const entities = Array.isArray(resources.data) ? resources.data : [resources.data];
+
     const newState = updateOrInsertResourcesIntoState(
       state,
-      Array.isArray(resources) ? resources : [resources]
+      entities.concat(resources.included || [])
     );
 
     return imm(newState)
@@ -316,8 +342,9 @@ export const reducer = handleActions({
     ).concat(payload.included || []);
 
     const newState = updateOrInsertResourcesIntoState(state, resources);
+    const finalState = addLinksToState(newState, payload.links, payload.options);
 
-    return imm(newState)
+    return imm(finalState)
       .set('isReading', state.isReading - 1)
       .value();
   },
@@ -329,15 +356,19 @@ export const reducer = handleActions({
   [API_WILL_UPDATE]: (state, { payload: resource }) => {
     const { type, id } = resource;
 
-    return setIsInvalidatingForExistingResource(state, { type, id }, IS_UPDATING)
+    const newState = ensureResourceTypeInState(state, type);
+
+    return setIsInvalidatingForExistingResource(newState, { type, id }, IS_UPDATING)
       .set('isUpdating', state.isUpdating + 1)
       .value();
   },
 
   [API_UPDATED]: (state, { payload: resources }) => {
+    const entities = Array.isArray(resources.data) ? resources.data : [resources.data];
+
     const newState = updateOrInsertResourcesIntoState(
       state,
-      Array.isArray(resources) ? resources : [resources]
+      entities.concat(resources.included || [])
     );
 
     return imm(newState)

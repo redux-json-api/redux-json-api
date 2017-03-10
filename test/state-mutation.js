@@ -5,7 +5,8 @@ import {
   makeUpdateReverseRelationship,
   setIsInvalidatingForExistingResource,
   updateOrInsertResource,
-  updateOrInsertResourcesIntoState
+  updateOrInsertResourcesIntoState,
+  ensureResourceTypeInState
 } from '../src/state-mutation';
 
 import {
@@ -157,14 +158,34 @@ describe('[State mutation] Insertion of resources', () => {
   });
 });
 
-describe(`[State Mutation] Update or Reverse relationships`, () => {
+describe('[State mutation] Insertion of empty resources type', () => {
+  it('should insert empty resources type into state', () => {
+    const resourcesType = 'newResourcesType';
+    const updatedState = ensureResourceTypeInState(
+      state, resourcesType
+    );
+
+    expect(updatedState[resourcesType].data.length).toEqual(0);
+  });
+
+  it('should not mutate state if resources type exists', () => {
+    const resourcesType = 'users';
+    const updatedState = ensureResourceTypeInState(
+      state, resourcesType
+    );
+
+    expect(updatedState[resourcesType].data).toEqual(state[resourcesType].data);
+  });
+});
+
+describe('[State Mutation] Update or Reverse relationships', () => {
   it('Should update a resource relationship', () => {
-    const updatedEnteties = makeUpdateReverseRelationship(
+    const updatedEntities = makeUpdateReverseRelationship(
       resource,
       resource.relationships.transaction
     )(state.transactions.data);
 
-    expect(updatedEnteties[0].relationships.task.data)
+    expect(updatedEntities[0].relationships.task.data)
       .toEqual({ id: resource.id, type: resource.type });
   });
 

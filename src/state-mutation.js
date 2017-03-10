@@ -46,7 +46,8 @@ export const makeUpdateReverseRelationship = (
 
     if (
       (
-        Array.isArray(foreignResourceRel)
+        newRelation
+        && Array.isArray(foreignResourceRel)
         && ~foreignResourceRel.findIndex(
           rel => rel.id === newRelation.id && rel.type === newRelation.type
         )
@@ -58,6 +59,17 @@ export const makeUpdateReverseRelationship = (
         && foreignResourceRel.type === newRelation.type
       )
     ) {
+      return foreignResources;
+    } else if (Array.isArray(foreignResourceRel) && !newRelation) {
+      const relIdx = foreignResourceRel.findIndex(item => (
+        item.id === resource.id
+      ));
+
+      if (foreignResourceRel[relIdx]) {
+        const deletePath = [idx, 'relationships', singular, 'data', relIdx];
+        return imm(foreignResources).del(deletePath).value();
+      }
+
       return foreignResources;
     }
 
@@ -83,6 +95,17 @@ const stateContainsResource = (state, resource) => {
   }
 
   return false;
+};
+
+export const addLinksToState = (state, links, options) => {
+  if (options === undefined || options.indexLinks === undefined) {
+    return state;
+  }
+
+  const indexLinkName = options.indexLinks;
+  const newState = imm.set(state, `links.${indexLinkName}`, links);
+
+  return newState;
 };
 
 export const updateOrInsertResource = (state, resource) => {
@@ -177,4 +200,11 @@ export const setIsInvalidatingForExistingResource = (state, { type, id }, value 
   return value === null
     ? imm(state).del(updatePath)
     : imm(state).set(updatePath, value);
+};
+
+export const ensureResourceTypeInState = (state, type) => {
+  const path = [type, 'data'];
+  return hasOwnProperties(state, [type])
+    ? state
+    : imm(state).set(path, []).value();
 };

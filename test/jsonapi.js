@@ -89,17 +89,84 @@ const state = {
   isDeleting: 0
 };
 
+const stateWithoutUsersResource = {
+  endpoint: {
+    host: null,
+    path: null,
+    headers: {
+      'Content-Type': 'application/vnd.api+json',
+      Accept: 'application/vnd.api+json'
+    }
+  },
+  transactions: {
+    data: [
+      {
+        type: 'transactions',
+        id: '34',
+        attributes: {
+          description: 'ABC',
+          createdAt: '2016-02-12T13:34:01+0000',
+          updatedAt: '2016-02-19T11:52:43+0000',
+        },
+        relationships: {
+          task: {
+            data: null
+          }
+        },
+        links: {
+          self: 'http://localhost/transactions/34'
+        }
+      }
+    ]
+  },
+  isCreating: 0,
+  isReading: 0,
+  isUpdating: 0,
+  isDeleting: 0
+};
+
 const taskWithoutRelationship = {
-  type: 'tasks',
-  id: '43',
-  attributes: {
-    name: 'ABC',
-    createdAt: '2016-02-19T11:52:43+0000',
-    updatedAt: '2016-02-19T11:52:43+0000'
+  data: {
+    type: 'tasks',
+    id: '43',
+    attributes: {
+      name: 'ABC',
+      createdAt: '2016-02-19T11:52:43+0000',
+      updatedAt: '2016-02-19T11:52:43+0000'
+    }
   }
 };
 
 const taskWithTransaction = {
+  data: {
+    type: 'tasks',
+    id: '43',
+    attributes: {
+      name: 'ABC',
+      createdAt: '2016-02-19T11:52:43+0000',
+      updatedAt: '2016-02-19T11:52:43+0000'
+    },
+    relationships: {
+      taskList: {
+        data: {
+          type: 'taskLists',
+          id: '1'
+        }
+      },
+      transaction: {
+        data: {
+          type: 'transactions',
+          id: '34'
+        }
+      }
+    },
+    links: {
+      self: 'http://localhost/tasks/43'
+    }
+  }
+};
+
+const taskWithTransactions = {
   type: 'tasks',
   id: '43',
   attributes: {
@@ -115,10 +182,12 @@ const taskWithTransaction = {
       }
     },
     transaction: {
-      data: {
-        type: 'transactions',
-        id: '34'
-      }
+      data: [
+        {
+          type: 'transactions',
+          id: '34'
+        }
+      ]
     }
   },
   links: {
@@ -144,28 +213,45 @@ const transactionToDelete = {
   }
 };
 
-const updatedUser = {
-  type: 'users',
-  id: '1',
-  attributes: {
-    name: 'Sir John Doe'
-  },
+const transactionWithTask = {
+  ... transactionToDelete,
   relationships: {
-    tasks: {
-      data: null
+    task: {
+      data: {
+        type: 'tasks',
+        id: '43'
+      }
     }
   }
 };
 
-const multipleResources = [
-  {
-    ... taskWithTransaction
+const updatedUser = {
+  data: {
+    type: 'users',
+    id: '1',
+    attributes: {
+      name: 'Sir John Doe'
+    },
+    relationships: {
+      tasks: {
+        data: null
+      }
+    }
   }
-];
+};
+
+const multipleResources = {
+  data: [
+    taskWithTransaction.data,
+  ],
+  relationships: [
+    taskWithTransaction.relationships
+  ]
+};
 
 const readResponse = {
   data: [
-    taskWithTransaction
+    taskWithTransaction.data
   ]
 };
 
@@ -313,8 +399,8 @@ describe('Creation of new resources', () => {
 
     const { data: taskRelationship } = updatedState.transactions.data[0].relationships.task;
 
-    expect(taskRelationship.type).toEqual(taskWithTransaction.type);
-    expect(taskRelationship.id).toEqual(taskWithTransaction.id);
+    expect(taskRelationship.type).toEqual(taskWithTransaction.data.type);
+    expect(taskRelationship.id).toEqual(taskWithTransaction.data.id);
     expect(updatedState.isCreating).toEqual(state.isCreating - 1);
   });
 
@@ -372,9 +458,16 @@ const zip = rows => rows[0].map((_, c) => rows.map(row => row[c]));
 describe('Updating resources', () => {
   it('should persist in state and preserve order', () => {
     const updatedState = reducer(state, apiUpdated(updatedUser));
-    expect(state.users.data[0].attributes.name).toNotEqual(updatedUser.attributes.name);
-    expect(updatedState.users.data[0].attributes.name).toEqual(updatedUser.attributes.name);
+    expect(state.users.data[0].attributes.name).toNotEqual(updatedUser.data.attributes.name);
+    expect(updatedState.users.data[0].attributes.name).toEqual(updatedUser.data.attributes.name);
     zip([updatedState.users.data, state.users.data]).forEach((a, b) => expect(a.id).toEqual(b.id));
+  });
+
+  it('should be able to update a resource before type is in state', () => {
+    const userToUpdate = state.users.data[0];
+    const stateWithResourceType = reducer(stateWithoutUsersResource, apiWillUpdate(userToUpdate));
+    const updatedState = reducer(stateWithResourceType, apiUpdated(updatedUser));
+    expect(updatedState.users.data[0]).toEqual(updatedUser);
   });
 });
 
@@ -386,14 +479,39 @@ describe('Delete resources', () => {
 
   it('should remove reverse relationship', () => {
     const stateWithTask = reducer(state, apiCreated(taskWithTransaction));
-
-    expect(stateWithTask.transactions.data[0].relationships.task.data.type).toEqual(taskWithTransaction.type);
-
-    const stateWithoutTask = reducer(stateWithTask, apiDeleted(taskWithTransaction));
-
+    expect(stateWithTask.transactions.data[0].relationships.task.data.type).toEqual(taskWithTransaction.data.type);
+    const stateWithoutTask = reducer(stateWithTask, apiDeleted(taskWithTransaction.data));
     const { data: relationship } = stateWithoutTask.transactions.data[0].relationships.task;
-
     expect(relationship).toEqual(null);
+  });
+
+  describe('when one-to-many relationship', () => {
+    it('should update reverse relationship for transaction', () => {
+      // Add task with transactions to state
+      const stateWithTask = reducer(state, apiCreated(taskWithTransactions));
+      // Update relation between transaction and task
+      const stateWithTaskWithTransaction = reducer(stateWithTask, apiUpdated(transactionWithTask));
+
+      expect(stateWithTaskWithTransaction.transactions.data[0].relationships.task.data.type).toEqual(taskWithTransactions.type);
+
+      const stateWithoutTask = reducer(stateWithTask, apiDeleted(taskWithTransaction));
+      const { data: relationship } = stateWithoutTask.transactions.data[0].relationships.task;
+      expect(relationship).toEqual(null);
+    });
+
+    it('should update reverse relationship for task', () => {
+      // Add task with transactions to state
+      const stateWithTask = reducer(state, apiCreated(taskWithTransactions));
+      // Update relation between transaction and task
+      // TODO: check relationshiphs on create resource
+      const stateWithTaskWithTransaction = reducer(stateWithTask, apiUpdated(transactionWithTask));
+
+      expect(stateWithTaskWithTransaction.transactions.data[0].id).toEqual(taskWithTransactions.relationships.transaction.data[0].id);
+
+      const stateWithoutTransaction = reducer(stateWithTask, apiDeleted(transactionWithTask));
+      const { data: relationship } = stateWithoutTransaction.tasks.data[0].relationships.transaction;
+      expect(relationship).toEqual([]);
+    });
   });
 });
 
@@ -453,7 +571,7 @@ describe('Invalidating flag', () => {
   it('should be removed after update', () => {
     const updatedState = reducer(
       reducer(state, apiWillUpdate(state.users.data[0])),
-      apiUpdated(state.users.data[0])
+      apiUpdated(state.users)
     );
     expect(updatedState.users.data[0].isInvalidating).toNotExist();
   });
