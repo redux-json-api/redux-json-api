@@ -1,142 +1,210 @@
-import Imm from 'immutable';
+import imm from 'object-path-immutable';
 import pluralize from 'pluralize';
+import { hasOwnProperties } from './utils';
+import equal from 'deep-equal';
 
-const updateReverseRelationship = (
-  entity,
+export const makeUpdateReverseRelationship = (
+  resource,
   relationship,
   newRelation = {
-    type: entity.get('type'),
-    id: entity.get('id')
+    type: resource.type,
+    id: resource.id
   }
 ) => {
-  return (foreignEntities) => {
-    const idx = foreignEntities.findIndex(
-      item => item.get('id') === relationship.getIn(['data', 'id'])
-    );
+  return (foreignResources) => {
+    const idx = foreignResources.findIndex(item => (
+      item.id === relationship.data.id
+    ));
 
     if (idx === -1) {
-      return foreignEntities;
+      return foreignResources;
     }
 
-    return foreignEntities.update(
-      idx,
-      foreignEntity => {
-        const [singular, plural] = [1, 2].map(i => pluralize(entity.get('type'), i));
-        const relCase = [singular, plural].find(r => foreignEntity.hasIn(['relationships', r]));
-
-        if (!relCase) {
-          return foreignEntity;
-        }
-
-        return foreignEntity.updateIn(
-          ['relationships', relCase, 'data'],
-          relation => {
-            if (relCase === singular) {
-              return newRelation;
-            }
-
-            if (!relation) {
-              return new Imm.List([newRelation]);
-            }
-
-            return relation.push(newRelation);
-          }
-        );
-      }
+    const [singular, plural] = [1, 2].map(i => pluralize(resource.type, i));
+    const relCase = [singular, plural]
+      .find(r => (
+        hasOwnProperties(foreignResources[idx], ['relationships', r])
+      )
     );
+
+    if (!relCase) {
+      return foreignResources;
+    }
+
+    const relPath = ['relationships', relCase, 'data'];
+    const idxRelPath = [idx].concat(relPath);
+
+    const immutableForeingResources = imm(foreignResources);
+
+    if (!hasOwnProperties(foreignResources[idx], relPath)) {
+      return immutableForeingResources
+        .push(idxRelPath, newRelation)
+        .value();
+    }
+
+    const foreignResourceRel = foreignResources[idx].relationships[relCase].data;
+
+    if (
+      (
+        newRelation
+        && Array.isArray(foreignResourceRel)
+        && ~foreignResourceRel.findIndex(
+          rel => rel.id === newRelation.id && rel.type === newRelation.type
+        )
+      )
+      || (
+        newRelation
+        && foreignResourceRel
+        && foreignResourceRel.id === newRelation.id
+        && foreignResourceRel.type === newRelation.type
+      )
+    ) {
+      return foreignResources;
+    } else if (Array.isArray(foreignResourceRel) && !newRelation) {
+      const relIdx = foreignResourceRel.findIndex(item => (
+        item.id === resource.id
+      ));
+
+      if (foreignResourceRel[relIdx]) {
+        const deletePath = [idx, 'relationships', singular, 'data', relIdx];
+        return imm(foreignResources).del(deletePath).value();
+      }
+
+      return foreignResources;
+    }
+
+    if (relCase === singular) {
+      return immutableForeingResources
+        .set(idxRelPath, newRelation)
+        .value();
+    }
+
+    return immutableForeingResources
+      .push(idxRelPath, newRelation)
+      .value();
   };
 };
 
-const updateOrInsertEntity = (state, entity) => {
-  if (Imm.Map.isMap(entity) === false) {
+const stateContainsResource = (state, resource) => {
+  const updatePath = [resource.type, 'data'];
+
+  if (hasOwnProperties(state, updatePath)) {
+    return state[resource.type].data.findIndex(
+      item => item.id === resource.id
+    ) > -1;
+  }
+
+  return false;
+};
+
+export const addLinksToState = (state, links, options) => {
+  if (options === undefined || options.indexLinks === undefined) {
     return state;
   }
 
-  return state.withMutations(s => {
-    s.updateIn(
-      [entity.get('type'), 'data'],
-      (list = new Imm.List()) => {
-        return list.filter(
-          e => e.get('id') !== entity.get('id')
-        ).push(entity);
-      }
-    );
+  const indexLinkName = options.indexLinks;
+  const newState = imm.set(state, `links.${indexLinkName}`, links);
 
-    const rels = entity.get('relationships');
+  return newState;
+};
 
-    if (!rels) {
+export const updateOrInsertResource = (state, resource) => {
+  if (typeof resource !== 'object') {
+    return state;
+  }
+
+  let newState = state;
+  const updatePath = [resource.type, 'data'];
+
+  if (stateContainsResource(state, resource)) {
+    const resources = state[resource.type].data;
+    const idx = resources.findIndex(item => item.id === resource.id);
+
+    if (!equal(resources[idx], resource)) {
+      newState = imm.set(newState, updatePath.concat(idx), resource);
+    }
+  } else {
+    newState = imm.push(newState, updatePath, resource);
+  }
+
+  const rels = resource.relationships;
+
+  if (!rels) {
+    return newState;
+  }
+
+  Object.keys(rels).forEach(relKey => {
+    if (!hasOwnProperties(rels[relKey], ['data', 'type'])) {
       return;
     }
 
-    rels.forEach(relationship => {
-      const entityPath = [
-        relationship.getIn(['data', 'type']),
-        'data'
-      ];
+    const entityPath = [rels[relKey].data.type, 'data'];
 
-      if (s.hasIn(entityPath) === false) {
-        return;
-      }
-
-      s.updateIn(
-        entityPath,
-        updateReverseRelationship(entity, relationship)
-      );
-    });
-  });
-};
-
-export const removeEntityFromState = (state, entity) => {
-  return state.withMutations(newState => {
-    newState.updateIn(
-      [entity.get('type'), 'data'],
-      curVal => curVal.filter(l => l.get('id') !== entity.get('id'))
-    );
-
-    const rels = entity.get('relationships');
-    if (!rels) {
+    if (!hasOwnProperties(newState, entityPath)) {
       return;
     }
 
-    rels.forEach(relationship => {
-      const entityPath = [
-        relationship.getIn(['data', 'type']),
-        'data'
-      ];
+    const updateReverseRelationship = makeUpdateReverseRelationship(
+      resource, rels[relKey]
+    );
 
-      if (newState.hasIn(entityPath) === false) {
-        return;
-      }
-
-      newState.updateIn(
-        entityPath,
-        updateReverseRelationship(entity, relationship, null)
-      );
-    });
+    newState = imm.set(
+      newState,
+      entityPath,
+      updateReverseRelationship(newState[rels[relKey].data.type].data)
+    );
   });
+
+  return newState;
 };
 
-export const updateOrInsertEntitiesIntoState = (state, entities) => {
-  return entities.reduce(
-    updateOrInsertEntity,
-    state
-  );
-};
+export const removeResourceFromState = (state, resource) => {
+  const index = state[resource.type].data.findIndex(e => e.id === resource.id);
+  const path = [resource.type, 'data', index];
+  const entityRelationships = resource.relationships || {};
 
-export const setIsInvalidatingForExistingEntity = (state, { type, id }, value) => {
-  return state.updateIn(
-    [type, 'data'],
-    entities => {
-      return entities.update(
-        entities.findIndex(
-          item => item.get('id') === id && item.get('type') === type
-        ),
-        entity => (
-          value === null
-          ? entity.delete('isInvalidating')
-          : entity.set('isInvalidating', value)
+  return Object.keys(entityRelationships).reduce((newState, key) => {
+    if (resource.relationships[key].data === null) {
+      return newState;
+    }
+
+    const entityPath = [resource.relationships[key].data.type, 'data'];
+
+    if (hasOwnProperties(state, entityPath)) {
+      const updateReverseRelationship = makeUpdateReverseRelationship(
+        resource,
+        resource.relationships[key],
+        null
+      );
+
+      return newState.set(
+        entityPath,
+        updateReverseRelationship(
+          state[resource.relationships[key].data.type].data
         )
       );
     }
-  );
+
+    return newState;
+  }, imm(state).del(path));
+};
+
+export const updateOrInsertResourcesIntoState = (state, resources) => (
+  resources.reduce(updateOrInsertResource, state)
+);
+
+export const setIsInvalidatingForExistingResource = (state, { type, id }, value = null) => {
+  const idx = state[type].data.findIndex(e => e.id === id && e.type === type);
+  const updatePath = [type, 'data', idx, 'isInvalidating'];
+
+  return value === null
+    ? imm(state).del(updatePath)
+    : imm(state).set(updatePath, value);
+};
+
+export const ensureResourceTypeInState = (state, type) => {
+  const path = [type, 'data'];
+  return hasOwnProperties(state, [type])
+    ? state
+    : imm(state).set(path, []).value();
 };
