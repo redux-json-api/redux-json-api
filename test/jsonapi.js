@@ -463,7 +463,7 @@ describe('Updating resources', () => {
     zip([updatedState.users.data, state.users.data]).forEach((a, b) => expect(a.id).toEqual(b.id));
   });
 
-  it('| should be able to update a resource before type is in state', () => {
+  it('should be able to update a resource before type is in state', () => {
     const userToUpdate = state.users.data[0];
     const stateWithResourceType = reducer(stateWithoutUsersResource, apiWillUpdate(userToUpdate));
     const updatedState = reducer(stateWithResourceType, apiUpdated(updatedUser));
