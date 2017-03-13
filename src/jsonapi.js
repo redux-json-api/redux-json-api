@@ -9,7 +9,8 @@ import {
   setIsInvalidatingForExistingResource,
   ensureResourceTypeInState
 } from './state-mutation';
-import { apiRequest, noop, jsonContentTypes } from './utils';
+
+import { apiRequest, getPaginationUrl } from './utils';
 import {
   API_SET_ENDPOINT_HOST, API_SET_ENDPOINT_PATH, API_SET_HEADERS, API_SET_HEADER, API_WILL_CREATE, API_CREATED, API_CREATE_FAILED, API_WILL_READ, API_READ, API_READ_FAILED, API_WILL_UPDATE, API_UPDATED, API_UPDATE_FAILED, API_WILL_DELETE, API_DELETED, API_DELETE_FAILED
 } from './constants';
@@ -47,52 +48,6 @@ export const setAccessToken = (at) => {
   };
 };
 
-export const uploadFile = (file, {
-  companyId,
-  fileableType: fileableType = null,
-  fileableId: fileableId = null
-}, {
-  onSuccess: onSuccess = noop,
-  onError: onError = noop
-} = {}) => {
-  console.warn('uploadFile has been deprecated and will no longer be supported by redux-json-api https://github.com/dixieio/redux-json-api/issues/2');
-
-  return (dispatch, getState) => {
-    const accessToken = getState().api.endpoint.accessToken;
-    const path = [companyId, fileableType, fileableId].filter(o => !!o).join('/');
-    const url = `${__API_HOST__}/upload/${path}?access_token=${accessToken}`;
-
-    const data = new FormData;
-    data.append('file', file);
-
-    const options = {
-      method: 'POST',
-      body: data
-    };
-
-    return fetch(url, options)
-      .then(res => {
-        if (res.status >= 200 && res.status < 300) {
-          if (jsonContentTypes.some(contentType => res.headers.get('Content-Type').indexOf(contentType) > -1)) {
-            return res.json();
-          }
-
-          return res;
-        }
-
-        const e = new Error(res.statusText);
-        e.response = res;
-        throw e;
-      })
-      .then(json => {
-        onSuccess(json);
-      })
-      .catch(error => {
-        onError(error);
-      });
-  };
-};
-
 export const createResource = (resource) => {
   return (dispatch, getState) => {
     dispatch(apiWillCreate(resource));
@@ -122,6 +77,27 @@ export const createResource = (resource) => {
   };
 };
 
+class ApiResponse {
+  constructor(response, dispatch, nextUrl, prevUrl) {
+    this.body = response;
+    this.dispatch = dispatch;
+    this.nextUrl = nextUrl;
+    this.prevUrl = prevUrl;
+    this.loadNext = this.loadNext.bind(this);
+    this.loadPrev = this.loadPrev.bind(this);
+  }
+
+  /* eslint-disable */
+  loadNext() {
+    return this.dispatch(readEndpoint(this.nextUrl));
+  }
+
+  prevNext() {
+    return this.dispatch(readEndpoint(this.prevUrl));
+  }
+  /* eslint-enable */
+}
+
 export const readEndpoint = (endpoint, {
   options = {
     indexLinks: undefined,
@@ -140,7 +116,11 @@ export const readEndpoint = (endpoint, {
       })
         .then(json => {
           dispatch(apiRead({ endpoint, options, ...json }));
-          resolve(json);
+
+          const nextUrl = getPaginationUrl(json, 'next', apiHost, apiPath);
+          const prevUrl = getPaginationUrl(json, 'prev', apiHost, apiPath);
+
+          resolve(new ApiResponse(json, dispatch, nextUrl, prevUrl));
         })
         .catch(error => {
           const err = error;

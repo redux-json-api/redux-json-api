@@ -467,7 +467,7 @@ describe('Updating resources', () => {
     const userToUpdate = state.users.data[0];
     const stateWithResourceType = reducer(stateWithoutUsersResource, apiWillUpdate(userToUpdate));
     const updatedState = reducer(stateWithResourceType, apiUpdated(updatedUser));
-    expect(updatedState.users.data[0]).toEqual(updatedUser);
+    expect(updatedState.users.data[0]).toEqual(updatedUser.data);
   });
 });
 
