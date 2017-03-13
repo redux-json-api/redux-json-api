@@ -47,14 +47,7 @@ export const setAccessToken = (at) => {
   };
 };
 
-export const createResource = (resource, {
-  onSuccess: onSuccess = noop,
-  onError: onError = noop
-} = {}) => {
-  if (onSuccess !== noop || onError !== noop) {
-    console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
-  }
-
+export const createResource = (resource) => {
   return (dispatch, getState) => {
     dispatch(apiWillCreate(resource));
 
@@ -71,14 +64,12 @@ export const createResource = (resource, {
         })
       }).then(json => {
         dispatch(apiCreated(json));
-        onSuccess(json);
         resolve(json);
       }).catch(error => {
         const err = error;
         err.resource = resource;
 
         dispatch(apiCreateFailed(err));
-        onError(err);
         reject(err);
       });
     });
@@ -86,16 +77,10 @@ export const createResource = (resource, {
 };
 
 export const readEndpoint = (endpoint, {
-  onSuccess: onSuccess = noop,
-  onError: onError = noop,
   options = {
     indexLinks: undefined,
   }
 } = {}) => {
-  if (onSuccess !== noop || onError !== noop) {
-    console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
-  }
-
   return (dispatch, getState) => {
     dispatch(apiWillRead(endpoint));
 
@@ -109,7 +94,6 @@ export const readEndpoint = (endpoint, {
       })
         .then(json => {
           dispatch(apiRead({ endpoint, options, ...json }));
-          onSuccess(json);
           resolve(json);
         })
         .catch(error => {
@@ -117,20 +101,13 @@ export const readEndpoint = (endpoint, {
           err.endpoint = endpoint;
 
           dispatch(apiReadFailed(err));
-          onError(err);
           reject(err);
         });
     });
   };
 };
 
-export const updateResource = (resource, {
-  onSuccess: onSuccess = noop,
-  onError: onError = noop
-} = {}) => {
-  if (onSuccess !== noop || onError !== noop) {
-    console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
-  }
+export const updateResource = (resource) => {
   return (dispatch, getState) => {
     dispatch(apiWillUpdate(resource));
 
@@ -147,28 +124,19 @@ export const updateResource = (resource, {
         })
       }).then(json => {
         dispatch(apiUpdated(json));
-        onSuccess(json);
         resolve(json);
       }).catch(error => {
         const err = error;
         err.resource = resource;
 
         dispatch(apiUpdateFailed(err));
-        onError(err);
         reject(err);
       });
     });
   };
 };
 
-export const deleteResource = (resource, {
-  onSuccess: onSuccess = noop,
-  onError: onError = noop
-} = {}) => {
-  if (onSuccess !== noop || onError !== noop) {
-    console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
-  }
-
+export const deleteResource = (resource) => {
   return (dispatch, getState) => {
     dispatch(apiWillDelete(resource));
 
@@ -182,37 +150,27 @@ export const deleteResource = (resource, {
         credentials: 'include'
       }).then(() => {
         dispatch(apiDeleted(resource));
-        onSuccess();
         resolve();
       }).catch(error => {
         const err = error;
         err.resource = resource;
 
         dispatch(apiDeleteFailed(err));
-        onError(err);
         reject(err);
       });
     });
   };
 };
 
-export const requireResource = (resourceType, endpoint = resourceType, {
-  onSuccess: onSuccess = noop,
-  onError: onError = noop
-} = {}) => {
-  if (onSuccess !== noop || onError !== noop) {
-    console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
-  }
-
+export const requireResource = (resourceType, endpoint = resourceType) => {
   return (dispatch, getState) => {
     return new Promise((resolve, reject) => {
       const { api } = getState();
       if (api.hasOwnProperty(resourceType)) {
         resolve();
-        return onSuccess();
       }
 
-      dispatch(readEndpoint(endpoint, { onSuccess, onError }))
+      dispatch(readEndpoint(endpoint))
         .then(resolve)
         .catch(reject);
     });
