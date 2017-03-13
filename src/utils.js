@@ -36,3 +36,13 @@ export const hasOwnProperties = (obj, propertyTree) => {
   }
   return false;
 };
+
+export const getPaginationUrl = (response, direction, host, path) => {
+  if (!response.links || !hasOwnProperties(response, ['links', direction])) {
+    return null;
+  }
+
+  return response.links[direction]
+    .replace(host, '')
+    .replace(`${path}/`, '');
+};
