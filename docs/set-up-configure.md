@@ -73,6 +73,29 @@ dispatch(setEndpointPath('v1'));
 // => https://api.my-serverv1
 ```
 
+#### `setIncludeParam( resources: string ): object`
+
+Dispatch the returned action to add the `include` URL parameter so relationships will be included in the response. It requires one argument.
+
+```js
+dispatch(setIncludeParam('comments'));
+```
+
+For example, if you are retrieving a resource of type `posts`, this will create a URL query string like this:
+
+```
+https://api.my-server/v1/posts/1?include=comments
+```
+
+Multiple resources can be separated with a dot per the JSON API spec:
+
+```js
+dispatch(setIncludeParam('comments.authors'));
+// => https://api.my-server/v1/posts/1?include=comments.authors
+```
+
+The `include` parameter will be added for `readEndpoint()` and `createEntity()` API methods.
+
 #### `setAccessToken( accessToken: string ): object`
 
 Dispatch this action to configure an access token to include in all requests.
