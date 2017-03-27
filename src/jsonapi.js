@@ -11,7 +11,7 @@ import {
 
 import { apiRequest, getPaginationUrl } from './utils';
 import {
-  API_SET_AXIOS_CONFIG, API_WILL_CREATE, API_CREATED, API_CREATE_FAILED, API_WILL_READ, API_READ, API_READ_FAILED, API_WILL_UPDATE, API_UPDATED, API_UPDATE_FAILED, API_WILL_DELETE, API_DELETED, API_DELETE_FAILED
+  API_SET_AXIOS_CONFIG, API_HYDRATE, API_WILL_CREATE, API_CREATED, API_CREATE_FAILED, API_WILL_READ, API_READ, API_READ_FAILED, API_WILL_UPDATE, API_UPDATED, API_UPDATE_FAILED, API_WILL_DELETE, API_DELETED, API_DELETE_FAILED
 } from './constants';
 
 // Resource isInvalidating values
@@ -20,6 +20,8 @@ export const IS_UPDATING = 'IS_UPDATING';
 
 // Action creators
 export const setAxiosConfig = createAction(API_SET_AXIOS_CONFIG);
+
+export const hydrateStore = createAction(API_HYDRATE);
 
 const apiWillCreate = createAction(API_WILL_CREATE);
 const apiCreated = createAction(API_CREATED);
@@ -198,6 +200,17 @@ export const requireResource = (resourceType, endpoint = resourceType) => {
 export const reducer = handleActions({
   [API_SET_AXIOS_CONFIG]: (state, { payload: axiosConfig }) => {
     return imm(state).set(['endpoint', 'axiosConfig'], axiosConfig).value();
+  },
+
+  [API_HYDRATE]: (state, { payload: resources }) => {
+    const entities = Array.isArray(resources.data) ? resources.data : [resources.data];
+
+    const newState = updateOrInsertResourcesIntoState(
+      state,
+      entities.concat(resources.included || [])
+    );
+
+    return imm(newState).value();
   },
 
   [API_WILL_CREATE]: (state) => {

@@ -7,6 +7,7 @@ import expect from 'expect';
 import {
   reducer,
   setAxiosConfig,
+  hydrateStore,
   IS_DELETING,
   IS_UPDATING
 } from '../src/jsonapi';
@@ -376,6 +377,27 @@ const responseDataWithOneToManyRelationship = {
 };
 
 const payloadWithNonMatchingReverseRelationships = require('./payloads/withNonMatchingReverseRelationships.json');
+
+describe('Hydration of store', () => {
+  it('should automatically organize new resource in new key on state', () => {
+    const updatedState = reducer(state, hydrateStore(taskWithoutRelationship));
+    expect(updatedState.tasks).toBeAn('object');
+  });
+
+  it('should add reverse relationship when inserting new resource', () => {
+    const updatedState = reducer(state, hydrateStore(taskWithTransaction));
+
+    const { data: taskRelationship } = updatedState.transactions.data[0].relationships.task;
+
+    expect(taskRelationship.type).toEqual(taskWithTransaction.data.type);
+    expect(taskRelationship.id).toEqual(taskWithTransaction.data.id);
+  });
+
+  it('should handle multiple resources', () => {
+    const updatedState = reducer(state, hydrateStore(multipleResources));
+    expect(updatedState.tasks).toBeAn('object');
+  });
+});
 
 describe('Creation of new resources', () => {
   it('should automatically organize new resource in new key on state', () => {
