@@ -118,6 +118,11 @@ export const readEndpoint = (endpoint, {
   };
 };
 
+export const readJSON = json => (dispatch) => {
+  dispatch(apiWillRead());
+  dispatch(apiRead({ ...json }));
+};
+
 export const updateResource = (resource) => {
   return (dispatch, getState) => {
     dispatch(apiWillUpdate(resource));
