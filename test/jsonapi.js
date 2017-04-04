@@ -384,7 +384,7 @@ describe('Creation of new resources', () => {
   });
 
   it('should add reverse relationship when inserting new resource', () => {
-    const updatedState = reducer(state, apiCreated(taskWithTransaction));
+    const updatedState = reducer(state, apiCreated({ data: taskWithTransaction }));
 
     const { data: taskRelationship } = updatedState.transactions.data[0].relationships.task;
 
@@ -495,9 +495,11 @@ describe('Delete resources', () => {
   describe('when one-to-many relationship', () => {
     it('should update reverse relationship for transaction', () => {
       // Add task with transactions to state
-      const stateWithTask = reducer(state, apiCreated(taskWithTransactions));
+      const stateWithTask = reducer(state, apiCreated({ data: taskWithTransactions }));
+      expect(stateWithTask.tasks).toEqual({ data: [taskWithTransactions] });
+
       // Update relation between transaction and task
-      const stateWithTaskWithTransaction = reducer(stateWithTask, apiUpdated(transactionWithTask));
+      const stateWithTaskWithTransaction = reducer(stateWithTask, apiUpdated({ data: transactionWithTask }));
 
       expect(stateWithTaskWithTransaction.transactions.data[0].relationships.task.data.type).toEqual(taskWithTransactions.type);
 
