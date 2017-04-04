@@ -137,7 +137,7 @@ export const updateResource = (resource) => {
     return new Promise((resolve, reject) => {
       apiRequest(endpoint, options)
         .then(json => {
-          dispatch(apiUpdated(json.data));
+          dispatch(apiUpdated(json));
           resolve(json);
         })
         .catch(error => {
