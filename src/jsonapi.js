@@ -197,7 +197,6 @@ export const requireResource = (resourceType, endpoint = resourceType) => {
 // Reducers
 export const reducer = handleActions({
   [API_SET_AXIOS_CONFIG]: (state, { payload: axiosConfig }) => {
-    // return Imm.fromJS(state).setIn(['endpoint', 'axiosConfig'], axiosConfig).toJS();
     return imm(state).set(['endpoint', 'axiosConfig'], axiosConfig).value();
   },
 
