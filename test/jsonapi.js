@@ -445,6 +445,24 @@ describe('Reading resources', () => {
 const zip = rows => rows[0].map((_, c) => rows.map(row => row[c]));
 
 describe('Updating resources', () => {
+  it('should update a resource', () => {
+    const updatedState = reducer(state, apiUpdated({
+      data: [{
+        type: 'users',
+        id: '2',
+        attributes: {
+          name: 'Jane Doe'
+        },
+        relationships: {
+          companies: {
+            data: null
+          }
+        }
+      }]
+    }));
+    expect(updatedState.users.data[1].attributes.name).toEqual('Jane Doe');
+  })
+
   it('should persist in state and preserve order', () => {
     const updatedState = reducer(state, apiUpdated(updatedUser));
     expect(state.users.data[0].attributes.name).toNotEqual(updatedUser.data.attributes.name);
