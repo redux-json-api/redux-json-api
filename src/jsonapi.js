@@ -1,17 +1,20 @@
 import { createAction, handleActions } from 'redux-actions';
-import Imm from 'immutable';
+import imm from 'object-path-immutable';
 
 import {
-  removeEntityFromState,
-  updateOrInsertEntitiesIntoState,
-  setIsInvalidatingForExistingEntity
+  addLinksToState,
+  removeResourceFromState,
+  updateOrInsertResourcesIntoState,
+  setIsInvalidatingForExistingResource,
+  ensureResourceTypeInState
 } from './state-mutation';
-import { apiRequest, noop, jsonContentTypes } from './utils';
+
+import { apiRequest, getPaginationUrl } from './utils';
 import {
   API_SET_AXIOS_CONFIG, API_WILL_CREATE, API_CREATED, API_CREATE_FAILED, API_WILL_READ, API_READ, API_READ_FAILED, API_WILL_UPDATE, API_UPDATED, API_UPDATE_FAILED, API_WILL_DELETE, API_DELETED, API_DELETE_FAILED
 } from './constants';
 
-// Entity isInvalidating values
+// Resource isInvalidating values
 export const IS_DELETING = 'IS_DELETING';
 export const IS_UPDATING = 'IS_UPDATING';
 
@@ -35,102 +38,61 @@ const apiDeleted = createAction(API_DELETED);
 const apiDeleteFailed = createAction(API_DELETE_FAILED);
 
 // Actions
-export const uploadFile = (file, {
-  companyId,
-  fileableType: fileableType = null,
-  fileableId: fileableId = null
-}, {
-  onSuccess: onSuccess = noop,
-  onError: onError = noop
-} = {}) => {
-  console.warn('uploadFile has been deprecated and will no longer be supported by redux-json-api https://github.com/dixieio/redux-json-api/issues/2');
-
-  if (onSuccess !== noop || onError !== noop) {
-    console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
-  }
-
-  return (dispatch, getState) => {
-    const axiosConfig = getState().api.endpoint.axiosConfig;
-    const path = [companyId, fileableType, fileableId].filter(o => !!o).join('/');
-    const endpoint = `${__API_HOST__}/upload/${path}`;
-
-    const data = new FormData;
-    data.append('file', file);
-
-    const options = {
-      ... axiosConfig,
-      method: 'POST',
-      body: data
-    };
-
-    return apiRequest(endpoint, options)
-      .then((res) => {
-        onSuccess(res.data);
-        if (res.status >= 200 && res.status < 300) {
-          if (jsonContentTypes.some(contentType => res.headers.get('Content-Type').indexOf(contentType) > -1)) {
-            return res.data;
-          }
-
-          return res;
-        }
-
-        const e = new Error(res.statusText);
-        e.response = res;
-        throw e;
-      })
-      .catch(error => {
-        onError(error);
-      });
+export const setAccessToken = (at) => {
+  return (dispatch) => {
+    dispatch(setHeader({ Authorization: `Bearer ${at}` }));
   };
 };
 
-export const createEntity = (entity, {
-  onSuccess: onSuccess = noop,
-  onError: onError = noop
-} = {}) => {
-  if (onSuccess !== noop || onError !== noop) {
-    console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
-  }
-
+export const createResource = (resource) => {
   return (dispatch, getState) => {
-    dispatch(apiWillCreate(entity));
+    dispatch(apiWillCreate(resource));
 
-    const { axiosConfig } = getState().api.endpoint;
-
-    const options = {
-      ... axiosConfig,
-      method: 'POST',
-      data: {
-        data: entity
-      }
-    };
+    const { host: apiHost, path: apiPath, headers } = getState().api.endpoint;
+    const endpoint = `${apiHost}${apiPath}/${resource.type}`;
 
     return new Promise((resolve, reject) => {
-      apiRequest(entity.type, options)
-        .then(json => {
-          dispatch(apiCreated(json.data));
-          onSuccess(json);
-          resolve(json);
-        }).catch(error => {
-          const err = error;
-          err.entity = entity;
+      apiRequest(endpoint, {
+        headers,
+        method: 'POST',
+        credentials: 'include',
+        body: JSON.stringify({
+          data: resource
+        })
+      }).then(json => {
+        dispatch(apiCreated(json));
+        resolve(json);
+      }).catch(error => {
+        const err = error;
+        err.resource = resource;
 
-          dispatch(apiCreateFailed(err));
-          onError(err);
-          reject(err);
-        });
+        dispatch(apiCreateFailed(err));
+        reject(err);
+      });
     });
   };
 };
 
-export const readEndpoint = (endpoint, {
-  onSuccess: onSuccess = noop,
-  onError: onError = noop
-} = {}) => {
-  if (onSuccess !== noop || onError !== noop) {
-    console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
+class ApiResponse {
+  constructor(response, dispatch, nextUrl, prevUrl) {
+    this.body = response;
+    this.dispatch = dispatch;
+    this.nextUrl = nextUrl;
+    this.prevUrl = prevUrl;
   }
 
+  /* eslint-disable */
+  loadNext = () => this.dispatch(readEndpoint(this.nextUrl));
+
+  loadPrev = () => this.dispatch(readEndpoint(this.prevUrl));
+  /* eslint-enable */
+}
+
+export const readEndpoint = (endpoint, {
+  options = {
+    indexLinks: undefined,
+  }
+} = {}) => {
   return (dispatch, getState) => {
     dispatch(apiWillRead(endpoint));
 
@@ -139,32 +101,27 @@ export const readEndpoint = (endpoint, {
     return new Promise((resolve, reject) => {
       apiRequest(endpoint, axiosConfig)
         .then(json => {
-          dispatch(apiRead({ endpoint, ...json }));
-          onSuccess(json);
-          resolve(json);
+          dispatch(apiRead({ endpoint, options, ...json }));
+
+          const nextUrl = getPaginationUrl(json, 'next', apiHost, apiPath);
+          const prevUrl = getPaginationUrl(json, 'prev', apiHost, apiPath);
+
+          resolve(new ApiResponse(json, dispatch, nextUrl, prevUrl));
         })
         .catch(error => {
           const err = error;
           err.endpoint = endpoint;
 
           dispatch(apiReadFailed(err));
-          onError(err);
           reject(err);
         });
     });
   };
 };
 
-export const updateEntity = (entity, {
-  onSuccess: onSuccess = noop,
-  onError: onError = noop
-} = {}) => {
-  if (onSuccess !== noop || onError !== noop) {
-    console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
-  }
-
+export const updateResource = (resource) => {
   return (dispatch, getState) => {
-    dispatch(apiWillUpdate(entity));
+    dispatch(apiWillUpdate(resource));
 
     const { axiosConfig } = getState().api.endpoint;
     const endpoint = `${entity.type}/${entity.id}`;
@@ -196,16 +153,9 @@ export const updateEntity = (entity, {
   };
 };
 
-export const deleteEntity = (entity, {
-  onSuccess: onSuccess = noop,
-  onError: onError = noop
-} = {}) => {
-  if (onSuccess !== noop || onError !== noop) {
-    console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
-  }
-
+export const deleteResource = (resource) => {
   return (dispatch, getState) => {
-    dispatch(apiWillDelete(entity));
+    dispatch(apiWillDelete(resource));
 
     const { axiosConfig } = getState().api.endpoint;
     const endpoint = `${entity.type}/${entity.id}`;
@@ -234,23 +184,15 @@ export const deleteEntity = (entity, {
   };
 };
 
-export const requireEntity = (entityType, endpoint = entityType, {
-  onSuccess: onSuccess = noop,
-  onError: onError = noop
-} = {}) => {
-  if (onSuccess !== noop || onError !== noop) {
-    console.warn('onSuccess/onError callbacks are deprecated. Please use returned promise: https://github.com/dixieio/redux-json-api/issues/17');
-  }
-
+export const requireResource = (resourceType, endpoint = resourceType) => {
   return (dispatch, getState) => {
     return new Promise((resolve, reject) => {
       const { api } = getState();
-      if (api.hasOwnProperty(entityType)) {
+      if (api.hasOwnProperty(resourceType)) {
         resolve();
-        return onSuccess();
       }
 
-      dispatch(readEndpoint(endpoint, { onSuccess, onError }))
+      dispatch(readEndpoint(endpoint))
         .then(resolve)
         .catch(reject);
     });
@@ -259,103 +201,106 @@ export const requireEntity = (entityType, endpoint = entityType, {
 
 // Reducers
 export const reducer = handleActions({
-
   [API_SET_AXIOS_CONFIG]: (state, { payload: axiosConfig }) => {
-    return Imm.fromJS(state).setIn(['endpoint', 'axiosConfig'], axiosConfig).toJS();
+    // return Imm.fromJS(state).setIn(['endpoint', 'axiosConfig'], axiosConfig).toJS();
+    return imm(state).set(['endpoint', 'axiosConfig'], axiosConfig).value();
   },
 
   [API_WILL_CREATE]: (state) => {
-    return Imm.fromJS(state).update('isCreating', v => v + 1).toJS();
+    return imm(state).set(['isCreating'], state.isCreating + 1).value();
   },
 
-  [API_CREATED]: (rawState, { payload: rawEntities }) => {
-    const state = Imm.fromJS(rawState);
-    const entities = Imm.fromJS(
-      Array.isArray(rawEntities) ? rawEntities : [rawEntities]
+  [API_CREATED]: (state, { payload: resources }) => {
+    const entities = Array.isArray(resources.data) ? resources.data : [resources.data];
+
+    const newState = updateOrInsertResourcesIntoState(
+      state,
+      entities.concat(resources.included || [])
     );
 
-    return updateOrInsertEntitiesIntoState(state, entities)
-      .update('isCreating', v => v - 1)
-      .toJS();
+    return imm(newState)
+      .set('isCreating', state.isCreating - 1)
+      .value();
   },
 
   [API_CREATE_FAILED]: (state) => {
-    return Imm.fromJS(state).update('isCreating', v => v - 1).toJS();
+    return imm(state).set(['isCreating'], state.isCreating - 1).value();
   },
 
   [API_WILL_READ]: (state) => {
-    return Imm.fromJS(state).update('isReading', v => v + 1).toJS();
+    return imm(state).set(['isReading'], state.isReading + 1).value();
   },
 
-  [API_READ]: (rawState, { payload }) => {
-    const state = Imm.fromJS(rawState);
-    const entities = Imm.fromJS(
-      Array.isArray(payload.data) ? payload.data : [payload.data]
-    ).concat(Imm.fromJS(payload.included || []));
+  [API_READ]: (state, { payload }) => {
+    const resources = (
+      Array.isArray(payload.data)
+        ? payload.data
+        : [payload.data]
+    ).concat(payload.included || []);
 
-    return updateOrInsertEntitiesIntoState(state, entities)
-      .update('isReading', v => v - 1)
-      .toJS();
+    const newState = updateOrInsertResourcesIntoState(state, resources);
+    const finalState = addLinksToState(newState, payload.links, payload.options);
+
+    return imm(finalState)
+      .set('isReading', state.isReading - 1)
+      .value();
   },
 
   [API_READ_FAILED]: (state) => {
-    return Imm.fromJS(state).update('isReading', v => v - 1).toJS();
+    return imm(state).set(['isReading'], state.isReading - 1).value();
   },
 
-  [API_WILL_UPDATE]: (rawState, { payload: entity }) => {
-    const { type, id } = entity;
-    const state = Imm.fromJS(rawState);
+  [API_WILL_UPDATE]: (state, { payload: resource }) => {
+    const { type, id } = resource;
 
-    return setIsInvalidatingForExistingEntity(state, { type, id }, IS_UPDATING)
-      .update('isUpdating', v => v + 1)
-      .toJS();
+    const newState = ensureResourceTypeInState(state, type);
+
+    return setIsInvalidatingForExistingResource(newState, { type, id }, IS_UPDATING)
+      .set('isUpdating', state.isUpdating + 1)
+      .value();
   },
 
-  [API_UPDATED]: (rawState, { payload: rawEntities }) => {
-    const state = Imm.fromJS(rawState);
-    const entities = Imm.fromJS(
-      Array.isArray(rawEntities) ? rawEntities : [rawEntities]
+  [API_UPDATED]: (state, { payload: resources }) => {
+    const entities = Array.isArray(resources.data) ? resources.data : [resources.data];
+
+    const newState = updateOrInsertResourcesIntoState(
+      state,
+      entities.concat(resources.included || [])
     );
 
-    return updateOrInsertEntitiesIntoState(state, entities)
-      .update('isUpdating', v => v - 1)
-      .toJS();
+    return imm(newState)
+      .set('isUpdating', state.isUpdating - 1)
+      .value();
   },
 
-  [API_UPDATE_FAILED]: (rawState, { payload: { entity } }) => {
-    const { type, id } = entity;
-    const state = Imm.fromJS(rawState);
+  [API_UPDATE_FAILED]: (state, { payload: { resource } }) => {
+    const { type, id } = resource;
 
-    return setIsInvalidatingForExistingEntity(state, { type, id }, IS_UPDATING)
-      .update('isUpdating', v => v - 1)
-      .toJS();
+    return setIsInvalidatingForExistingResource(state, { type, id }, IS_UPDATING)
+      .set('isUpdating', state.isUpdating + 1)
+      .value();
   },
 
-  [API_WILL_DELETE]: (rawState, { payload: entity }) => {
-    const { type, id } = entity;
-    const state = Imm.fromJS(rawState);
+  [API_WILL_DELETE]: (state, { payload: resource }) => {
+    const { type, id } = resource;
 
-    return setIsInvalidatingForExistingEntity(state, { type, id }, IS_DELETING)
-      .update('isDeleting', v => v + 1)
-      .toJS();
+    return setIsInvalidatingForExistingResource(state, { type, id }, IS_DELETING)
+      .set('isDeleting', state.isDeleting + 1)
+      .value();
   },
 
-  [API_DELETED]: (rawState, { payload: rawEntity }) => {
-    const state = Imm.fromJS(rawState);
-    const entity = Imm.fromJS(rawEntity);
-
-    return removeEntityFromState(state, entity)
-      .update('isDeleting', v => v - 1)
-      .toJS();
+  [API_DELETED]: (state, { payload: resource }) => {
+    return removeResourceFromState(state, resource)
+      .set('isDeleting', state.isDeleting - 1)
+      .value();
   },
 
-  [API_DELETE_FAILED]: (rawState, { payload: { entity } }) => {
-    const { type, id } = entity;
-    const state = Imm.fromJS(rawState);
+  [API_DELETE_FAILED]: (state, { payload: { resource } }) => {
+    const { type, id } = resource;
 
-    return setIsInvalidatingForExistingEntity(state, { type, id }, IS_DELETING)
-      .update('isDeleting', v => v - 1)
-      .toJS();
+    return setIsInvalidatingForExistingResource(state, { type, id }, IS_DELETING)
+      .set('isDeleting', state.isDeleting + 1)
+      .value();
   }
 
 }, {

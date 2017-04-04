@@ -1,6 +1,7 @@
 import keykey from 'keykey';
 
-export default keykey(
+// Action types of the library
+export default keykey([
   'API_SET_AXIOS_CONFIG',
   'API_WILL_CREATE',
   'API_CREATED',
@@ -14,4 +15,4 @@ export default keykey(
   'API_WILL_DELETE',
   'API_DELETED',
   'API_DELETE_FAILED'
-);
+]);
