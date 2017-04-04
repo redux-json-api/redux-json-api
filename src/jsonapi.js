@@ -48,18 +48,17 @@ export const createResource = (resource) => {
   return (dispatch, getState) => {
     dispatch(apiWillCreate(resource));
 
-    const { host: apiHost, path: apiPath, headers } = getState().api.endpoint;
-    const endpoint = `${apiHost}${apiPath}/${resource.type}`;
+    const { axiosConfig } = getState().api.endpoint;
+    const options = {
+      ... axiosConfig,
+      method: 'POST',
+      data: JSON.stringify({
+        data: resource
+      })
+    };
 
     return new Promise((resolve, reject) => {
-      apiRequest(endpoint, {
-        headers,
-        method: 'POST',
-        credentials: 'include',
-        body: JSON.stringify({
-          data: resource
-        })
-      }).then(json => {
+      apiRequest(resource.type, options).then(json => {
         dispatch(apiCreated(json));
         resolve(json);
       }).catch(error => {
