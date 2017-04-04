@@ -6,16 +6,10 @@ import { createAction } from 'redux-actions';
 import expect from 'expect';
 import {
   reducer,
-  setHeaders,
-  setHeader,
-  setEndpointHost,
-  setEndpointPath,
+  setAxiosConfig,
   IS_DELETING,
   IS_UPDATING
 } from '../src/jsonapi';
-
-import fetchMock from 'fetch-mock';
-import { apiRequest } from '../src/utils';
 
 const apiCreated = createAction('API_CREATED');
 const apiRead = createAction('API_READ');
@@ -27,12 +21,7 @@ const apiWillDelete = createAction('API_WILL_DELETE');
 
 const state = {
   endpoint: {
-    host: null,
-    path: null,
-    headers: {
-      'Content-Type': 'application/vnd.api+json',
-      Accept: 'application/vnd.api+json'
-    }
+    axiosConfig: {}
   },
   users: {
     data: [
@@ -456,6 +445,24 @@ describe('Reading resources', () => {
 const zip = rows => rows[0].map((_, c) => rows.map(row => row[c]));
 
 describe('Updating resources', () => {
+  it('should update a resource', () => {
+    const updatedState = reducer(state, apiUpdated({
+      data: [{
+        type: 'users',
+        id: '2',
+        attributes: {
+          name: 'Jane Doe'
+        },
+        relationships: {
+          companies: {
+            data: null
+          }
+        }
+      }]
+    }));
+    expect(updatedState.users.data[1].attributes.name).toEqual('Jane Doe');
+  })
+
   it('should persist in state and preserve order', () => {
     const updatedState = reducer(state, apiUpdated(updatedUser));
     expect(state.users.data[0].attributes.name).toNotEqual(updatedUser.data.attributes.name);
@@ -516,44 +523,15 @@ describe('Delete resources', () => {
 });
 
 describe('Endpoint values', () => {
-  it('should default to jsonapi content type and accept headers', () => {
-    const initialState = reducer(undefined, { type: '@@INIT' });
-    expect(initialState.endpoint.headers).toEqual({
-      'Content-Type': 'application/vnd.api+json',
-      Accept: 'application/vnd.api+json'
-    });
-  });
-
-  it('should update provided header, such as an access token', () => {
-    const at = 'abcdef0123456789';
-    const header = { Authorization: `Bearer ${at}` };
-    expect(state.endpoint.headers).toNotEqual(header);
-    const updatedState = reducer(state, setHeader(header));
-    expect(updatedState.endpoint.headers).toEqual({
-      'Content-Type': 'application/vnd.api+json',
-      Accept: 'application/vnd.api+json',
-      Authorization: `Bearer ${at}`
-    });
-  });
-
-  it('should update to provided custom headers', () => {
-    const headers = { Custom: 'headers' };
-    expect(state.endpoint.headers).toNotEqual(headers);
-    const updatedState = reducer(state, setHeaders(headers));
-    expect(updatedState.endpoint.headers).toEqual(headers);
-  });
-
-  it('should update to provided endpoint host and path', () => {
-    const host = 'https://api.example.com';
-    const path = '/api/v1';
-
-    expect(state.endpoint.host).toNotEqual(host);
-    const stateWithHost = reducer(state, setEndpointHost(host));
-    expect(stateWithHost.endpoint.host).toEqual(host);
-
-    expect(state.endpoint.path).toNotEqual(path);
-    const stateWithPath = reducer(state, setEndpointPath(path));
-    expect(stateWithPath.endpoint.path).toEqual(path);
+  it('should update to provided axiosConfig', () => {
+    const config = {
+      headers: {
+        Authorization: 'Bearer abcdef0123456789'
+      }
+    };
+    expect(state.endpoint.axiosConfig).toNotEqual(config);
+    const updatedState = reducer(state, setAxiosConfig(config));
+    expect(updatedState.endpoint.axiosConfig).toEqual(config);
   });
 });
 
@@ -574,24 +552,5 @@ describe('Invalidating flag', () => {
       apiUpdated(state.users)
     );
     expect(updatedState.users.data[0].isInvalidating).toNotExist();
-  });
-});
-
-describe('apiRequest', () => {
-  it('should parse the response body on success', () => {
-    fetchMock.mock('*', { status: 200, body: { data: 1 }, headers: { 'Content-Type': 'application/json' } });
-    return apiRequest('fakeurl').then((data) => {
-      expect(data).toEqual({ data: 1 });
-    });
-  });
-
-  it('should return Body object when response is 204', () => {
-    fetchMock.restore();
-    fetchMock.mock('*', { status: 204, body: null });
-
-    return apiRequest('fakeurl').then((data) => {
-      expect(data.statusText).toEqual('No Content');
-      expect(data.status).toEqual(204);
-    });
   });
 });
