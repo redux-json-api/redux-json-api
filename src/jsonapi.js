@@ -83,18 +83,12 @@ class ApiResponse {
     this.dispatch = dispatch;
     this.nextUrl = nextUrl;
     this.prevUrl = prevUrl;
-    this.loadNext = this.loadNext.bind(this);
-    this.loadPrev = this.loadPrev.bind(this);
   }
 
   /* eslint-disable */
-  loadNext() {
-    return this.dispatch(readEndpoint(this.nextUrl));
-  }
+  loadNext = () => this.dispatch(readEndpoint(this.nextUrl));
 
-  prevNext() {
-    return this.dispatch(readEndpoint(this.prevUrl));
-  }
+  loadPrev = () => this.dispatch(readEndpoint(this.prevUrl));
   /* eslint-enable */
 }
 
@@ -201,26 +195,6 @@ export const requireResource = (resourceType, endpoint = resourceType) => {
         .catch(reject);
     });
   };
-};
-
-export const createEntity = (...args) => {
-  console.warn('createEntity is deprecated and will be removed in v2.0 in favor of new method createResource');
-  return createResource(...args);
-};
-
-export const updateEntity = (...args) => {
-  console.warn('updateEntity is deprecated and will be removed in v2.0 in favor of new method updateResource');
-  return updateResource(...args);
-};
-
-export const deleteEntity = (...args) => {
-  console.warn('deleteEntity is deprecated and will be removed in v2.0 in favor of new method deleteResource');
-  return deleteResource(...args);
-};
-
-export const requireEntity = (...args) => {
-  console.warn('requireEntity is deprecated and will be removed in v2.0 in favor of new method requireResource');
-  return requireResource(...args);
 };
 
 // Reducers
