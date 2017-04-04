@@ -83,18 +83,12 @@ class ApiResponse {
     this.dispatch = dispatch;
     this.nextUrl = nextUrl;
     this.prevUrl = prevUrl;
-    this.loadNext = this.loadNext.bind(this);
-    this.loadPrev = this.loadPrev.bind(this);
   }
 
   /* eslint-disable */
-  loadNext() {
-    return this.dispatch(readEndpoint(this.nextUrl));
-  }
+  loadNext = () => this.dispatch(readEndpoint(this.nextUrl));
 
-  prevNext() {
-    return this.dispatch(readEndpoint(this.prevUrl));
-  }
+  loadPrev = () => this.dispatch(readEndpoint(this.prevUrl));
   /* eslint-enable */
 }
 
