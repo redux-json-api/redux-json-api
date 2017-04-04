@@ -103,8 +103,8 @@ export const readEndpoint = (endpoint, {
         .then(json => {
           dispatch(apiRead({ endpoint, options, ...json }));
 
-          const nextUrl = getPaginationUrl(json, 'next', apiHost, apiPath);
-          const prevUrl = getPaginationUrl(json, 'prev', apiHost, apiPath);
+          const nextUrl = getPaginationUrl(json, 'next', axiosConfig.baseURL);
+          const prevUrl = getPaginationUrl(json, 'prev', axiosConfig.baseURL);
 
           resolve(new ApiResponse(json, dispatch, nextUrl, prevUrl));
         })
@@ -124,13 +124,13 @@ export const updateResource = (resource) => {
     dispatch(apiWillUpdate(resource));
 
     const { axiosConfig } = getState().api.endpoint;
-    const endpoint = `${entity.type}/${entity.id}`;
+    const endpoint = `${resource.type}/${resource.id}`;
 
     const options = {
       ... axiosConfig,
       method: 'PATCH',
       data: {
-        data: entity
+        data: resource
       }
     };
 
@@ -138,15 +138,13 @@ export const updateResource = (resource) => {
       apiRequest(endpoint, options)
         .then(json => {
           dispatch(apiUpdated(json.data));
-          onSuccess(json);
           resolve(json);
         })
         .catch(error => {
           const err = error;
-          err.entity = entity;
+          err.resource = resource;
 
           dispatch(apiUpdateFailed(err));
-          onError(err);
           reject(err);
         });
     });
@@ -158,7 +156,7 @@ export const deleteResource = (resource) => {
     dispatch(apiWillDelete(resource));
 
     const { axiosConfig } = getState().api.endpoint;
-    const endpoint = `${entity.type}/${entity.id}`;
+    const endpoint = `${resource.type}/${resource.id}`;
 
     const options = {
       ... axiosConfig,
@@ -168,16 +166,14 @@ export const deleteResource = (resource) => {
     return new Promise((resolve, reject) => {
       apiRequest(endpoint, options)
         .then(() => {
-          dispatch(apiDeleted(entity));
-          onSuccess();
+          dispatch(apiDeleted(resource));
           resolve();
         })
         .catch(error => {
           const err = error;
-          err.entity = entity;
+          err.resource = resource;
 
           dispatch(apiDeleteFailed(err));
-          onError(err);
           reject(err);
         });
     });

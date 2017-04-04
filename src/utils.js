@@ -54,7 +54,7 @@ export const hasOwnProperties = (obj, propertyTree) => {
   return false;
 };
 
-export const getPaginationUrl = (response, direction, host, path) => {
+export const getPaginationUrl = (response, direction, path) => {
   if (!response.links || !hasOwnProperties(response, ['links', direction])) {
     return null;
   }
