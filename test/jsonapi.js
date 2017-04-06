@@ -194,7 +194,9 @@ const transactionToDelete = {
   },
   relationships: {
     task: {
-      data: null
+      links: {
+        self: 'http://localhost/transactions/34/relationships/task',
+      },
     }
   },
   links: {
