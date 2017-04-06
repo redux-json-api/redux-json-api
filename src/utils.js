@@ -60,6 +60,5 @@ export const getPaginationUrl = (response, direction, path) => {
   }
 
   return response.links[direction]
-    .replace(host, '')
     .replace(`${path}/`, '');
 };

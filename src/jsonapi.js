@@ -37,13 +37,6 @@ const apiWillDelete = createAction(API_WILL_DELETE);
 const apiDeleted = createAction(API_DELETED);
 const apiDeleteFailed = createAction(API_DELETE_FAILED);
 
-// Actions
-export const setAccessToken = (at) => {
-  return (dispatch) => {
-    dispatch(setHeader({ Authorization: `Bearer ${at}` }));
-  };
-};
-
 export const createResource = (resource) => {
   return (dispatch, getState) => {
     dispatch(apiWillCreate(resource));
