@@ -164,7 +164,7 @@ export const removeResourceFromState = (state, resource) => {
   const entityRelationships = resource.relationships || {};
 
   return Object.keys(entityRelationships).reduce((newState, key) => {
-    if (resource.relationships[key].data === null) {
+    if (!resource.relationships[key].data) {
       return newState;
     }
 
