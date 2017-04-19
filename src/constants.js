@@ -3,6 +3,7 @@ import keykey from 'keykey';
 // Action types of the library
 export default keykey([
   'API_SET_AXIOS_CONFIG',
+  'API_HYDRATE',
   'API_WILL_CREATE',
   'API_CREATED',
   'API_CREATE_FAILED',
