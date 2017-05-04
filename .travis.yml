@@ -4,11 +4,16 @@ node_js:
   - "4"
   - "6"
 
-cache:
-  yarn: true
+cache: yarn
+
+before_install:
+  - yarn global add babel-cli
+
+install:
+  - yarn install
 
 before_script:
-  yarn global add babel-cli
+  - yarn lint
 
 script:
-  - yarn lint && yarn test
+  - yarn test
