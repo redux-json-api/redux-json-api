@@ -4,8 +4,11 @@ node_js:
   - "4"
   - "6"
 
+cache:
+  yarn: true
+
 before_script:
-  npm install -g babel-cli
+  yarn global add babel-cli
 
 script:
-  - npm run lint
+  - yarn lint && yarn test
