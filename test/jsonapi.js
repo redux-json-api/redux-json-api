@@ -25,6 +25,9 @@ const apiDeleted = createAction('API_DELETED');
 const apiWillUpdate = createAction('API_WILL_UPDATE');
 const apiWillDelete = createAction('API_WILL_DELETE');
 
+const apiUpdateFailed = createAction('API_UPDATE_FAILED');
+const apiDeleteFailed = createAction('API_DELETE_FAILED');
+
 const state = {
   endpoint: {
     host: null,
@@ -593,5 +596,21 @@ describe('apiRequest', () => {
       expect(data.statusText).toEqual('No Content');
       expect(data.status).toEqual(204);
     });
+  });
+});
+
+describe('progress flags', () => {
+  it('should update isUpdating flag properly when update fails', () => {
+    let updatedState = reducer(state, apiWillUpdate(state.users.data[0]));
+    expect(updatedState.isUpdating).toEqual(1);
+    updatedState = reducer(updatedState, apiUpdateFailed({ resource: state.users.data[0] }));
+    expect(updatedState.isUpdating).toEqual(0);
+  });
+
+  it('should update isDeleting flag properly when delete fails', () => {
+    let updatedState = reducer(state, apiWillDelete(state.users.data[0]));
+    expect(updatedState.isDeleting).toEqual(1);
+    updatedState = reducer(updatedState, apiDeleteFailed({ resource: state.users.data[0] }));
+    expect(updatedState.isDeleting).toEqual(0);
   });
 });
