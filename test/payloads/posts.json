@@ -1,0 +1,18 @@
+{
+  "data": [
+    {
+      "id": "1",
+      "type": "posts",
+      "attributes": {
+        "title": "Commented post"
+      }
+    },
+    {
+      "id": "2",
+      "type": "posts",
+      "attributes": {
+        "title": "Another post"
+      }
+    }
+  ]
+}
