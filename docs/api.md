@@ -3,10 +3,11 @@ API
 
 _redux-json-api_ provides a simple API for all four CRUD actions.
 
-- Create resource object using [createResource](#createresource-resource-object--function)
-- Read endpoints through [readEndpoint](#readendpoint-endpoint-string--function)
-- Update resource with [updateResource](#updateresource-resource-object--function)
-- Delete resource using [deleteResource](#deleteresource-resource-object--function)
+- Create resource object using [createResource](#createresource-resource-object--promise)
+- Read endpoints through [readEndpoint](#readendpoint-endpoint-string--promise)
+- Update resource with [updateResource](#updateresource-resource-object--promise)
+- Delete resource using [deleteResource](#deleteresource-resource-object--promise)
+- Add a resource to the store using [hydrateStore](#hydratestore-resource-object--action)
 
 ## Resource objects
 
@@ -69,3 +70,9 @@ Update entities using this action creator. It will make a PATCH request to your 
 Use this action creator to issue a DELETE request to your API.
 
 [More details on _deleteResource_](apis/deleteResource.md)
+
+#### `hydrateStore( resource: object ): Action`
+
+Use this action to add the resource(s) to the store.
+
+[More details on _hydrateStore_](apis/hydrateStore.md)
