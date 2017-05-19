@@ -5,11 +5,14 @@ global.__API_ENDPOINT__ = '/api';
 import { createAction } from 'redux-actions';
 import expect from 'expect';
 import {
+  createResource,
+  readEndpoint,
   reducer,
   setHeaders,
   setHeader,
   setEndpointHost,
   setEndpointPath,
+  setIncludeParam,
   IS_DELETING,
   IS_UPDATING
 } from '../src/jsonapi';
@@ -411,6 +414,26 @@ describe('Creation of new resources', () => {
     const updatedState = reducer(state, apiCreated(multipleResources));
     expect(updatedState.tasks).toBeAn('object');
   });
+
+  describe('when an include param is added', () => {
+    it('should add it to the endpoint URL', async () => {
+      fetchMock.restore();
+      fetchMock.mock('*', { status: 201, body: { data: { id: '1', type: 'foo' } }, headers: { 'Content-Type': 'application/json' } });
+
+      const myState = Object.assign({}, state);
+      myState.api = { endpoint: myState.endpoint };
+      delete myState.endpoint;
+
+      myState.api = reducer(myState.api, setEndpointHost('example.com'));
+      myState.api = reducer(myState.api, setEndpointPath('/api'));
+      myState.api = reducer(myState.api, setIncludeParam('posts'));
+
+      const dispatch = () => {};
+      const getState = () => myState;
+      await createResource({ type: 'foo' })(dispatch, getState);
+      expect(fetchMock.lastUrl()).toMatch(/\?include=posts$/);
+    });
+  });
 });
 
 describe('Reading resources', () => {
@@ -453,6 +476,26 @@ describe('Reading resources', () => {
           expect(stateReport.relationships.file.data.id).toEqual(payloadReport.relationships.file.data.id);
         }
       );
+  });
+
+  describe('when an include param is added', () => {
+    it('should add it to the endpoint URL', async () => {
+      fetchMock.restore();
+      fetchMock.mock('*', { status: 200, body: { data: { id: '1', type: 'foo' } }, headers: { 'Content-Type': 'application/json' } });
+
+      const myState = Object.assign({}, state);
+      myState.api = { endpoint: myState.endpoint };
+      delete myState.endpoint;
+
+      myState.api = reducer(myState.api, setEndpointHost('example.com'));
+      myState.api = reducer(myState.api, setEndpointPath('/api'));
+      myState.api = reducer(myState.api, setIncludeParam('posts'));
+
+      const dispatch = () => {};
+      const getState = () => myState;
+      await readEndpoint('foo')(dispatch, getState);
+      expect(fetchMock.lastUrl()).toMatch(/\?include=posts$/);
+    });
   });
 });
 
@@ -558,6 +601,14 @@ describe('Endpoint values', () => {
     const stateWithPath = reducer(state, setEndpointPath(path));
     expect(stateWithPath.endpoint.path).toEqual(path);
   });
+
+  it('should update to provided include parameter', () => {
+    const includeParam = 'posts';
+    expect(state.endpoint.includeParam).toNotEqual(includeParam);
+
+    const stateWithIncludeParam = reducer(state, setIncludeParam(includeParam));
+    expect(stateWithIncludeParam.endpoint.includeParam).toEqual(includeParam);
+  });
 });
 
 describe('Invalidating flag', () => {
@@ -582,6 +633,7 @@ describe('Invalidating flag', () => {
 
 describe('apiRequest', () => {
   it('should parse the response body on success', () => {
+    fetchMock.restore();
     fetchMock.mock('*', { status: 200, body: { data: 1 }, headers: { 'Content-Type': 'application/json' } });
     return apiRequest('fakeurl').then((data) => {
       expect(data).toEqual({ data: 1 });

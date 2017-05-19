@@ -11,7 +11,7 @@ import {
 } from './state-mutation';
 import { apiRequest, noop, jsonContentTypes } from './utils';
 import {
-  API_SET_ENDPOINT_HOST, API_SET_ENDPOINT_PATH, API_SET_HEADERS, API_SET_HEADER, API_WILL_CREATE, API_CREATED, API_CREATE_FAILED, API_WILL_READ, API_READ, API_READ_FAILED, API_WILL_UPDATE, API_UPDATED, API_UPDATE_FAILED, API_WILL_DELETE, API_DELETED, API_DELETE_FAILED
+  API_SET_ENDPOINT_HOST, API_SET_ENDPOINT_PATH, API_SET_INCLUDE_PARAM, API_REMOVE_INCLUDE_PARAM, API_SET_HEADERS, API_SET_HEADER, API_WILL_CREATE, API_CREATED, API_CREATE_FAILED, API_WILL_READ, API_READ, API_READ_FAILED, API_WILL_UPDATE, API_UPDATED, API_UPDATE_FAILED, API_WILL_DELETE, API_DELETED, API_DELETE_FAILED
 } from './constants';
 
 // Resource isInvalidating values
@@ -21,8 +21,10 @@ export const IS_UPDATING = 'IS_UPDATING';
 // Action creators
 export const setEndpointHost = createAction(API_SET_ENDPOINT_HOST);
 export const setEndpointPath = createAction(API_SET_ENDPOINT_PATH);
+export const setIncludeParam = createAction(API_SET_INCLUDE_PARAM);
 export const setHeaders = createAction(API_SET_HEADERS);
 export const setHeader = createAction(API_SET_HEADER);
+const removeIncludeParam = createAction(API_REMOVE_INCLUDE_PARAM);
 
 const apiWillCreate = createAction(API_WILL_CREATE);
 const apiCreated = createAction(API_CREATED);
@@ -104,8 +106,11 @@ export const createResource = (resource, {
   return (dispatch, getState) => {
     dispatch(apiWillCreate(resource));
 
-    const { host: apiHost, path: apiPath, headers } = getState().api.endpoint;
-    const endpoint = `${apiHost}${apiPath}/${resource.type}`;
+    const { host: apiHost, path: apiPath, includeParam, headers } = getState().api.endpoint;
+    let endpoint = `${apiHost}${apiPath}/${resource.type}`;
+    if (includeParam && includeParam.trim() !== '') {
+      endpoint = `${endpoint}?include=${includeParam.trim()}`;
+    }
 
     return new Promise((resolve, reject) => {
       apiRequest(endpoint, {
@@ -117,6 +122,7 @@ export const createResource = (resource, {
         })
       }).then(json => {
         dispatch(apiCreated(json));
+        dispatch(removeIncludeParam());
         onSuccess(json);
         resolve(json);
       }).catch(error => {
@@ -124,6 +130,7 @@ export const createResource = (resource, {
         err.resource = resource;
 
         dispatch(apiCreateFailed(err));
+        dispatch(removeIncludeParam());
         onError(err);
         reject(err);
       });
@@ -145,8 +152,12 @@ export const readEndpoint = (endpoint, {
   return (dispatch, getState) => {
     dispatch(apiWillRead(endpoint));
 
-    const { host: apiHost, path: apiPath, headers } = getState().api.endpoint;
-    const apiEndpoint = `${apiHost}${apiPath}/${endpoint}`;
+    const { host: apiHost, path: apiPath, includeParam, headers } = getState().api.endpoint;
+
+    let apiEndpoint = `${apiHost}${apiPath}/${endpoint}`;
+    if (includeParam && includeParam.trim() !== '') {
+      apiEndpoint = `${apiEndpoint}?include=${includeParam.trim()}`;
+    }
 
     return new Promise((resolve, reject) => {
       apiRequest(`${apiEndpoint}`, {
@@ -155,6 +166,7 @@ export const readEndpoint = (endpoint, {
       })
         .then(json => {
           dispatch(apiRead({ endpoint, options, ...json }));
+          dispatch(removeIncludeParam());
           onSuccess(json);
           resolve(json);
         })
@@ -163,6 +175,7 @@ export const readEndpoint = (endpoint, {
           err.endpoint = endpoint;
 
           dispatch(apiReadFailed(err));
+          dispatch(removeIncludeParam());
           onError(err);
           reject(err);
         });
@@ -309,6 +322,14 @@ export const reducer = handleActions({
     return imm(state).set(['endpoint', 'path'], path).value();
   },
 
+  [API_SET_INCLUDE_PARAM]: (state, { payload: includeParam }) => {
+    return imm(state).set(['endpoint', 'includeParam'], includeParam).value();
+  },
+
+  [API_REMOVE_INCLUDE_PARAM]: (state, { payload: includeParam }) => {
+    return imm(state).del(['endpoint', 'includeParam']).value();
+  },
+
   [API_WILL_CREATE]: (state) => {
     return imm(state).set(['isCreating'], state.isCreating + 1).value();
   },
@@ -414,6 +435,7 @@ export const reducer = handleActions({
   endpoint: {
     host: null,
     path: null,
+    includeParam: null,
     headers: {
       'Content-Type': 'application/vnd.api+json',
       Accept: 'application/vnd.api+json'
