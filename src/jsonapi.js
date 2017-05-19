@@ -116,7 +116,7 @@ export const createResource = (resource, {
           data: resource
         })
       }).then(json => {
-        dispatch(apiCreated(json));
+        dispatch(apiCreated(json.data));
         onSuccess(json);
         resolve(json);
       }).catch(error => {
@@ -192,7 +192,7 @@ export const updateResource = (resource, {
           data: resource
         })
       }).then(json => {
-        dispatch(apiUpdated(json));
+        dispatch(apiUpdated(json.data));
         onSuccess(json);
         resolve(json);
       }).catch(error => {
@@ -314,11 +314,9 @@ export const reducer = handleActions({
   },
 
   [API_CREATED]: (state, { payload: resources }) => {
-    const entities = Array.isArray(resources.data) ? resources.data : [resources.data];
-
     const newState = updateOrInsertResourcesIntoState(
       state,
-      entities.concat(resources.included || [])
+      Array.isArray(resources) ? resources : [resources]
     );
 
     return imm(newState)
@@ -364,11 +362,9 @@ export const reducer = handleActions({
   },
 
   [API_UPDATED]: (state, { payload: resources }) => {
-    const entities = Array.isArray(resources.data) ? resources.data : [resources.data];
-
     const newState = updateOrInsertResourcesIntoState(
       state,
-      entities.concat(resources.included || [])
+      Array.isArray(resources) ? resources : [resources]
     );
 
     return imm(newState)
