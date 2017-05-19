@@ -1,5 +1,19 @@
+---
 language: node_js
 node_js:
-  - 4
+  - "4"
+  - "6"
+
+cache: yarn
+
+before_install:
+  - yarn global add babel-cli
+
+install:
+  - yarn install
+
 before_script:
-  - npm run lint
+  - yarn lint
+
+script:
+  - yarn test
