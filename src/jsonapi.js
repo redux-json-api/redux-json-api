@@ -136,6 +136,7 @@ export const readEndpoint = (endpoint, {
   onError: onError = noop,
   options = {
     indexLinks: undefined,
+    clearTypes: []
   }
 } = {}) => {
   if (onSuccess !== noop || onError !== noop) {
@@ -341,7 +342,7 @@ export const reducer = handleActions({
         : [payload.data]
     ).concat(payload.included || []);
 
-    const newState = updateOrInsertResourcesIntoState(state, resources);
+    const newState = updateOrInsertResourcesIntoState(state, resources, payload.options);
     const finalState = addLinksToState(newState, payload.links, payload.options);
 
     return imm(finalState)

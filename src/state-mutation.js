@@ -189,9 +189,16 @@ export const removeResourceFromState = (state, resource) => {
   }, imm(state).del(path));
 };
 
-export const updateOrInsertResourcesIntoState = (state, resources) => (
-  resources.reduce(updateOrInsertResource, state)
-);
+export const updateOrInsertResourcesIntoState = (state, resources, payloadOptions = {}) => {
+  let newState = state;
+  const clearTypes = payloadOptions.clearTypes || [];
+
+  clearTypes.forEach((type) => {
+    newState = imm.del(newState, type);
+  });
+
+  return resources.reduce(updateOrInsertResource, newState);
+};
 
 export const setIsInvalidatingForExistingResource = (state, { type, id }, value = null) => {
   const idx = state[type].data.findIndex(e => e.id === id && e.type === type);
