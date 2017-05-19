@@ -380,7 +380,7 @@ export const reducer = handleActions({
     const { type, id } = resource;
 
     return setIsInvalidatingForExistingResource(state, { type, id }, IS_UPDATING)
-      .set('isUpdating', state.isUpdating + 1)
+      .set('isUpdating', state.isUpdating - 1)
       .value();
   },
 
@@ -402,7 +402,7 @@ export const reducer = handleActions({
     const { type, id } = resource;
 
     return setIsInvalidatingForExistingResource(state, { type, id }, IS_DELETING)
-      .set('isDeleting', state.isDeleting + 1)
+      .set('isDeleting', state.isDeleting - 1)
       .value();
   }
 
