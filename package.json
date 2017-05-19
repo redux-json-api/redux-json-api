@@ -7,7 +7,8 @@
     "build": "rimraf lib && babel ./src -d lib",
     "test": "mocha --compilers js:babel-core/register --recursive",
     "test:watch": "npm test -- --watch",
-    "lint": "eslint . ./"
+    "lint": "eslint . ./",
+    "prepublish": "npm run lint && npm run build"
   },
   "repository": {
     "type": "git",
