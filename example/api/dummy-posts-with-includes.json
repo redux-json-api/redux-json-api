@@ -1,0 +1,64 @@
+{
+  "data": [
+    {
+      "type": "posts",
+      "id": "1",
+      "attributes": {
+        "value": "When she had tired watching the dancing, Boq led her into the house, where he gave her a room with a pretty bed in it.  The sheets were made of blue cloth, and Dorothy slept soundly in them till morning, with Toto curled up on the blue rug beside her. She ate a hearty breakfast, and watched a wee Munchkin baby, who played with Toto and pulled his tail and crowed and laughed in a way that greatly amused Dorothy.  Toto was a fine curiosity to all the people, for they had never seen a dog before. 'How far is it to the Emerald City?' the girl asked. 'I do not know,' answered Boq gravely, 'for I have never been there. It is better for people to keep away from Oz, unless they have business with him.  But it is a long way to the Emerald City, and it will take you many days.  The country here is rich and pleasant, but you must pass through rough and dangerous places before you reach the end of your journey.' This worried Dorothy a little, but she knew that only the Great Oz could help her get to Kansas again, so she bravely resolved not to turn back."
+      },
+      "relationships": {
+        "createe": {
+          "data": {
+            "id": "1",
+            "type": "users"
+          }
+        }
+      }
+    },
+    {
+      "type": "posts",
+      "id": "2",
+      "attributes": {
+        "value": "'How are you getting on?' said the Cat, as soon as there was mouth  enough for it to speak with. Alice waited till the eyes appeared, and then nodded. 'It's no use  speaking to it,' she thought, 'till its ears have come, or at least one  of them.' In another minute the whole head appeared, and then Alice put  down her flamingo, and began an account of the game, feeling very glad  she had someone to listen to her. The Cat seemed to think that there was  enough of it now in sight, and no more of it appeared."
+      },
+      "relationships": {
+        "createe": {
+          "data": {
+            "id": "1",
+            "type": "users"
+          }
+        }
+      }
+    },
+    {
+      "type": "posts",
+      "id": "3",
+      "attributes": {
+        "value": "The breeze subsided a little towards noon, and set in from the south-west.  The pilot put up his poles, but took them down again within two hours, as the wind freshened up anew. Mr. Fogg and Aouda, happily unaffected by the roughness of the sea, ate with a good appetite, Fix being invited to share their repast, which he accepted with secret chagrin.  To travel at this man's expense and live upon his provisions was not palatable to him.  Still, he was obliged to eat, and so he ate. When the meal was over, he took Mr. Fogg apart, and said, 'sir'&mdash;this 'sir' scorched his lips, and he had to control himself to avoid collaring this 'gentleman'&mdash;'sir, you have been very kind to give me a passage on this boat."
+      },
+      "relationships": {
+        "createe": {
+          "data": {
+            "id": "1",
+            "type": "users"
+          }
+        }
+      }
+    }
+  ],
+  "included": [{
+      "type": "users",
+      "id": "1",
+      "attributes": {
+        "name": "Lars Krieger Andersen"
+      },
+      "relationships": {
+        "company": {
+          "data": {
+            "type": "companies",
+            "id": 1
+          }
+        }
+      }
+  }]
+}
