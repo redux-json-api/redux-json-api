@@ -11,7 +11,7 @@ import {
 } from './state-mutation';
 import { apiRequest, noop, jsonContentTypes } from './utils';
 import {
-  API_SET_ENDPOINT_HOST, API_SET_ENDPOINT_PATH, API_SET_HEADERS, API_SET_HEADER, API_WILL_CREATE, API_CREATED, API_CREATE_FAILED, API_WILL_READ, API_READ, API_READ_FAILED, API_WILL_UPDATE, API_UPDATED, API_UPDATE_FAILED, API_WILL_DELETE, API_DELETED, API_DELETE_FAILED
+  API_SET_ENDPOINT_HOST, API_SET_ENDPOINT_PATH, API_SET_HEADERS, API_SET_HEADER, API_WILL_CREATE, API_CREATED, API_CREATE_FAILED, API_WILL_READ, API_READ, API_READ_FAILED, API_WILL_WRITE, API_WRITE, API_WRITE_FAILED, API_WILL_UPDATE, API_UPDATED, API_UPDATE_FAILED, API_WILL_DELETE, API_DELETED, API_DELETE_FAILED
 } from './constants';
 
 // Resource isInvalidating values
@@ -31,6 +31,10 @@ const apiCreateFailed = createAction(API_CREATE_FAILED);
 const apiWillRead = createAction(API_WILL_READ);
 const apiRead = createAction(API_READ);
 const apiReadFailed = createAction(API_READ_FAILED);
+
+const apiWillWrite = createAction(API_WILL_WRITE);
+const apiWrite = createAction(API_WRITE);
+const apiWriteFailed = createAction(API_WRITE_FAILED);
 
 const apiWillUpdate = createAction(API_WILL_UPDATE);
 const apiUpdated = createAction(API_UPDATED);
@@ -164,6 +168,40 @@ export const readEndpoint = (endpoint, {
 
           dispatch(apiReadFailed(err));
           onError(err);
+          reject(err);
+        });
+    });
+  };
+};
+
+export const writeEndpoint = (endpoint, body = {}, {
+  options = {
+    indexLinks: undefined,
+  }
+} = {}) => {
+  return (dispatch, getState) => {
+    dispatch(apiWillWrite(endpoint));
+
+    const { host: apiHost, path: apiPath, headers } = getState().api.endpoint;
+    const apiEndpoint = `${apiHost}${apiPath}/${endpoint}`;
+
+    return new Promise((resolve, reject) => {
+      apiRequest(`${apiEndpoint}`, {
+        headers,
+        method: 'POST',
+        credentials: 'include',
+        body: JSON.stringify({
+          data: body
+        })
+      })
+        .then(json => {
+          dispatch(apiWrite({ endpoint, options, ...json }));
+          resolve(json);
+        })
+        .catch(error => {
+          const err = error;
+          err.endpoint = endpoint;
+          dispatch(apiWriteFailed(err));
           reject(err);
         });
     });
@@ -353,6 +391,29 @@ export const reducer = handleActions({
     return imm(state).set(['isReading'], state.isReading - 1).value();
   },
 
+  [API_WILL_WRITE]: (state) => {
+    return imm(state).set(['isWriting'], state.isWriting + 1).value();
+  },
+
+  [API_WRITE]: (state, { payload }) => {
+    const resources = (
+      Array.isArray(payload.data)
+        ? payload.data
+        : [payload.data]
+    ).concat(payload.included || []);
+
+    const newState = updateOrInsertResourcesIntoState(state, resources);
+    const finalState = addLinksToState(newState, payload.links, payload.options);
+
+    return imm(finalState)
+      .set('isWriting', state.isWriting - 1)
+      .value();
+  },
+
+  [API_WRITE_FAILED]: (state) => {
+    return imm(state).set(['isWriting'], state.isWriting - 1).value();
+  },
+
   [API_WILL_UPDATE]: (state, { payload: resource }) => {
     const { type, id } = resource;
 
@@ -409,6 +470,7 @@ export const reducer = handleActions({
 }, {
   isCreating: 0,
   isReading: 0,
+  isWriting: 0,
   isUpdating: 0,
   isDeleting: 0,
   endpoint: {
