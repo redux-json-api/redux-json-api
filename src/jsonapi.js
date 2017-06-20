@@ -47,9 +47,9 @@ export const createResource = (resource) => {
     const options = {
       ... axiosConfig,
       method: 'POST',
-      data: JSON.stringify({
+      data: {
         data: resource
-      })
+      }
     };
 
     return new Promise((resolve, reject) => {
