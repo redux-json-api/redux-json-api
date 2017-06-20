@@ -447,6 +447,22 @@ describe('Creation of new resources', () => {
 
       expect(apiRequest).toHaveBeenCalledWith(taskWithoutRelationship.data.type, expectedOptions);
     });
+
+    it('should create a request with metadata when provided', () => {
+      const apiRequest = expect.spyOn(utils, 'apiRequest').andReturn(Promise.resolve());
+      const meta = { test: '123' };
+      const thunk = createResource(taskWithoutRelationship.data, meta);
+
+      const expectedOptions = {
+        ...state.endpoint.axiosConfig,
+        method: 'POST',
+        data: { ...taskWithoutRelationship, meta }
+      };
+
+      thunk(() => null, () => ({ api: state }));
+
+      expect(apiRequest).toHaveBeenCalledWith(taskWithoutRelationship.data.type, expectedOptions);
+    });
   });
 });
 
@@ -542,6 +558,23 @@ describe('Updating resources', () => {
         ...state.endpoint.axiosConfig,
         method: 'PATCH',
         data: taskWithoutRelationship
+      };
+
+      thunk(() => null, () => ({ api: state }));
+
+      expect(apiRequest).toHaveBeenCalledWith(expectedEndpoint, expectedOptions);
+    });
+
+    it('should create a request with metadata when provided', () => {
+      const apiRequest = expect.spyOn(utils, 'apiRequest').andReturn(Promise.resolve());
+      const meta = { test: '123' };
+      const thunk = updateResource(taskWithoutRelationship.data, meta);
+
+      const expectedEndpoint = `${taskWithoutRelationship.data.type}/${taskWithoutRelationship.data.id}`;
+      const expectedOptions = {
+        ...state.endpoint.axiosConfig,
+        method: 'PATCH',
+        data: { ...taskWithoutRelationship, meta }
       };
 
       thunk(() => null, () => ({ api: state }));
