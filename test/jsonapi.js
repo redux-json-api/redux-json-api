@@ -1,4 +1,4 @@
-/* global describe, it */
+/* global describe, it, afterEach */
 global.__API_HOST__ = 'example.com';
 global.__API_ENDPOINT__ = '/api';
 
@@ -9,8 +9,11 @@ import {
   setAxiosConfig,
   hydrateStore,
   IS_DELETING,
-  IS_UPDATING
+  IS_UPDATING,
+  createResource,
+  updateResource
 } from '../src/jsonapi';
+import * as utils from '../src/utils';
 
 const apiCreated = createAction('API_CREATED');
 const apiRead = createAction('API_READ');
@@ -424,6 +427,27 @@ describe('Creation of new resources', () => {
     const updatedState = reducer(state, apiCreated(multipleResources));
     expect(updatedState.tasks).toBeAn('object');
   });
+
+  describe('action creator', () => {
+    afterEach(() => {
+      expect.restoreSpies();
+    });
+
+    it('should create a request to the type endpoint with the resource', () => {
+      const apiRequest = expect.spyOn(utils, 'apiRequest').andReturn(Promise.resolve());
+      const thunk = createResource(taskWithoutRelationship.data);
+
+      const expectedOptions = {
+        ...state.endpoint.axiosConfig,
+        method: 'POST',
+        data: taskWithoutRelationship
+      };
+
+      thunk(() => null, () => ({ api: state }));
+
+      expect(apiRequest).toHaveBeenCalledWith(taskWithoutRelationship.data.type, expectedOptions);
+    });
+  });
 });
 
 describe('Reading resources', () => {
@@ -502,6 +526,28 @@ describe('Updating resources', () => {
     const stateWithResourceType = reducer(stateWithoutUsersResource, apiWillUpdate(userToUpdate));
     const updatedState = reducer(stateWithResourceType, apiUpdated(updatedUser));
     expect(updatedState.users.data[0]).toEqual(updatedUser.data);
+  });
+
+  describe('action creator', () => {
+    afterEach(() => {
+      expect.restoreSpies();
+    });
+
+    it('should create a request to the type endpoint/id with the resource', () => {
+      const apiRequest = expect.spyOn(utils, 'apiRequest').andReturn(Promise.resolve());
+      const thunk = updateResource(taskWithoutRelationship.data);
+
+      const expectedEndpoint = `${taskWithoutRelationship.data.type}/${taskWithoutRelationship.data.id}`;
+      const expectedOptions = {
+        ...state.endpoint.axiosConfig,
+        method: 'PATCH',
+        data: taskWithoutRelationship
+      };
+
+      thunk(() => null, () => ({ api: state }));
+
+      expect(apiRequest).toHaveBeenCalledWith(expectedEndpoint, expectedOptions);
+    });
   });
 });
 
