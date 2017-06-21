@@ -113,11 +113,11 @@ export const readEndpoint = (endpoint, {
   };
 };
 
-export const updateResource = (resource) => {
+export const updateResource = (resource, config) => {
   return (dispatch, getState) => {
     dispatch(apiWillUpdate(resource));
 
-    const { axiosConfig } = getState().api.endpoint;
+    const { axiosConfig } = config || getState().api.endpoint;
     const endpoint = `${resource.type}/${resource.id}`;
 
     const options = {
@@ -145,11 +145,11 @@ export const updateResource = (resource) => {
   };
 };
 
-export const deleteResource = (resource) => {
+export const deleteResource = (resource, config) => {
   return (dispatch, getState) => {
     dispatch(apiWillDelete(resource));
 
-    const { axiosConfig } = getState().api.endpoint;
+    const { axiosConfig } = config || getState().api.endpoint;
     const endpoint = `${resource.type}/${resource.id}`;
 
     const options = {
