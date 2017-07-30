@@ -599,3 +599,73 @@ describe('progress flags', () => {
     expect(updatedState.isDeleting).toEqual(0);
   });
 });
+
+const request1 = {
+  data: [
+    {
+      type: 'articles',
+      id: '1',
+      attributes: {
+        title: 'JSON API paints my bikeshed!',
+        body: 'The shortest article. Ever.',
+        created: '2015-05-22T14:56:29.000Z',
+        updated: '2015-05-22T14:56:28.000Z'
+      },
+      relationships: {
+        author: {
+          data: {
+            id: '42',
+            type: 'people'
+          }
+        }
+      }
+    }
+  ],
+  included: [
+    {
+      type: 'people',
+      id: '42',
+      attributes: {
+        name: 'John',
+        age: 80,
+        gender: 'male'
+      },
+      relationships: {
+        articles: {},
+        comments: {}
+      }
+    }
+  ]
+};
+
+const request2 = {
+  data: [
+    {
+      type: 'articles',
+      id: '1',
+      attributes: {
+        title: 'JSON API paints my bikeshed!',
+        body: 'The shortest article. Ever.',
+        created: '2015-05-22T14:56:29.000Z',
+        updated: '2015-05-22T14:56:28.000Z'
+      },
+      relationships: {
+        author: {}
+      }
+    }
+  ]
+};
+
+describe('Relationships without data key should not be reset', () => {
+  it('should append read resources to state', () => {
+    const updatedState = reducer(state, apiRead(request1));
+    expect(updatedState.articles).toBeAn('object');
+    expect(updatedState.articles.data.length).toEqual(1);
+    expect(updatedState.articles.data[0].relationships.author).toEqual({ data: { id: '42', type: 'people' } });
+
+    const updatedState2 = reducer(updatedState, apiRead(request2));
+    expect(updatedState2.articles).toBeAn('object');
+    expect(updatedState2.articles.data.length).toEqual(1);
+    expect(updatedState2.articles.data[0].relationships.author).toEqual({ data: { id: '42', type: 'people' } });
+  });
+});
