@@ -39,17 +39,23 @@ const apiWillDelete = createAction(API_WILL_DELETE);
 const apiDeleted = createAction(API_DELETED);
 const apiDeleteFailed = createAction(API_DELETE_FAILED);
 
-export const createResource = (resource) => {
+export const createResource = (resource, meta) => {
   return (dispatch, getState) => {
     dispatch(apiWillCreate(resource));
 
     const { axiosConfig } = getState().api.endpoint;
+
+    const data = {
+      data: resource
+    };
+    if (meta) {
+      data.meta = meta;
+    }
+
     const options = {
       ... axiosConfig,
       method: 'POST',
-      data: JSON.stringify({
-        data: resource
-      })
+      data
     };
 
     return new Promise((resolve, reject) => {
@@ -113,7 +119,7 @@ export const readEndpoint = (endpoint, {
   };
 };
 
-export const updateResource = (resource) => {
+export const updateResource = (resource, meta) => {
   return (dispatch, getState) => {
     dispatch(apiWillUpdate(resource));
 
@@ -127,6 +133,10 @@ export const updateResource = (resource) => {
         data: resource
       }
     };
+
+    if (meta) {
+      options.data.meta = meta;
+    }
 
     return new Promise((resolve, reject) => {
       apiRequest(endpoint, options)
