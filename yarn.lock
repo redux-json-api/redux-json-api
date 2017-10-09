@@ -136,6 +136,12 @@ aws4@^1.2.1:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/aws4/-/aws4-1.5.0.tgz#0a29ffb79c31c9e712eeb087e8e7a64b4a56d755"
 
+axios@^0.13.1:
+  version "0.13.1"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.13.1.tgz#3e67abfe4333bc9d2d5fe6fbd13b4694eafc8df8"
+  dependencies:
+    follow-redirects "0.0.7"
+
 babel-code-frame@^6.22.0:
   version "6.22.0"
   resolved "https://registry.yarnpkg.com/babel-code-frame/-/babel-code-frame-6.22.0.tgz#027620bee567a88c32561574e7fd0801d33118e4"
@@ -1400,13 +1406,6 @@ fast-levenshtein@~1.0.6:
   version "1.0.7"
   resolved "https://registry.yarnpkg.com/fast-levenshtein/-/fast-levenshtein-1.0.7.tgz#0178dcdee023b92905193af0959e8a7639cfdcb9"
 
-fetch-everywhere@^1.0.5:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/fetch-everywhere/-/fetch-everywhere-1.0.5.tgz#b2497f47a57d9026b3907c09756acf5f4bd34e8b"
-  dependencies:
-    node-fetch "^1.0.1"
-    whatwg-fetch ">=0.10.0"
-
 fetch-mock@^5.1.2:
   version "5.8.1"
   resolved "https://registry.yarnpkg.com/fetch-mock/-/fetch-mock-5.8.1.tgz#bfcb8ab7fe2fa33b8e5c17f17228081324af9481"
@@ -1472,6 +1471,13 @@ flux-standard-action@^0.6.0:
   resolved "https://registry.yarnpkg.com/flux-standard-action/-/flux-standard-action-0.6.1.tgz#6f34211b94834ea1c3cc30f4e7afad3d0fbf71a2"
   dependencies:
     lodash.isplainobject "^3.2.0"
+
+follow-redirects@0.0.7:
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-0.0.7.tgz#34b90bab2a911aa347571da90f22bd36ecd8a919"
+  dependencies:
+    debug "^2.2.0"
+    stream-consume "^0.1.0"
 
 for-in@^0.1.5:
   version "0.1.6"
@@ -2012,6 +2018,12 @@ jsprim@^1.2.2:
     json-schema "0.2.3"
     verror "1.3.6"
 
+keykey@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/keykey/-/keykey-2.1.1.tgz#a2739051475f4a02cc8dde23b160b37eb4fe62af"
+  dependencies:
+    lru-cache "3.2.0"
+
 kind-of@^3.0.2:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/kind-of/-/kind-of-3.1.0.tgz#475d698a5e49ff5e53d14e3e732429dc8bf4cf47"
@@ -2258,6 +2270,12 @@ lru-cache@2:
   version "2.7.3"
   resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-2.7.3.tgz#6d4524e8b955f95d4f5b58851ce21dd72fb4e952"
 
+lru-cache@3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-3.2.0.tgz#71789b3b7f5399bec8565dda38aa30d2a097efee"
+  dependencies:
+    pseudomap "^1.0.1"
+
 memory-fs@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/memory-fs/-/memory-fs-0.2.0.tgz#f2bb25368bc121e391c2520de92969caee0a0290"
@@ -2359,7 +2377,7 @@ nan@^2.3.0:
   version "2.5.1"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.5.1.tgz#d5b01691253326a97a2bbee9e61c55d8d60351e2"
 
-node-fetch@^1.0.1, node-fetch@^1.3.3:
+node-fetch@^1.3.3:
   version "1.6.3"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-1.6.3.tgz#dc234edd6489982d58e8f0db4f695029abcd8c04"
   dependencies:
@@ -2601,6 +2619,10 @@ process@^0.11.0:
 prr@~0.0.0:
   version "0.0.0"
   resolved "https://registry.yarnpkg.com/prr/-/prr-0.0.0.tgz#1a84b85908325501411853d0081ee3fa86e2926a"
+
+pseudomap@^1.0.1:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/pseudomap/-/pseudomap-1.0.2.tgz#f052a28da70e618917ef0a8ac34c1ae5a68286b3"
 
 punycode@1.3.2:
   version "1.3.2"
@@ -2891,6 +2913,10 @@ stream-browserify@^2.0.1:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
+stream-consume@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/stream-consume/-/stream-consume-0.1.0.tgz#a41ead1a6d6081ceb79f65b061901b6d8f3d1d0f"
+
 stream-http@^2.3.1:
   version "2.6.3"
   resolved "https://registry.yarnpkg.com/stream-http/-/stream-http-2.6.3.tgz#4c3ddbf9635968ea2cfd4e48d43de5def2625ac3"
@@ -3122,10 +3148,6 @@ webpack@^1.12.12:
     uglify-js "~2.7.3"
     watchpack "^0.2.1"
     webpack-core "~0.6.9"
-
-whatwg-fetch@>=0.10.0:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/whatwg-fetch/-/whatwg-fetch-2.0.2.tgz#fe294d1d89e36c5be8b3195057f2e4bc74fc980e"
 
 wide-align@^1.1.0:
   version "1.1.0"
