@@ -122,7 +122,7 @@ export const updateOrInsertResource = (state, resource) => {
 
     const relationships = {};
     for (const relationship in resources[idx].relationships) {
-      if (!resource.relationships || !resource.relationships[relationship] || !resource.relationships[relationship].data) {
+      if (!hasOwnProperties(resource, ['relationships', relationship, 'data'])) {
         relationships[relationship] = resources[idx].relationships[relationship];
       }
     }
