@@ -156,6 +156,45 @@ describe('[State mutation] Insertion of resources', () => {
 
     expect(updatedState.topics.data.length).toEqual(topics.data.length);
   });
+
+  it('should work when resource exists and data has no relationships', () => {
+    const payload = {
+      data: [
+        {
+          type: 'users',
+          id: '1',
+          attributes: {
+            some: 'attribute',
+          },
+        }
+      ],
+    };
+    expect(() => updateOrInsertResourcesIntoState(
+      state, payload.data
+    )).toNotThrow();
+  });
+
+  it('should persists existing relationships when response has none', () => {
+    const payload = {
+      data: [
+        {
+          type: 'users',
+          id: '1',
+          attributes: {
+            some: 'attribute',
+          },
+        }
+      ],
+    };
+
+    const updatedState = updateOrInsertResourcesIntoState(
+      state, payload.data
+    );
+
+    expect(updatedState.users.data[0].relationships).toEqual(
+      state.users.data[0].relationships
+    );
+  });
 });
 
 describe('[State mutation] Insertion of empty resources type', () => {
