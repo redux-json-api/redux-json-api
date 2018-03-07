@@ -1,4 +1,4 @@
-### `createResource( resource: object ): Promise`
+### `createResource( resource: JsonApiResource ): Promise<JsonApiDocument>`
 
 Dispatch function returned from `createResource` to issue a `POST` request to your API.
 
