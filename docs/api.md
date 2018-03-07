@@ -47,32 +47,32 @@ The _redux-json-api_'s CRUD API methods will all return a single promise. The fu
 
 Note: Return values noted below are after dispatch, i.e. `dispatch(createResource({ ... }))`.
 
-#### `createResource( resource: object ): Promise`
+#### `createResource( resource: JsonApiResource ): Promise<JsonApiDocument>`
 
 Use this action creator to trigger a POST request to your API with the given resource.
 
 [Examples and details here.](apis/createResource.md)
 
-#### `readEndpoint( endpoint: string ): Promise`
+#### `readEndpoint( endpoint: string ): Promise<JsonApiDocument>`
 
 This action creator will trigger a GET request to the specified endpoint.
 
 [Read more.](apis/readEndpoint.md)
 
-#### `updateResource( resource: object ): Promise`
+#### `updateResource( resource: JsonApiResource ): Promise<JsonApiDocument>`
 
 Update entities using this action creator. It will make a PATCH request to your API.
 
 [Details and examples.](apis/updateResource.md)
 
-#### `deleteResource( resource: object ): Promise`
+#### `deleteResource( resource: JsonApiResource ): Promise<void>`
 
 Use this action creator to issue a DELETE request to your API.
 
 [More details on _deleteResource_](apis/deleteResource.md)
 
-#### `hydrateStore( resource: object ): Action`
+#### `hydrateStore( data: JsonApiDocument ): Action`
 
-Use this action to add the resource(s) to the store.
+Use this action to hydrate the store with e.g. bootstrapped data.
 
 [More details on _hydrateStore_](apis/hydrateStore.md)
