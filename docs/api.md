@@ -71,7 +71,7 @@ Use this action creator to issue a DELETE request to your API.
 
 [More details on _deleteResource_](apis/deleteResource.md)
 
-#### `hydrateStore( data: JsonApiDocument ): Action`
+#### `hydrateStore( payload: JsonApiDocument ): Action`
 
 Use this action to hydrate the store with e.g. bootstrapped data.
 
