@@ -25,4 +25,4 @@ Please raise any questions as an [Issue](https://github.com/dixieio/redux-json-a
 Got any feedback or suggestions? Review our [contribution guidelines](CONTRIBUTING.md).
 
 ## Contributors
-Made with 💜 from the [Dixie](http://www.dixie.io) team, and our lovely [contributers](https://github.com/dixieio/redux-json-api/graphs/contributors)!
+Made with 💜 from Copenhagen and [the world](https://github.com/dixieio/redux-json-api/graphs/contributors). Originally forged in a [Founders](https://www.founders.as) startup.
