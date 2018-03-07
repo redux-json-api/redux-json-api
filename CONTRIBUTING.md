@@ -1,5 +1,5 @@
 We 💜 contributions
--------------------
+===================
 
 While we love contributions, we also need to ensure that our library is of great quality. Thus we require you to follow some simple guidelines when you're submitting your contributions.
 
@@ -22,19 +22,19 @@ git clone https://github.com/your-username/redux-json-api.git
 To run tests:
 
 ```
-npm run test
+yarn run test
 ```
 
 To continuously watch and run tests, run the following:
 
 ```
-npm run test:watch
+yarn run test:watch
 ```
 
 ### Linting
 Before submitting a PR check for stylistic errors by linting the project:
 ```
-npm run lint
+yarn run lint
 ```
 
 ### Building
@@ -42,7 +42,7 @@ npm run lint
 To build run:
 
 ```
-npm run build
+yarn run build
 ```
 
 ### Submitting a Pull Request
