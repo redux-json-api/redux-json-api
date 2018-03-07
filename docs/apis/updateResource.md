@@ -1,4 +1,4 @@
-### `updateResource( resource: object ): Promise`
+### `updateResource( resource: JsonApiResource ): Promise<JsonApiDocument>`
 
 This action creator facilitates `PATCH` requests.
 
