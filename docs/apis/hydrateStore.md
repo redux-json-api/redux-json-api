@@ -1,4 +1,4 @@
-### `hydrateStore( resource: object ): Promise`
+### `hydrateStore( payload: JsonApiDocument ): Action`
 
 "Hydration" is a term for filling an object with data. In this case, we are
 "hydrating" the store on startup of an application using the `hydrateStore`
