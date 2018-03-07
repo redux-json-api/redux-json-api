@@ -1,4 +1,4 @@
-### `deleteResource( resource: object ): Promise`
+### `deleteResource( resource: JsonApiResource ): Promise<JsonApiDocument>`
 
 Dispatch this action to issue a `DELETE` request to your API.
 
