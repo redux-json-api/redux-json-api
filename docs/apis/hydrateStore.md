@@ -11,7 +11,7 @@ store.
 
 ```js
 import { createStore, combineReducers } from 'redux';
-import { reducer as api, hydrateStore } from 'react-redux';
+import { reducer as api, hydrateStore } from 'redux-json-api';
 
 const store = createStore(
   combineReducers(api)
