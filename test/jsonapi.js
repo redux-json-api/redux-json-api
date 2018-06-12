@@ -6,16 +6,11 @@ import { createAction } from 'redux-actions';
 import expect from 'expect';
 import {
   reducer,
-  setHeaders,
-  setHeader,
-  setEndpointHost,
-  setEndpointPath,
+  setAxiosConfig,
+  hydrateStore,
   IS_DELETING,
   IS_UPDATING
 } from '../src/jsonapi';
-
-import fetchMock from 'fetch-mock';
-import { apiRequest } from '../src/utils';
 
 const apiCreated = createAction('API_CREATED');
 const apiRead = createAction('API_READ');
@@ -30,12 +25,7 @@ const apiDeleteFailed = createAction('API_DELETE_FAILED');
 
 const state = {
   endpoint: {
-    host: null,
-    path: null,
-    headers: {
-      'Content-Type': 'application/vnd.api+json',
-      Accept: 'application/vnd.api+json'
-    }
+    axiosConfig: {}
   },
   users: {
     data: [
@@ -208,7 +198,9 @@ const transactionToDelete = {
   },
   relationships: {
     task: {
-      data: null
+      links: {
+        self: 'http://localhost/transactions/34/relationships/task',
+      },
     }
   },
   links: {
@@ -391,6 +383,27 @@ const responseDataWithOneToManyRelationship = {
 
 const payloadWithNonMatchingReverseRelationships = require('./payloads/withNonMatchingReverseRelationships.json');
 
+describe('Hydration of store', () => {
+  it('should automatically organize new resource in new key on state', () => {
+    const updatedState = reducer(state, hydrateStore(taskWithoutRelationship));
+    expect(updatedState.tasks).toBeAn('object');
+  });
+
+  it('should add reverse relationship when inserting new resource', () => {
+    const updatedState = reducer(state, hydrateStore(taskWithTransaction));
+
+    const { data: taskRelationship } = updatedState.transactions.data[0].relationships.task;
+
+    expect(taskRelationship.type).toEqual(taskWithTransaction.data.type);
+    expect(taskRelationship.id).toEqual(taskWithTransaction.data.id);
+  });
+
+  it('should handle multiple resources', () => {
+    const updatedState = reducer(state, hydrateStore(multipleResources));
+    expect(updatedState.tasks).toBeAn('object');
+  });
+});
+
 describe('Creation of new resources', () => {
   it('should automatically organize new resource in new key on state', () => {
     const updatedState = reducer(state, apiCreated(taskWithoutRelationship));
@@ -459,6 +472,24 @@ describe('Reading resources', () => {
 const zip = rows => rows[0].map((_, c) => rows.map(row => row[c]));
 
 describe('Updating resources', () => {
+  it('should update a resource', () => {
+    const updatedState = reducer(state, apiUpdated({
+      data: [{
+        type: 'users',
+        id: '2',
+        attributes: {
+          name: 'Jane Doe'
+        },
+        relationships: {
+          companies: {
+            data: null
+          }
+        }
+      }]
+    }));
+    expect(updatedState.users.data[1].attributes.name).toEqual('Jane Doe');
+  });
+
   it('should persist in state and preserve order', () => {
     const updatedState = reducer(state, apiUpdated(updatedUser));
     expect(state.users.data[0].attributes.name).toNotEqual(updatedUser.data.attributes.name);
@@ -470,7 +501,7 @@ describe('Updating resources', () => {
     const userToUpdate = state.users.data[0];
     const stateWithResourceType = reducer(stateWithoutUsersResource, apiWillUpdate(userToUpdate));
     const updatedState = reducer(stateWithResourceType, apiUpdated(updatedUser));
-    expect(updatedState.users.data[0]).toEqual(updatedUser);
+    expect(updatedState.users.data[0]).toEqual(updatedUser.data);
   });
 });
 
@@ -491,23 +522,25 @@ describe('Delete resources', () => {
   describe('when one-to-many relationship', () => {
     it('should update reverse relationship for transaction', () => {
       // Add task with transactions to state
-      const stateWithTask = reducer(state, apiCreated(taskWithTransactions));
+      const stateWithTask = reducer(state, apiCreated({ data: taskWithTransactions }));
+      expect(stateWithTask.tasks).toEqual({ data: [taskWithTransactions] });
+
       // Update relation between transaction and task
-      const stateWithTaskWithTransaction = reducer(stateWithTask, apiUpdated(transactionWithTask));
+      const stateWithTaskWithTransaction = reducer(stateWithTask, apiUpdated({ data: transactionWithTask }));
 
       expect(stateWithTaskWithTransaction.transactions.data[0].relationships.task.data.type).toEqual(taskWithTransactions.type);
 
-      const stateWithoutTask = reducer(stateWithTask, apiDeleted(taskWithTransaction));
+      const stateWithoutTask = reducer(stateWithTask, apiDeleted(taskWithTransactions));
       const { data: relationship } = stateWithoutTask.transactions.data[0].relationships.task;
       expect(relationship).toEqual(null);
     });
 
     it('should update reverse relationship for task', () => {
       // Add task with transactions to state
-      const stateWithTask = reducer(state, apiCreated(taskWithTransactions));
+      const stateWithTask = reducer(state, apiCreated({ data: taskWithTransactions }));
       // Update relation between transaction and task
       // TODO: check relationshiphs on create resource
-      const stateWithTaskWithTransaction = reducer(stateWithTask, apiUpdated(transactionWithTask));
+      const stateWithTaskWithTransaction = reducer(stateWithTask, apiUpdated({ data: transactionWithTask }));
 
       expect(stateWithTaskWithTransaction.transactions.data[0].id).toEqual(taskWithTransactions.relationships.transaction.data[0].id);
 
@@ -519,44 +552,15 @@ describe('Delete resources', () => {
 });
 
 describe('Endpoint values', () => {
-  it('should default to jsonapi content type and accept headers', () => {
-    const initialState = reducer(undefined, { type: '@@INIT' });
-    expect(initialState.endpoint.headers).toEqual({
-      'Content-Type': 'application/vnd.api+json',
-      Accept: 'application/vnd.api+json'
-    });
-  });
-
-  it('should update provided header, such as an access token', () => {
-    const at = 'abcdef0123456789';
-    const header = { Authorization: `Bearer ${at}` };
-    expect(state.endpoint.headers).toNotEqual(header);
-    const updatedState = reducer(state, setHeader(header));
-    expect(updatedState.endpoint.headers).toEqual({
-      'Content-Type': 'application/vnd.api+json',
-      Accept: 'application/vnd.api+json',
-      Authorization: `Bearer ${at}`
-    });
-  });
-
-  it('should update to provided custom headers', () => {
-    const headers = { Custom: 'headers' };
-    expect(state.endpoint.headers).toNotEqual(headers);
-    const updatedState = reducer(state, setHeaders(headers));
-    expect(updatedState.endpoint.headers).toEqual(headers);
-  });
-
-  it('should update to provided endpoint host and path', () => {
-    const host = 'https://api.example.com';
-    const path = '/api/v1';
-
-    expect(state.endpoint.host).toNotEqual(host);
-    const stateWithHost = reducer(state, setEndpointHost(host));
-    expect(stateWithHost.endpoint.host).toEqual(host);
-
-    expect(state.endpoint.path).toNotEqual(path);
-    const stateWithPath = reducer(state, setEndpointPath(path));
-    expect(stateWithPath.endpoint.path).toEqual(path);
+  it('should update to provided axiosConfig', () => {
+    const config = {
+      headers: {
+        Authorization: 'Bearer abcdef0123456789'
+      }
+    };
+    expect(state.endpoint.axiosConfig).toNotEqual(config);
+    const updatedState = reducer(state, setAxiosConfig(config));
+    expect(updatedState.endpoint.axiosConfig).toEqual(config);
   });
 });
 
@@ -580,25 +584,6 @@ describe('Invalidating flag', () => {
   });
 });
 
-describe('apiRequest', () => {
-  it('should parse the response body on success', () => {
-    fetchMock.mock('*', { status: 200, body: { data: 1 }, headers: { 'Content-Type': 'application/json' } });
-    return apiRequest('fakeurl').then((data) => {
-      expect(data).toEqual({ data: 1 });
-    });
-  });
-
-  it('should return Body object when response is 204', () => {
-    fetchMock.restore();
-    fetchMock.mock('*', { status: 204, body: null });
-
-    return apiRequest('fakeurl').then((data) => {
-      expect(data.statusText).toEqual('No Content');
-      expect(data.status).toEqual(204);
-    });
-  });
-});
-
 describe('progress flags', () => {
   it('should update isUpdating flag properly when update fails', () => {
     let updatedState = reducer(state, apiWillUpdate(state.users.data[0]));
@@ -612,5 +597,75 @@ describe('progress flags', () => {
     expect(updatedState.isDeleting).toEqual(1);
     updatedState = reducer(updatedState, apiDeleteFailed({ resource: state.users.data[0] }));
     expect(updatedState.isDeleting).toEqual(0);
+  });
+});
+
+const request1 = {
+  data: [
+    {
+      type: 'articles',
+      id: '1',
+      attributes: {
+        title: 'JSON API paints my bikeshed!',
+        body: 'The shortest article. Ever.',
+        created: '2015-05-22T14:56:29.000Z',
+        updated: '2015-05-22T14:56:28.000Z'
+      },
+      relationships: {
+        author: {
+          data: {
+            id: '42',
+            type: 'people'
+          }
+        }
+      }
+    }
+  ],
+  included: [
+    {
+      type: 'people',
+      id: '42',
+      attributes: {
+        name: 'John',
+        age: 80,
+        gender: 'male'
+      },
+      relationships: {
+        articles: {},
+        comments: {}
+      }
+    }
+  ]
+};
+
+const request2 = {
+  data: [
+    {
+      type: 'articles',
+      id: '1',
+      attributes: {
+        title: 'JSON API paints my bikeshed!',
+        body: 'The shortest article. Ever.',
+        created: '2015-05-22T14:56:29.000Z',
+        updated: '2015-05-22T14:56:28.000Z'
+      },
+      relationships: {
+        author: {}
+      }
+    }
+  ]
+};
+
+describe('Relationships without data key should not be reset', () => {
+  it('should append read resources to state', () => {
+    const updatedState = reducer(state, apiRead(request1));
+    expect(updatedState.articles).toBeAn('object');
+    expect(updatedState.articles.data.length).toEqual(1);
+    expect(updatedState.articles.data[0].relationships.author).toEqual({ data: { id: '42', type: 'people' } });
+
+    const updatedState2 = reducer(updatedState, apiRead(request2));
+    expect(updatedState2.articles).toBeAn('object');
+    expect(updatedState2.articles.data.length).toEqual(1);
+    expect(updatedState2.articles.data[0].relationships.author).toEqual({ data: { id: '42', type: 'people' } });
   });
 });

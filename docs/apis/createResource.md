@@ -1,6 +1,6 @@
-### `createEntity( resource: object ): Promise`
+### `createResource( resource: JsonApiResource ): Promise<JsonApiDocument>`
 
-Dispatch function returned from `createEntity` to issue a `POST` request to your API.
+Dispatch function returned from `createResource` to issue a `POST` request to your API.
 
 ### Endpoint
 
@@ -21,7 +21,7 @@ This resource object will resolve to "/tasks":
 
 ```js
 import { connect } from 'react-redux';
-import { createEntity } from 'redux-json-api'
+import { createResource } from 'redux-json-api'
 
 class CreateTask extends Component {
   handleSubmit() {
@@ -41,7 +41,7 @@ class CreateTask extends Component {
       }
     }
 
-    dispatch(createEntity(entity));
+    dispatch(createResource(entity));
   }
 
   render() {
@@ -56,7 +56,7 @@ export default connect()(CreateTask);
 
 #### API_WILL_CREATE
 
-This action will be dispatched immediately after dispatching `createEntity`. It will increment `state.api.isCreating`.
+This action will be dispatched immediately after dispatching `createResource`. It will increment `state.api.isCreating`.
 
 #### API_CREATED
 

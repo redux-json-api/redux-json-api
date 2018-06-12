@@ -1,10 +1,10 @@
-### `updateEntity( resource: object ): Promise`
+### `updateResource( resource: JsonApiResource ): Promise<JsonApiDocument>`
 
 This action creator facilitates `PATCH` requests.
 
 ### Endpoint
 
-Endpoint path for `updateEntity` is resolved from `type` and `id` of the resource object passed to this action creator.
+Endpoint path for `updateResource` is resolved from `type` and `id` of the resource object passed to this action creator.
 
 The following resource object will resolve to "/tasks/1":
 
@@ -22,7 +22,7 @@ The following resource object will resolve to "/tasks/1":
 
 ```js
 import { connect } from 'react-redux';
-import { updateEntity } from 'redux-json-api'
+import { updateResource } from 'redux-json-api'
 
 const mapStateToProps = ({
   api: { tasks = { data: [] } }
@@ -40,7 +40,7 @@ class UpdateTask extends Component {
       }
     };
 
-    dispatch(updateEntity(completedTask));
+    dispatch(updateResource(completedTask));
   }
 
   render() {
@@ -55,7 +55,7 @@ export default connect(mapStateToProps)(UpdateTask);
 
 #### API_WILL_UPDATE
 
-This action will be dispatched immediately after dispatching `updateEntity`. It will increment `state.api.isUpdating`. _redux-json-api_ will also add a flag to the resource object being updated, to flag it as being invalidated:
+This action will be dispatched immediately after dispatching `updateResource`. It will increment `state.api.isUpdating`. _redux-json-api_ will also add a flag to the resource object being updated, to flag it as being invalidated:
 
 ```json
 {

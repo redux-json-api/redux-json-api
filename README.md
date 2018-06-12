@@ -1,7 +1,7 @@
 # Redux JSON API
 ### Make Redux 💜 JSON API
 
-[![Build Status](https://travis-ci.org/dixieio/redux-json-api.svg?branch=master)](https://travis-ci.org/dixieio/redux-json-api)
+[![Build Status](https://travis-ci.org/dixieio/redux-json-api.svg?branch=2.0)](https://travis-ci.org/dixieio/redux-json-api)
 
 This library is intended for use in web applications build on Redux, which consumes data from a [JSON API](http://jsonapi.org/).
 
@@ -17,7 +17,7 @@ Please raise any questions as an [Issue](https://github.com/dixieio/redux-json-a
 1. [Contributors](#contributors)
 
 ## Good reads
-- [__Working Example App__](https://github.com/tomharvey/redux-json-api-demo/) - Quickstart guide to a minimal implementation of Redux JSON API
+- [__Working Example App__](https://github.com/dvidsilva/redux-json-api-demo/) - Quickstart guide to a minimal implementation of Redux JSON API 2
 - [__Redux__](http://redux.js.org/) - Read about redux and core principles.
 - [__JSON API__](http://jsonapi.org/) - Read about the specifications for JSON API.
 
@@ -25,4 +25,4 @@ Please raise any questions as an [Issue](https://github.com/dixieio/redux-json-a
 Got any feedback or suggestions? Review our [contribution guidelines](CONTRIBUTING.md).
 
 ## Contributors
-Made with 💜 from the [Dixie](http://www.dixie.io) team, and our lovely [contributers](https://github.com/dixieio/redux-json-api/graphs/contributors)!
+Made with 💜 from Copenhagen and [the world](https://github.com/dixieio/redux-json-api/graphs/contributors). Originally forged in a [Founders](https://www.founders.as) startup.

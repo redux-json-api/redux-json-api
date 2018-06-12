@@ -120,6 +120,18 @@ export const updateOrInsertResource = (state, resource) => {
     const resources = state[resource.type].data;
     const idx = resources.findIndex(item => item.id === resource.id);
 
+    const relationships = {};
+    for (const relationship in resources[idx].relationships) {
+      if (!hasOwnProperties(resource, ['relationships', relationship, 'data'])) {
+        relationships[relationship] = resources[idx].relationships[relationship];
+      }
+    }
+    if (!resource.hasOwnProperty('relationships')) {
+      Object.assign(resource, { relationships });
+    } else {
+      Object.assign(resource.relationships, relationships);
+    }
+
     if (!equal(resources[idx], resource)) {
       newState = imm.set(newState, updatePath.concat(idx), resource);
     }
@@ -164,7 +176,7 @@ export const removeResourceFromState = (state, resource) => {
   const entityRelationships = resource.relationships || {};
 
   return Object.keys(entityRelationships).reduce((newState, key) => {
-    if (resource.relationships[key].data === null) {
+    if (!resource.relationships[key].data) {
       return newState;
     }
 

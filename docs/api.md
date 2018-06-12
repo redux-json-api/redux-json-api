@@ -3,10 +3,11 @@ API
 
 _redux-json-api_ provides a simple API for all four CRUD actions.
 
-- Create resource object using [createEntity](#createentity-resource-object--promise)
+- Create resource object using [createResource](#createresource-resource-object--promise)
 - Read endpoints through [readEndpoint](#readendpoint-endpoint-string--promise)
-- Update resource with [updateEntity](#updateentity-resource-object--promise)
-- Delete resource using [deleteEntity](#deleteentity-resource-object--promise)
+- Update resource with [updateResource](#updateresource-resource-object--promise)
+- Delete resource using [deleteResource](#deleteresource-resource-object--promise)
+- Add a resource to the store using [hydrateStore](#hydratestore-resource-object--action)
 
 ## Resource objects
 
@@ -39,33 +40,39 @@ While dispatching a create action for the following resource will make a request
 
 
 ## API Promises
-The _redux-json-api_'s CRUD API methods will all return a single promise. The fulfillment handler will receive one argument with the response body. One exception to this is the fulfillment handler from a `deleteEntity` promise, which will not receive any arguments.
+The _redux-json-api_'s CRUD API methods will all return a single promise. The fulfillment handler will receive one argument with the response body. One exception to this is the fulfillment handler from a `deleteResource` promise, which will not receive any arguments.
 
 
 ## API Methods
 
-Note: Return values noted below are after dispatch, i.e. `dispatch(createEntity({ ... }))`.
+Note: Return values noted below are after dispatch, i.e. `dispatch(createResource({ ... }))`.
 
-#### `createEntity( resource: object ): Promise`
+#### `createResource( resource: JsonApiResource ): Promise<JsonApiDocument>`
 
 Use this action creator to trigger a POST request to your API with the given resource.
 
-[Examples and details here.](apis/createEntity.md)
+[Examples and details here.](apis/createResource.md)
 
-#### `readEndpoint( endpoint: string ): Promise`
+#### `readEndpoint( endpoint: string ): Promise<JsonApiDocument>`
 
 This action creator will trigger a GET request to the specified endpoint.
 
 [Read more.](apis/readEndpoint.md)
 
-#### `updateEntity( resource: object ): Promise`
+#### `updateResource( resource: JsonApiResource ): Promise<JsonApiDocument>`
 
 Update entities using this action creator. It will make a PATCH request to your API.
 
-[Details and examples.](apis/updateEntity.md)
+[Details and examples.](apis/updateResource.md)
 
-#### `deleteEntity( resource: object ): Promise`
+#### `deleteResource( resource: JsonApiResource ): Promise<void>`
 
 Use this action creator to issue a DELETE request to your API.
 
-[More details on _deleteEntity_](apis/deleteEntity.md)
+[More details on _deleteResource_](apis/deleteResource.md)
+
+#### `hydrateStore( payload: JsonApiDocument ): Action`
+
+Use this action to hydrate the store with e.g. bootstrapped data.
+
+[More details on _hydrateStore_](apis/hydrateStore.md)

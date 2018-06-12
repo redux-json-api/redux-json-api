@@ -1,13 +1,14 @@
 {
   "name": "redux-json-api",
-  "version": "1.7.1",
+  "version": "2.0.0-beta.5",
   "description": "A bunch of Redux actions, action creators and reducers to integrate with a JSON API",
   "main": "lib/jsonapi.js",
   "scripts": {
     "build": "rimraf lib && babel ./src -d lib",
     "test": "mocha --compilers js:babel-core/register --recursive",
     "test:watch": "npm test -- --watch",
-    "lint": "eslint . ./"
+    "lint": "eslint . ./",
+    "prepublish": "npm run lint && npm run build"
   },
   "repository": {
     "type": "git",
@@ -29,6 +30,7 @@
     "redux-thunk": ">=1.0.0"
   },
   "devDependencies": {
+    "babel-cli": "^6.0.0",
     "babel-core": "^6.4.5",
     "babel-eslint": "^5.0.0-beta6",
     "babel-loader": "^6.2.1",
@@ -47,8 +49,9 @@
     "webpack": "^1.12.12"
   },
   "dependencies": {
+    "axios": "^0.13.1",
     "deep-equal": "^1.0.1",
-    "fetch-everywhere": "^1.0.5",
+    "keykey": "^2.1.1",
     "object-path-immutable": "^0.5.0",
     "pluralize": "^1.2.1",
     "redux-actions": "^0.9.1"

@@ -1,4 +1,4 @@
-### `readEndpoint( endpoint: string ): Promise`
+### `readEndpoint( endpoint: string ): Promise<JsonApiDocument>`
 
 To read resource object from your API, you simply dispatch the function returned by `readEndpoint`. It will automatically read all resources from `data` and `included` keys on the response body, and append these to state.
 

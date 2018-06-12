@@ -3,14 +3,18 @@ Set-Up & Configure
 
 Getting _redux-json-api_ set up requires __4 steps__ which we will cover here.
 
-1. Install through npm
+1. Install
 1. Add _redux-json-api_ reducer to _api_ namespace
 1. Add required middleware to store
 1. Configure API endpoints and access token
 
-## Install through npm
+## Install with npm/yarn
 
 `$ npm install redux-json-api --save`
+
+or
+
+`$ yarn add redux-json-api`
 
 ## Add reducer to _api_ namespace
 

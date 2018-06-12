@@ -1,10 +1,10 @@
-### `deleteEntity( resource: object ): Promise`
+### `deleteResource( resource: JsonApiResource ): Promise<JsonApiDocument>`
 
 Dispatch this action to issue a `DELETE` request to your API.
 
 ### Endpoint
 
-Endpoint calculation for `deleteEntity` is the same as for [`updateEntity`](./updateEntity.md). It is resolved from `type` and `id` of the resource object passed to this action creator.
+Endpoint calculation for `deleteResource` is the same as for [`updateResource`](./updateResource.md). It is resolved from `type` and `id` of the resource object passed to this action creator.
 
 The following resource object will resolve to "/tasks/1":
 
@@ -22,7 +22,7 @@ The following resource object will resolve to "/tasks/1":
 
 ```js
 import { connect } from 'react-redux';
-import { updateEntity } from 'redux-json-api'
+import { updateResource } from 'redux-json-api'
 
 const mapStateToProps = ({
   api: { tasks = { data: [] } }
@@ -32,7 +32,7 @@ const mapStateToProps = ({
 class DeleteTask extends Component {
   deleteTask() {
     const { dispatch, task } = this.props;
-    dispatch(deleteEntity(task));
+    dispatch(deleteResource(task));
   }
 
   render() {
@@ -47,7 +47,7 @@ export default connect(mapStateToProps)(DeleteTask);
 
 #### API_WILL_DELETE
 
-Immediately upon dispatching `deleteEntity`, the `API_WILL_DELETE` action will be dispatched. This will increment `state.api.isDeleting` and set `isInvalidating` to "IS_DELETING" on the resource object passed to the action creator.
+Immediately upon dispatching `deleteResource`, the `API_WILL_DELETE` action will be dispatched. This will increment `state.api.isDeleting` and set `isInvalidating` to "IS_DELETING" on the resource object passed to the action creator.
 
 #### API_DELETED
 
