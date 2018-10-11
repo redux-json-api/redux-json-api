@@ -79,7 +79,7 @@ export const createResource = (resource, options = {}) => {
           }
         }
       }
-    } = state;
+    } = getState()[stateKey];
 
     return new Promise((resolve, reject) => {
       apiRequest(finalEndpoint, finalAxiosConfig).then(json => {
