@@ -4,6 +4,8 @@ import keykey from 'keykey';
 export default keykey([
   'API_SET_AXIOS_CONFIG',
   'API_HYDRATE',
+  'API_WILL_REQUEST',
+  'API_DID_REQUEST',
   'API_WILL_CREATE',
   'API_CREATED',
   'API_CREATE_FAILED',

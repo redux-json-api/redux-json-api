@@ -1,5 +1,6 @@
 import { createAction, handleActions } from 'redux-actions';
 import imm from 'object-path-immutable';
+import uniqueId from 'lodash.uniqueid';
 
 import {
   addLinksToState,
@@ -11,8 +12,10 @@ import {
 
 import { apiRequest, getPaginationUrl } from './utils';
 import {
-  API_SET_AXIOS_CONFIG, API_HYDRATE, API_WILL_CREATE, API_CREATED, API_CREATE_FAILED, API_WILL_READ, API_READ, API_READ_FAILED, API_WILL_UPDATE, API_UPDATED, API_UPDATE_FAILED, API_WILL_DELETE, API_DELETED, API_DELETE_FAILED
+  API_SET_AXIOS_CONFIG, API_HYDRATE, API_WILL_REQUEST, API_DID_REQUEST, API_WILL_CREATE, API_CREATED, API_CREATE_FAILED, API_WILL_READ, API_READ, API_READ_FAILED, API_WILL_UPDATE, API_UPDATED, API_UPDATE_FAILED, API_WILL_DELETE, API_DELETED, API_DELETE_FAILED
 } from './constants';
+
+const DEFAULT_STATE_KEY = 'api';
 
 // Resource isInvalidating values
 export const IS_DELETING = 'IS_DELETING';
@@ -20,8 +23,10 @@ export const IS_UPDATING = 'IS_UPDATING';
 
 // Action creators
 export const setAxiosConfig = createAction(API_SET_AXIOS_CONFIG);
-
 export const hydrateStore = createAction(API_HYDRATE);
+
+const apiWillRequest = createAction(API_WILL_REQUEST);
+const apiDidRequest = createAction(API_DID_REQUEST);
 
 const apiWillCreate = createAction(API_WILL_CREATE);
 const apiCreated = createAction(API_CREATED);
@@ -39,21 +44,45 @@ const apiWillDelete = createAction(API_WILL_DELETE);
 const apiDeleted = createAction(API_DELETED);
 const apiDeleteFailed = createAction(API_DELETE_FAILED);
 
-export const createResource = (resource) => {
+export const createResource = (resource, options = {}) => {
   return (dispatch, getState) => {
-    dispatch(apiWillCreate(resource));
-
-    const { axiosConfig } = getState().api.endpoint;
-    const options = {
-      ... axiosConfig,
-      method: 'POST',
-      data: JSON.stringify({
-        data: resource
-      })
+    const stateKey = options.stateKey || DEFAULT_STATE_KEY;
+    const state = getState()[stateKey];
+    const { endpoint: { axiosConfig } } = state;
+    const requestId = uniqueId();
+    const requestType = 'createResource';
+    const requestOptions = {
+      requestId,
+      requestType,
+      stateKey,
+      endpoint: resource.type,
+      axiosConfig: {
+        method: 'POST',
+        data: JSON.stringify({
+          data: resource
+        }),
+        ...axiosConfig,
+        ...(options.axiosConfig ? options.axiosConfig : {})
+      },
+      ...options
     };
 
+    dispatch(apiWillCreate(resource));
+    dispatch(apiWillRequest(requestOptions));
+
+    const {
+      requestOptions: {
+        [requestType]: {
+          [requestId]: {
+            endpoint: finalEndpoint,
+            axiosConfig: finalAxiosConfig
+          }
+        }
+      }
+    } = state;
+
     return new Promise((resolve, reject) => {
-      apiRequest(resource.type, options).then(json => {
+      apiRequest(finalEndpoint, finalAxiosConfig).then(json => {
         dispatch(apiCreated(json));
         resolve(json);
       }).catch(error => {
@@ -62,7 +91,7 @@ export const createResource = (resource) => {
 
         dispatch(apiCreateFailed(err));
         reject(err);
-      });
+      }).finally(() => dispatch(apiDidRequest(requestOptions)));
     });
   };
 };
@@ -82,23 +111,45 @@ class ApiResponse {
   /* eslint-enable */
 }
 
-export const readEndpoint = (endpoint, {
-  options = {
-    indexLinks: undefined,
-  }
-} = {}) => {
+export const readEndpoint = (endpoint, options = {}) => {
   return (dispatch, getState) => {
-    dispatch(apiWillRead(endpoint));
+    const stateKey = options.stateKey || DEFAULT_STATE_KEY;
+    const requestId = uniqueId();
+    const requestType = 'readEndpoint';
+    const requestOptions = {
+      requestType,
+      requestId,
+      stateKey,
+      endpoint,
+      axiosConfig: {
+        ...(getState()[stateKey].endpoint && getState()[stateKey].endpoint.axiosConfig || {}),
+        ...(options.axiosConfig ? options.axiosConfig : {})
+      },
+      ...options
+    };
 
-    const { axiosConfig } = getState().api.endpoint;
+    dispatch(apiWillRead(endpoint, requestOptions));
+    dispatch(apiWillRequest(requestOptions));
+
+    const {
+      requestOptions: {
+        [requestType]: {
+          [requestId]: finalRequestOptions
+        }
+      }
+    } = getState()[stateKey];
+    const {
+      endpoint: finalEndpoint,
+      axiosConfig: finalAxiosConfig
+    } = finalRequestOptions;
 
     return new Promise((resolve, reject) => {
-      apiRequest(endpoint, axiosConfig)
+      apiRequest(finalEndpoint, finalAxiosConfig)
         .then(json => {
-          dispatch(apiRead({ endpoint, options, ...json }));
+          dispatch(apiRead({ finalEndpoint, finalRequestOptions, ...json }));
 
-          const nextUrl = getPaginationUrl(json, 'next', axiosConfig.baseURL);
-          const prevUrl = getPaginationUrl(json, 'prev', axiosConfig.baseURL);
+          const nextUrl = getPaginationUrl(json, 'next', finalAxiosConfig.baseURL);
+          const prevUrl = getPaginationUrl(json, 'prev', finalAxiosConfig.baseURL);
 
           resolve(new ApiResponse(json, dispatch, nextUrl, prevUrl));
         })
@@ -108,28 +159,51 @@ export const readEndpoint = (endpoint, {
 
           dispatch(apiReadFailed(err));
           reject(err);
-        });
+        })
+        .finally(() => dispatch(apiDidRequest(requestOptions)));
     });
   };
 };
 
-export const updateResource = (resource) => {
+export const updateResource = (resource, options = {}) => {
   return (dispatch, getState) => {
-    dispatch(apiWillUpdate(resource));
-
-    const { axiosConfig } = getState().api.endpoint;
-    const endpoint = `${resource.type}/${resource.id}`;
-
-    const options = {
-      ... axiosConfig,
-      method: 'PATCH',
-      data: {
-        data: resource
-      }
+    const stateKey = options.stateKey || DEFAULT_STATE_KEY;
+    const { endpoint: { axiosConfig } } = getState()[stateKey];
+    const requestId = uniqueId();
+    const requestType = 'updateResource';
+    const requestOptions = {
+      requestType,
+      requestId,
+      stateKey,
+      endpoint: `${resource.type}/${resource.id}`,
+      axiosConfig: {
+        method: 'PATCH',
+        data: {
+          data: resource
+        },
+        ...axiosConfig,
+        ...(options.axiosConfig ? options.axiosConfig : {})
+      },
+      ...options
     };
 
+    dispatch(apiWillUpdate(resource));
+    dispatch(apiWillRequest(requestOptions));
+
+    const {
+      requestOptions: {
+        [requestType]: {
+          [requestId]: finalRequestOptions
+        }
+      }
+    } = getState()[stateKey];
+    const {
+      endpoint: finalEndpoint,
+      axiosConfig: finalAxiosConfig
+    } = finalRequestOptions;
+
     return new Promise((resolve, reject) => {
-      apiRequest(endpoint, options)
+      apiRequest(finalEndpoint, finalAxiosConfig)
         .then(json => {
           dispatch(apiUpdated(json));
           resolve(json);
@@ -140,25 +214,48 @@ export const updateResource = (resource) => {
 
           dispatch(apiUpdateFailed(err));
           reject(err);
-        });
+        })
+        .finally(() => dispatch(apiDidRequest(requestOptions)));
     });
   };
 };
 
-export const deleteResource = (resource) => {
+export const deleteResource = (resource, options = {}) => {
   return (dispatch, getState) => {
-    dispatch(apiWillDelete(resource));
-
-    const { axiosConfig } = getState().api.endpoint;
-    const endpoint = `${resource.type}/${resource.id}`;
-
-    const options = {
-      ... axiosConfig,
-      method: 'DELETE'
+    const stateKey = options.stateKey || DEFAULT_STATE_KEY;
+    const { endpoint: { axiosConfig } } = getState()[stateKey];
+    const requestId = uniqueId();
+    const requestType = 'deleteResource';
+    const requestOptions = {
+      requestType,
+      requestId,
+      stateKey,
+      endpoint: `${resource.type}/${resource.id}`,
+      axiosConfig: {
+        method: 'DELETE',
+        ...axiosConfig,
+        ...(options.axiosConfig ? options.axiosConfig : {})
+      },
+      ...options
     };
 
+    dispatch(apiWillDelete(resource));
+    dispatch(apiWillRequest(requestOptions));
+
+    const {
+      requestOptions: {
+        [requestType]: {
+          [requestId]: finalRequestOptions
+        }
+      }
+    } = getState()[stateKey];
+    const {
+      endpoint: finalEndpoint,
+      axiosConfig: finalAxiosConfig
+    } = finalRequestOptions;
+
     return new Promise((resolve, reject) => {
-      apiRequest(endpoint, options)
+      apiRequest(finalEndpoint, finalAxiosConfig)
         .then(() => {
           dispatch(apiDeleted(resource));
           resolve();
@@ -169,7 +266,8 @@ export const deleteResource = (resource) => {
 
           dispatch(apiDeleteFailed(err));
           reject(err);
-        });
+        })
+        .finally(() => dispatch(apiDidRequest(requestOptions)));
     });
   };
 };
@@ -190,12 +288,30 @@ export const requireResource = (resourceType, endpoint = resourceType) => {
 };
 
 // Reducers
-export const reducer = handleActions({
-  [API_SET_AXIOS_CONFIG]: (state, { payload: axiosConfig }) => {
+const reducerDefaultState = {
+  isCreating: 0,
+  isReading: 0,
+  isUpdating: 0,
+  isDeleting: 0,
+  endpoint: {
+    axiosConfig: {}
+  },
+  stateKey: null,
+  requestOptions: {}
+};
+
+const reducerActionsMap = {
+  [API_SET_AXIOS_CONFIG]: (state, { payload: { stateKey, ...axiosConfig } }) => {
+    if (state.stateKey && stateKey && stateKey !== state.stateKey) {
+      return state;
+    }
     return imm(state).set(['endpoint', 'axiosConfig'], axiosConfig).value();
   },
 
-  [API_HYDRATE]: (state, { payload: resources }) => {
+  [API_HYDRATE]: (state, { payload: { stateKey, ...resources } }) => {
+    if (state.stateKey && stateKey && stateKey !== state.stateKey) {
+      return state;
+    }
     const entities = Array.isArray(resources.data) ? resources.data : [resources.data];
 
     const newState = updateOrInsertResourcesIntoState(
@@ -206,11 +322,40 @@ export const reducer = handleActions({
     return imm(newState).value();
   },
 
-  [API_WILL_CREATE]: (state) => {
+  [API_WILL_REQUEST]: (state, { payload: requestOptions }) => {
+    const { stateKey, requestType, requestId } = requestOptions;
+    if (state.stateKey && stateKey && stateKey !== state.stateKey) {
+      return state;
+    }
+    return imm(state).set(['requestOptions', requestType, requestId], requestOptions).value();
+  },
+
+  [API_DID_REQUEST]: (state, { payload: requestOptions }) => {
+    const { stateKey, requestType, requestId } = requestOptions;
+    if (state.stateKey && stateKey && stateKey !== state.stateKey) {
+      return state;
+    }
+
+    // Delete the whole requestType property if this is the only requestOption
+    // in it.
+    const delPath = Object.keys(state.requestOptions[requestType]).length === 1
+      ? ['requestOptions', requestType]
+      : ['requestOptions', requestType, requestId];
+
+    return imm(state).del(delPath).value();
+  },
+
+  [API_WILL_CREATE]: (state, { stateKey }) => {
+    if (state.stateKey && stateKey && stateKey !== state.stateKey) {
+      return state;
+    }
     return imm(state).set(['isCreating'], state.isCreating + 1).value();
   },
 
-  [API_CREATED]: (state, { payload: resources }) => {
+  [API_CREATED]: (state, { payload: { stateKey, ...resources } }) => {
+    if (state.stateKey && stateKey && stateKey !== state.stateKey) {
+      return state;
+    }
     const entities = Array.isArray(resources.data) ? resources.data : [resources.data];
 
     const newState = updateOrInsertResourcesIntoState(
@@ -223,15 +368,24 @@ export const reducer = handleActions({
       .value();
   },
 
-  [API_CREATE_FAILED]: (state) => {
+  [API_CREATE_FAILED]: (state, { stateKey }) => {
+    if (state.stateKey && stateKey && stateKey !== state.stateKey) {
+      return state;
+    }
     return imm(state).set(['isCreating'], state.isCreating - 1).value();
   },
 
-  [API_WILL_READ]: (state) => {
+  [API_WILL_READ]: (state, { stateKey }) => {
+    if (state.stateKey && stateKey && stateKey !== state.stateKey) {
+      return state;
+    }
     return imm(state).set(['isReading'], state.isReading + 1).value();
   },
 
-  [API_READ]: (state, { payload }) => {
+  [API_READ]: (state, { payload: { stateKey, ...payload } }) => {
+    if (state.stateKey && stateKey && stateKey !== state.stateKey) {
+      return state;
+    }
     const resources = (
       Array.isArray(payload.data)
         ? payload.data
@@ -246,11 +400,17 @@ export const reducer = handleActions({
       .value();
   },
 
-  [API_READ_FAILED]: (state) => {
+  [API_READ_FAILED]: (state, { stateKey }) => {
+    if (state.stateKey && stateKey && stateKey !== state.stateKey) {
+      return state;
+    }
     return imm(state).set(['isReading'], state.isReading - 1).value();
   },
 
-  [API_WILL_UPDATE]: (state, { payload: resource }) => {
+  [API_WILL_UPDATE]: (state, { payload: { stateKey, ...resource } }) => {
+    if (state.stateKey && stateKey && stateKey !== state.stateKey) {
+      return state;
+    }
     const { type, id } = resource;
 
     const newState = ensureResourceTypeInState(state, type);
@@ -260,7 +420,10 @@ export const reducer = handleActions({
       .value();
   },
 
-  [API_UPDATED]: (state, { payload: resources }) => {
+  [API_UPDATED]: (state, { payload: { stateKey, ...resources } }) => {
+    if (state.stateKey && stateKey && stateKey !== state.stateKey) {
+      return state;
+    }
     const entities = Array.isArray(resources.data) ? resources.data : [resources.data];
 
     const newState = updateOrInsertResourcesIntoState(
@@ -273,7 +436,10 @@ export const reducer = handleActions({
       .value();
   },
 
-  [API_UPDATE_FAILED]: (state, { payload: { resource } }) => {
+  [API_UPDATE_FAILED]: (state, { payload: { stateKey, resource } }) => {
+    if (state.stateKey && stateKey && stateKey !== state.stateKey) {
+      return state;
+    }
     const { type, id } = resource;
 
     return setIsInvalidatingForExistingResource(state, { type, id }, IS_UPDATING)
@@ -281,7 +447,10 @@ export const reducer = handleActions({
       .value();
   },
 
-  [API_WILL_DELETE]: (state, { payload: resource }) => {
+  [API_WILL_DELETE]: (state, { payload: { stateKey, ...resource } }) => {
+    if (state.stateKey && stateKey && stateKey !== state.stateKey) {
+      return state;
+    }
     const { type, id } = resource;
 
     return setIsInvalidatingForExistingResource(state, { type, id }, IS_DELETING)
@@ -289,26 +458,55 @@ export const reducer = handleActions({
       .value();
   },
 
-  [API_DELETED]: (state, { payload: resource }) => {
+  [API_DELETED]: (state, { payload: { stateKey, ...resource } }) => {
+    if (state.stateKey && stateKey && stateKey !== state.stateKey) {
+      return state;
+    }
     return removeResourceFromState(state, resource)
       .set('isDeleting', state.isDeleting - 1)
       .value();
   },
 
-  [API_DELETE_FAILED]: (state, { payload: { resource } }) => {
+  [API_DELETE_FAILED]: (state, { payload: { stateKey, resource } }) => {
+    if (state.stateKey && stateKey && stateKey !== state.stateKey) {
+      return state;
+    }
     const { type, id } = resource;
 
     return setIsInvalidatingForExistingResource(state, { type, id }, IS_DELETING)
       .set('isDeleting', state.isDeleting - 1)
       .value();
   }
+};
 
-}, {
-  isCreating: 0,
-  isReading: 0,
-  isUpdating: 0,
-  isDeleting: 0,
-  endpoint: {
-    axiosConfig: {}
-  }
+export const reducer = handleActions(reducerActionsMap, reducerDefaultState);
+
+// Returns binder functions which can be used to tie apiActions or "normal" FSA
+// compliant (createAction) actions to an instance.
+const bindActionsToInstanceFactory = stateKey => ({
+  bindApiAction: fn => (arg1, arg2, ...moreArgs) =>
+    fn(arg1, { ...arg2, stateKey }, ...moreArgs),
+  bindAction: fn => (payload) => fn({ stateKey, ...payload })
 });
+
+// Create an instance of redux-json-api. Returns the reducer and actions which
+// are bound to this instance. (Meaning they don't affect other instances)
+export const createInstance = (stateKey = 'api', axiosConfig = {}) => {
+  const { bindApiAction, bindAction } = bindActionsToInstanceFactory(stateKey);
+  return {
+    reducer: handleActions(reducerActionsMap, {
+      ...reducerDefaultState,
+      stateKey,
+      endpoint: {
+        ...reducerDefaultState.endpoint,
+        axiosConfig
+      }
+    }),
+    createResource: bindApiAction(createResource),
+    readEndpoint: bindApiAction(readEndpoint),
+    updateResource: bindApiAction(updateResource),
+    deleteResource: bindApiAction(deleteResource),
+    setAxiosConfig: bindAction(setAxiosConfig),
+    hydrateStore: bindAction(hydrateStore)
+  };
+};

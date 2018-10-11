@@ -9,8 +9,12 @@ import {
   setAxiosConfig,
   hydrateStore,
   IS_DELETING,
-  IS_UPDATING
+  IS_UPDATING,
+  createInstance
 } from '../src/jsonapi';
+
+const apiWillRequest = createAction('API_WILL_REQUEST');
+const apiDidRequest = createAction('API_DID_REQUEST');
 
 const apiCreated = createAction('API_CREATED');
 const apiRead = createAction('API_READ');
@@ -27,6 +31,7 @@ const state = {
   endpoint: {
     axiosConfig: {}
   },
+  requestOptions: {},
   users: {
     data: [
       {
@@ -667,5 +672,150 @@ describe('Relationships without data key should not be reset', () => {
     expect(updatedState2.articles).toBeAn('object');
     expect(updatedState2.articles.data.length).toEqual(1);
     expect(updatedState2.articles.data[0].relationships.author).toEqual({ data: { id: '42', type: 'people' } });
+  });
+});
+
+describe('Request configuration', () => {
+  const requestOptions = {
+    stateKey: 'stateKey',
+    requestId: 'requestId',
+    requestType: 'requestType'
+  };
+
+  it('should set the request options before the request', () => {
+    const updatedState = reducer(state, apiWillRequest(requestOptions));
+    expect(updatedState).toEqual({
+      ...state,
+      requestOptions: {
+        requestType: {
+          requestId: requestOptions
+        }
+      }
+    });
+  });
+
+  it('should unset the request options after the request', () => {
+    const updatedState = reducer(state, apiWillRequest(requestOptions));
+    const updatedState2 = reducer(updatedState, apiDidRequest(requestOptions));
+    expect(updatedState2).toEqual(state);
+  });
+});
+
+describe('Instances', () => {
+  const stateKey = 'customStateKey';
+  const otherStateKey = 'otherStateKey';
+  const { reducer: _reducer } = createInstance(stateKey);
+
+  it('should create a state with the correct stateKey property', () => {
+    const initialState = _reducer(undefined, { type: 'NOOP' });
+    expect(initialState.stateKey).toEqual(stateKey);
+  });
+
+  it('should set axios config on the correct instance', () => {
+    const initialState = _reducer(undefined, { type: 'NOOP' });
+    const updatedState = _reducer(initialState, {
+      type: 'API_SET_AXIOS_CONFIG',
+      payload: {
+        stateKey: otherStateKey,
+        testKey: 'value'
+      }
+    });
+    expect(updatedState).toEqual(initialState);
+    const updatedState2 = _reducer(initialState, {
+      type: 'API_SET_AXIOS_CONFIG',
+      payload: {
+        stateKey,
+        testKey: 'value'
+      }
+    });
+    expect(updatedState2).toEqual({
+      ...initialState,
+      endpoint: {
+        ...initialState.endpoint,
+        axiosConfig: {
+          testKey: 'value'
+        }
+      }
+    });
+  });
+
+  it('should hydrate the correct instance', () => {
+    const initialState = _reducer(undefined, { type: 'NOOP' });
+    const stateAfterFirstAction = _reducer(initialState, {
+      type: 'API_HYDRATE',
+      payload: {
+        stateKey: otherStateKey,
+        ...taskWithoutRelationship
+      }
+    });
+    expect(stateAfterFirstAction).toEqual(initialState);
+    const stateAfterSecondAction = _reducer(initialState, {
+      type: 'API_HYDRATE',
+      payload: {
+        stateKey,
+        ...taskWithoutRelationship
+      }
+    });
+    expect(stateAfterSecondAction).toEqual({
+      ...initialState,
+      tasks: {
+        data: [
+          taskWithoutRelationship.data
+        ]
+      }
+    });
+  });
+
+  it('should set and unset request configuration on the correct instance', () => {
+    const initialState = _reducer(undefined, { type: 'NOOP' });
+    const stateAfterFirstAction = _reducer(initialState, {
+      type: 'API_WILL_REQUEST',
+      payload: {
+        stateKey: otherStateKey,
+        requestType: 'requestType',
+        requestId: 'requestId'
+      }
+    });
+    expect(stateAfterFirstAction).toEqual(initialState);
+    const stateAfterSecondAction = _reducer(initialState, {
+      type: 'API_WILL_REQUEST',
+      payload: {
+        stateKey,
+        requestType: 'requestType',
+        requestId: 'requestId'
+      }
+    });
+    expect(stateAfterSecondAction).toEqual({
+      ...initialState,
+      requestOptions: {
+        requestType: {
+          requestId: {
+            stateKey,
+            requestType: 'requestType',
+            requestId: 'requestId'
+          }
+        }
+      }
+    });
+
+    const stateAfterThirdAction = _reducer(stateAfterSecondAction, {
+      type: 'API_DID_REQUEST',
+      payload: {
+        stateKey: otherStateKey,
+        requestType: 'requestType',
+        requestId: 'requestId'
+      }
+    });
+    expect(stateAfterThirdAction).toEqual(stateAfterSecondAction);
+
+    const stateAfterFourthAction = _reducer(stateAfterThirdAction, {
+      type: 'API_DID_REQUEST',
+      payload: {
+        stateKey,
+        requestType: 'requestType',
+        requestId: 'requestId'
+      }
+    });
+    expect(stateAfterFourthAction).toEqual(initialState);
   });
 });
