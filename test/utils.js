@@ -17,6 +17,17 @@ const responseWithLinks = {
   }
 };
 
+const responseWithHrefLinks = {
+  links: {
+    prev: {
+      href: 'transactions/1',
+    },
+    next: {
+      href: 'transactions/3',
+    },
+  }
+};
+
 const responseWithNullLinks = {
   links: {
     prev: null,
@@ -42,6 +53,16 @@ describe('Pagination URLs', () => {
 
   it('should return a link for the next page', () => {
     const r = getPaginationUrl(responseWithLinks, 'next', path);
+    expect(r).toEqual('transactions/3');
+  });
+
+  it('should return a href link for the previous page', () => {
+    const r = getPaginationUrl(responseWithHrefLinks, 'prev', path);
+    expect(r).toEqual('transactions/1');
+  });
+
+  it('should return a href link for the next page', () => {
+    const r = getPaginationUrl(responseWithHrefLinks, 'next', path);
     expect(r).toEqual('transactions/3');
   });
 

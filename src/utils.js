@@ -59,9 +59,13 @@ export const getPaginationUrl = (response, direction, path) => {
     return null;
   }
 
-  const paginationUrl = response.links[direction];
+  let paginationUrl = response.links[direction];
   if (!paginationUrl) {
     return null;
+  }
+
+  if (hasOwnProperties(response.links[direction], ['href'])) {
+    paginationUrl = response.links[direction].href;
   }
   return paginationUrl.replace(`${path}/`, '');
 };
