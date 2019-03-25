@@ -21,7 +21,7 @@ This resource object will resolve to "/tasks":
 
 ```js
 import { connect } from 'react-redux';
-import { createResource } from 'redux-json-api'
+import { createResource } from 'redux-json-api';
 
 class CreateTask extends Component {
   handleSubmit() {
