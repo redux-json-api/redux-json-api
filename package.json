@@ -2,7 +2,7 @@
   "name": "redux-json-api",
   "version": "2.0.0",
   "description": "A bunch of Redux actions, action creators and reducers to integrate with a JSON API",
-  "main": "lib/jsonapi.js",
+  "main": "src/jsonapi.js",
   "scripts": {
     "build": "rimraf lib && babel ./src -d lib",
     "test": "mocha --compilers js:babel-core/register --recursive",
