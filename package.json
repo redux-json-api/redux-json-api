@@ -10,10 +10,6 @@
     "lint": "eslint . ./",
     "prepublish": "npm run lint && npm run build"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/redux-json-api/redux-json-api.git"
-  },
   "keywords": [
     "redux",
     "json",
@@ -23,9 +19,9 @@
   "author": "Ronni Egeriis Persson <ronni@dixie.io>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/redux-json-api/redux-json-api/issues"
+    "url": "https://github.com/everplans/redux-json-api/issues"
   },
-  "homepage": "https://github.com/redux-json-api/redux-json-api#readme",
+  "homepage": "https://github.com/everplans/redux-json-api#readme",
   "peerDependencies": {
     "redux-thunk": ">=1.0.0"
   },
