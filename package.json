@@ -51,7 +51,6 @@
   "dependencies": {
     "axios": "^0.13.1",
     "deep-equal": "^1.0.1",
-    "keykey": "^2.1.1",
     "object-path-immutable": "^0.5.0",
     "pluralize": "^1.2.1",
     "redux-actions": "^0.9.1"
