@@ -10,9 +10,11 @@ import {
 } from './state-mutation';
 
 import { apiRequest, getPaginationUrl } from './utils';
-import {
+import actionTypes from './constants';
+
+const {
   API_SET_AXIOS_CONFIG, API_HYDRATE, API_WILL_CREATE, API_CREATED, API_CREATE_FAILED, API_WILL_READ, API_READ, API_READ_FAILED, API_WILL_UPDATE, API_UPDATED, API_UPDATE_FAILED, API_WILL_DELETE, API_DELETED, API_DELETE_FAILED
-} from './constants';
+} = actionTypes;
 
 // Resource isInvalidating values
 export const IS_DELETING = 'IS_DELETING';
@@ -45,7 +47,7 @@ export const createResource = (resource) => {
 
     const { axiosConfig } = getState().api.endpoint;
     const options = {
-      ... axiosConfig,
+      ...axiosConfig,
       method: 'POST',
       data: JSON.stringify({
         data: resource
@@ -53,10 +55,10 @@ export const createResource = (resource) => {
     };
 
     return new Promise((resolve, reject) => {
-      apiRequest(resource.type, options).then(json => {
+      apiRequest(resource.type, options).then((json) => {
         dispatch(apiCreated(json));
         resolve(json);
-      }).catch(error => {
+      }).catch((error) => {
         const err = error;
         err.resource = resource;
 
@@ -94,7 +96,7 @@ export const readEndpoint = (endpoint, {
 
     return new Promise((resolve, reject) => {
       apiRequest(endpoint, axiosConfig)
-        .then(json => {
+        .then((json) => {
           dispatch(apiRead({ endpoint, options, ...json }));
 
           const nextUrl = getPaginationUrl(json, 'next', axiosConfig.baseURL);
@@ -102,7 +104,7 @@ export const readEndpoint = (endpoint, {
 
           resolve(new ApiResponse(json, dispatch, nextUrl, prevUrl));
         })
-        .catch(error => {
+        .catch((error) => {
           const err = error;
           err.endpoint = endpoint;
 
@@ -121,7 +123,7 @@ export const updateResource = (resource) => {
     const endpoint = `${resource.type}/${resource.id}`;
 
     const options = {
-      ... axiosConfig,
+      ...axiosConfig,
       method: 'PATCH',
       data: {
         data: resource
@@ -130,11 +132,11 @@ export const updateResource = (resource) => {
 
     return new Promise((resolve, reject) => {
       apiRequest(endpoint, options)
-        .then(json => {
+        .then((json) => {
           dispatch(apiUpdated(json));
           resolve(json);
         })
-        .catch(error => {
+        .catch((error) => {
           const err = error;
           err.resource = resource;
 
@@ -153,7 +155,7 @@ export const deleteResource = (resource) => {
     const endpoint = `${resource.type}/${resource.id}`;
 
     const options = {
-      ... axiosConfig,
+      ...axiosConfig,
       method: 'DELETE'
     };
 
@@ -163,7 +165,7 @@ export const deleteResource = (resource) => {
           dispatch(apiDeleted(resource));
           resolve();
         })
-        .catch(error => {
+        .catch((error) => {
           const err = error;
           err.resource = resource;
 
