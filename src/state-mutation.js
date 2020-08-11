@@ -96,13 +96,62 @@ const stateContainsResource = (state, resource) => {
   return false;
 };
 
+const ensureUpdatedReverseRelationships = (state, resource) => {
+  let newState = state;
+  const rels = resource.relationships;
+
+  if (!rels) {
+    return newState;
+  }
+
+  Object.keys(rels).forEach((relKey) => {
+    if (!hasOwnProperties(rels[relKey], ['data', 'type'])) {
+      return;
+    }
+
+    const entityPath = [rels[relKey].data.type, 'data'];
+
+    if (!hasOwnProperties(newState, entityPath)) {
+      return;
+    }
+
+    const updateReverseRelationship = makeUpdateReverseRelationship(resource, rels[relKey]);
+
+    newState = imm.set(
+      newState,
+      entityPath,
+      updateReverseRelationship(newState[rels[relKey].data.type].data)
+    );
+  });
+
+  return newState;
+};
+
 export const addLinksToState = (state, links, options) => {
   if (options === undefined || options.indexLinks === undefined) {
     return state;
   }
 
   const indexLinkName = options.indexLinks;
-  const newState = imm.set(state, `links.${indexLinkName}`, links);
+  return imm.set(state, `links.${indexLinkName}`, links);
+};
+
+export const updateRelationship = (state, resourceIdentifier, relationshipName, relationship) => {
+  if (typeof resourceIdentifier !== 'object') {
+    return state;
+  }
+
+  if (!stateContainsResource(state, resourceIdentifier)) {
+    return state;
+  }
+
+  let newState = state;
+  const updatePath = [resourceIdentifier.type, 'data'];
+
+  const resources = state[resourceIdentifier.type].data;
+  const idx = resources.findIndex((item) => item.id === resourceIdentifier.id);
+
+  newState = imm.set(newState, updatePath.concat(...[idx, 'relationships', relationshipName, 'data']), relationship);
 
   return newState;
 };
@@ -138,35 +187,7 @@ export const updateOrInsertResource = (state, resource) => {
     newState = imm.push(newState, updatePath, resource);
   }
 
-  const rels = resource.relationships;
-
-  if (!rels) {
-    return newState;
-  }
-
-  Object.keys(rels).forEach((relKey) => {
-    if (!hasOwnProperties(rels[relKey], ['data', 'type'])) {
-      return;
-    }
-
-    const entityPath = [rels[relKey].data.type, 'data'];
-
-    if (!hasOwnProperties(newState, entityPath)) {
-      return;
-    }
-
-    const updateReverseRelationship = makeUpdateReverseRelationship(
-      resource, rels[relKey]
-    );
-
-    newState = imm.set(
-      newState,
-      entityPath,
-      updateReverseRelationship(newState[rels[relKey].data.type].data)
-    );
-  });
-
-  return newState;
+  return ensureUpdatedReverseRelationships(newState, resource);
 };
 
 export const removeResourceFromState = (state, resource) => {

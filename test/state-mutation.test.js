@@ -5,7 +5,8 @@ import {
   setIsInvalidatingForExistingResource,
   updateOrInsertResource,
   updateOrInsertResourcesIntoState,
-  ensureResourceTypeInState
+  ensureResourceTypeInState,
+  updateRelationship
 } from '../src/state-mutation';
 
 import {
@@ -351,5 +352,34 @@ describe('[State Mutation]: Create new reference when Object is mutated', () => 
     });
 
     expect(updatedState.users.data[0]).toBe(state.users.data[0]);
+  });
+});
+
+describe('[State Mutation]: Update relationships', () => {
+  it('should update a resource relationship', () => {
+    const updatedState = updateRelationship(state, {
+      type: 'users',
+      id: '1'
+    }, 'companies', [
+      {
+        type: 'companies',
+        id: '1'
+      }
+    ]);
+
+    expect(updatedState.users.data[0].relationships.companies.data).toStrictEqual([{
+      type: 'companies',
+      id: '1'
+    }]);
+  });
+
+  it('should clear a resource relationship', () => {
+    const updatedState = updateRelationship(state, {
+      type: 'users',
+      id: '1'
+    }, 'companies', null);
+
+    expect(updatedState.users.data[0].relationships.companies.data)
+      .toBeNull();
   });
 });
