@@ -90,14 +90,19 @@ export const readEndpoint = (endpoint, {
   }
 } = {}) => {
   return (dispatch, getState) => {
-    dispatch(apiWillRead(endpoint));
+    let finalEndpoint = endpoint;
+    if ('type' in endpoint) {
+      finalEndpoint = `${endpoint.type}/${endpoint.id}`;
+    }
+
+    dispatch(apiWillRead(finalEndpoint));
 
     const { axiosConfig } = getState().api.endpoint;
 
     return new Promise((resolve, reject) => {
       apiRequest(endpoint, axiosConfig)
         .then((json) => {
-          dispatch(apiRead({ endpoint, options, ...json }));
+          dispatch(apiRead({ finalEndpoint, options, ...json }));
 
           const nextUrl = getPaginationUrl(json, 'next', axiosConfig.baseURL);
           const prevUrl = getPaginationUrl(json, 'prev', axiosConfig.baseURL);
@@ -106,7 +111,7 @@ export const readEndpoint = (endpoint, {
         })
         .catch((error) => {
           const err = error;
-          err.endpoint = endpoint;
+          err.endpoint = finalEndpoint;
 
           dispatch(apiReadFailed(err));
           reject(err);
