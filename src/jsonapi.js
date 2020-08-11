@@ -194,7 +194,7 @@ export const requireResource = (resourceType, endpoint = resourceType) => {
 // Reducers
 export const reducer = handleActions({
   [API_SET_AXIOS_CONFIG]: (state, { payload: axiosConfig }) => {
-    return imm(state).set(['endpoint', 'axiosConfig'], axiosConfig).value();
+    return imm.wrap(state).set(['endpoint', 'axiosConfig'], axiosConfig).value();
   },
 
   [API_HYDRATE]: (state, { payload: resources }) => {
@@ -205,11 +205,11 @@ export const reducer = handleActions({
       entities.concat(resources.included || [])
     );
 
-    return imm(newState).value();
+    return imm.wrap(newState).value();
   },
 
   [API_WILL_CREATE]: (state) => {
-    return imm(state).set(['isCreating'], state.isCreating + 1).value();
+    return imm.wrap(state).set(['isCreating'], state.isCreating + 1).value();
   },
 
   [API_CREATED]: (state, { payload: resources }) => {
@@ -220,17 +220,17 @@ export const reducer = handleActions({
       entities.concat(resources.included || [])
     );
 
-    return imm(newState)
+    return imm.wrap(newState)
       .set('isCreating', state.isCreating - 1)
       .value();
   },
 
   [API_CREATE_FAILED]: (state) => {
-    return imm(state).set(['isCreating'], state.isCreating - 1).value();
+    return imm.wrap(state).set(['isCreating'], state.isCreating - 1).value();
   },
 
   [API_WILL_READ]: (state) => {
-    return imm(state).set(['isReading'], state.isReading + 1).value();
+    return imm.wrap(state).set(['isReading'], state.isReading + 1).value();
   },
 
   [API_READ]: (state, { payload }) => {
@@ -243,13 +243,13 @@ export const reducer = handleActions({
     const newState = updateOrInsertResourcesIntoState(state, resources);
     const finalState = addLinksToState(newState, payload.links, payload.options);
 
-    return imm(finalState)
+    return imm.wrap(finalState)
       .set('isReading', state.isReading - 1)
       .value();
   },
 
   [API_READ_FAILED]: (state) => {
-    return imm(state).set(['isReading'], state.isReading - 1).value();
+    return imm.wrap(state).set(['isReading'], state.isReading - 1).value();
   },
 
   [API_WILL_UPDATE]: (state, { payload: resource }) => {
@@ -270,7 +270,7 @@ export const reducer = handleActions({
       entities.concat(resources.included || [])
     );
 
-    return imm(newState)
+    return imm.wrap(newState)
       .set('isUpdating', state.isUpdating - 1)
       .value();
   },

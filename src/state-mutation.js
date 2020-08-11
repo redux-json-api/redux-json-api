@@ -33,7 +33,7 @@ export const makeUpdateReverseRelationship = (
     const relPath = ['relationships', relCase, 'data'];
     const idxRelPath = [idx].concat(relPath);
 
-    const immutableForeingResources = imm(foreignResources);
+    const immutableForeingResources = imm.wrap(foreignResources);
 
     if (!hasOwnProperties(foreignResources[idx], relPath)) {
       return immutableForeingResources
@@ -66,7 +66,7 @@ export const makeUpdateReverseRelationship = (
 
       if (foreignResourceRel[relIdx]) {
         const deletePath = [idx, 'relationships', singular, 'data', relIdx];
-        return imm(foreignResources).del(deletePath).value();
+        return imm.wrap(foreignResources).del(deletePath).value();
       }
 
       return foreignResources;
@@ -197,7 +197,7 @@ export const removeResourceFromState = (state, resource) => {
     }
 
     return newState;
-  }, imm(state).del(path));
+  }, imm.wrap(state).del(path));
 };
 
 export const updateOrInsertResourcesIntoState = (state, resources) => (
@@ -209,13 +209,13 @@ export const setIsInvalidatingForExistingResource = (state, { type, id }, value 
   const updatePath = [type, 'data', idx, 'isInvalidating'];
 
   return value === null
-    ? imm(state).del(updatePath)
-    : imm(state).set(updatePath, value);
+    ? imm.wrap(state).del(updatePath)
+    : imm.wrap(state).set(updatePath, value);
 };
 
 export const ensureResourceTypeInState = (state, type) => {
   const path = [type, 'data'];
   return hasOwnProperties(state, [type])
     ? state
-    : imm(state).set(path, []).value();
+    : imm.wrap(state).set(path, []).value();
 };
