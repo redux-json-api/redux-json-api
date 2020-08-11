@@ -151,7 +151,7 @@ export const updateRelationship = (state, resourceIdentifier, relationshipName, 
   const resources = state[resourceIdentifier.type].data;
   const idx = resources.findIndex((item) => item.id === resourceIdentifier.id);
 
-  newState = imm.set(newState, updatePath.concat(...[idx, 'relationships', relationshipName, 'data']), relationship);
+  newState = imm.set(newState, updatePath.concat(...[idx, 'relationships', relationshipName]), relationship);
 
   return newState;
 };

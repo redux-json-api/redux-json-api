@@ -360,24 +360,32 @@ describe('[State Mutation]: Update relationships', () => {
     const updatedState = updateRelationship(state, {
       type: 'users',
       id: '1'
-    }, 'companies', [
-      {
-        type: 'companies',
-        id: '1'
-      }
-    ]);
+    }, 'companies', {
+      data: [
+        {
+          type: 'companies',
+          id: '1'
+        }
+      ]
+    });
 
-    expect(updatedState.users.data[0].relationships.companies.data).toStrictEqual([{
-      type: 'companies',
-      id: '1'
-    }]);
+    expect(updatedState.users.data[0].relationships.companies).toStrictEqual({
+      data: [
+        {
+          type: 'companies',
+          id: '1'
+        }
+      ]
+    });
   });
 
   it('should clear a resource relationship', () => {
     const updatedState = updateRelationship(state, {
       type: 'users',
       id: '1'
-    }, 'companies', null);
+    }, 'companies', {
+      data: null
+    });
 
     expect(updatedState.users.data[0].relationships.companies.data)
       .toBeNull();
