@@ -65,7 +65,7 @@
     "axios": "^0.19.2",
     "deep-equal": "^2.0.3",
     "object-path-immutable": "^4.1.0",
-    "pluralize": "^1.2.1",
+    "pluralize": "^8.0.0",
     "redux-actions": "^0.9.1"
   }
 }
