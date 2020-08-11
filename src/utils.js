@@ -7,8 +7,8 @@ export const jsonContentTypes = [
   'application/vnd.api+json'
 ];
 
-const hasValidContentType = response => jsonContentTypes.some(
-  contentType => response.headers['content-type'].indexOf(contentType) > -1
+const hasValidContentType = (response) => jsonContentTypes.some(
+  (contentType) => response.headers['content-type'].indexOf(contentType) > -1
 );
 
 export const noop = () => {};
@@ -21,7 +21,7 @@ export const apiRequest = (url, options = {}) => {
     .value();
 
   return axios(allOptions)
-    .then(res => {
+    .then((res) => {
       if (res.status === 204) {
         return res;
       }

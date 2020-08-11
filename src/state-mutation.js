@@ -1,7 +1,7 @@
 import imm from 'object-path-immutable';
 import pluralize from 'pluralize';
-import { hasOwnProperties } from './utils';
 import equal from 'deep-equal';
+import { hasOwnProperties } from './utils';
 
 export const makeUpdateReverseRelationship = (
   resource,
@@ -12,7 +12,7 @@ export const makeUpdateReverseRelationship = (
   }
 ) => {
   return (foreignResources) => {
-    const idx = foreignResources.findIndex(item => (
+    const idx = foreignResources.findIndex((item) => (
       item.id === relationship.data.id
     ));
 
@@ -20,12 +20,11 @@ export const makeUpdateReverseRelationship = (
       return foreignResources;
     }
 
-    const [singular, plural] = [1, 2].map(i => pluralize(resource.type, i));
+    const [singular, plural] = [1, 2].map((i) => pluralize(resource.type, i));
     const relCase = [singular, plural]
-      .find(r => (
+      .find((r) => (
         hasOwnProperties(foreignResources[idx], ['relationships', r])
-      )
-    );
+      ));
 
     if (!relCase) {
       return foreignResources;
@@ -48,8 +47,8 @@ export const makeUpdateReverseRelationship = (
       (
         newRelation
         && Array.isArray(foreignResourceRel)
-        && ~foreignResourceRel.findIndex(
-          rel => rel.id === newRelation.id && rel.type === newRelation.type
+        && ~foreignResourceRel.findIndex( // eslint-disable-line
+          (rel) => rel.id === newRelation.id && rel.type === newRelation.type
         )
       )
       || (
@@ -60,8 +59,8 @@ export const makeUpdateReverseRelationship = (
       )
     ) {
       return foreignResources;
-    } else if (Array.isArray(foreignResourceRel) && !newRelation) {
-      const relIdx = foreignResourceRel.findIndex(item => (
+    } if (Array.isArray(foreignResourceRel) && !newRelation) {
+      const relIdx = foreignResourceRel.findIndex((item) => (
         item.id === resource.id
       ));
 
@@ -90,7 +89,7 @@ const stateContainsResource = (state, resource) => {
 
   if (hasOwnProperties(state, updatePath)) {
     return state[resource.type].data.findIndex(
-      item => item.id === resource.id
+      (item) => item.id === resource.id
     ) > -1;
   }
 
@@ -118,14 +117,14 @@ export const updateOrInsertResource = (state, resource) => {
 
   if (stateContainsResource(state, resource)) {
     const resources = state[resource.type].data;
-    const idx = resources.findIndex(item => item.id === resource.id);
+    const idx = resources.findIndex((item) => item.id === resource.id);
 
     const relationships = {};
-    for (const relationship in resources[idx].relationships) {
+    Object.keys(resources[idx].relationships).forEach((relationship) => {
       if (!hasOwnProperties(resource, ['relationships', relationship, 'data'])) {
         relationships[relationship] = resources[idx].relationships[relationship];
       }
-    }
+    });
     if (!resource.hasOwnProperty('relationships')) {
       Object.assign(resource, { relationships });
     } else {
@@ -145,7 +144,7 @@ export const updateOrInsertResource = (state, resource) => {
     return newState;
   }
 
-  Object.keys(rels).forEach(relKey => {
+  Object.keys(rels).forEach((relKey) => {
     if (!hasOwnProperties(rels[relKey], ['data', 'type'])) {
       return;
     }
@@ -171,7 +170,7 @@ export const updateOrInsertResource = (state, resource) => {
 };
 
 export const removeResourceFromState = (state, resource) => {
-  const index = state[resource.type].data.findIndex(e => e.id === resource.id);
+  const index = state[resource.type].data.findIndex((e) => e.id === resource.id);
   const path = [resource.type, 'data', index];
   const entityRelationships = resource.relationships || {};
 
@@ -206,7 +205,7 @@ export const updateOrInsertResourcesIntoState = (state, resources) => (
 );
 
 export const setIsInvalidatingForExistingResource = (state, { type, id }, value = null) => {
-  const idx = state[type].data.findIndex(e => e.id === id && e.type === type);
+  const idx = state[type].data.findIndex((e) => e.id === id && e.type === type);
   const updatePath = [type, 'data', idx, 'isInvalidating'];
 
   return value === null

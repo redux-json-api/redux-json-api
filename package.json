@@ -5,7 +5,7 @@
   "main": "lib/jsonapi.js",
   "scripts": {
     "build": "rimraf lib && babel ./src -d lib",
-    "test": "mocha --compilers js:babel-core/register --recursive",
+    "test": "jest",
     "test:watch": "npm test -- --watch",
     "lint": "eslint . ./",
     "prepublish": "npm run lint && npm run build"
@@ -57,9 +57,8 @@
     "eslint": "^7.6.0",
     "eslint-config-airbnb": "^18.2.0",
     "eslint-plugin-import": "^2.22.0",
-    "expect": "^26.3.0",
     "fetch-mock": "^9.10.6",
-    "mocha": "^8.1.1",
+    "jest": "^26.3.0",
     "rimraf": "^3.0.2"
   },
   "dependencies": {

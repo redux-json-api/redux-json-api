@@ -1,4 +1,3 @@
-import expect from 'expect';
 import { createAction } from 'redux-actions';
 
 import postsPayload from './payloads/linked_payload.json';
