@@ -153,7 +153,7 @@ export const updateRelationship = (state, resourceIdentifier, relationshipName, 
 
   newState = imm.set(newState, updatePath.concat(...[idx, 'relationships', relationshipName]), relationship);
 
-  return newState;
+  return ensureUpdatedReverseRelationships(newState, resources[idx]);
 };
 
 export const updateOrInsertResource = (state, resource) => {

@@ -2,18 +2,19 @@ import { createAction, handleActions } from 'redux-actions';
 import imm from 'object-path-immutable';
 
 import {
-  addLinksToState,
-  removeResourceFromState,
-  updateOrInsertResourcesIntoState,
+  addLinksToState, ensureRelationshipInState,
+  ensureResourceTypeInState,
+  removeResourceFromState, setIsInvalidatingForExistingRelationship,
   setIsInvalidatingForExistingResource,
-  ensureResourceTypeInState
+  updateOrInsertResourcesIntoState,
+  updateRelationship
 } from './state-mutation';
 
-import { apiRequest, getPaginationUrl } from './utils';
+import { apiRequest, getPaginationUrl, hasOwnProperties } from './utils';
 import actionTypes from './constants';
 
 const {
-  API_SET_AXIOS_CONFIG, API_HYDRATE, API_WILL_CREATE, API_CREATED, API_CREATE_FAILED, API_WILL_READ, API_READ, API_READ_FAILED, API_WILL_UPDATE, API_UPDATED, API_UPDATE_FAILED, API_WILL_DELETE, API_DELETED, API_DELETE_FAILED
+  API_SET_AXIOS_CONFIG, API_HYDRATE, API_WILL_CREATE, API_CREATED, API_CREATE_FAILED, API_WILL_READ, API_RELATIONSHIP_READ, API_READ, API_READ_FAILED, API_WILL_UPDATE, API_UPDATED, API_UPDATE_FAILED, API_WILL_DELETE, API_DELETED, API_DELETE_FAILED, API_RELATIONSHIP_WILL_UPDATE, API_RELATIONSHIP_UPDATED, API_RELATIONSHIP_UPDATE_FAILED, API_RELATIONSHIP_WILL_DELETE, API_RELATIONSHIP_DELETED, API_RELATIONSHIP_DELETE_FAILED
 } = actionTypes;
 
 // Resource isInvalidating values
@@ -31,6 +32,7 @@ const apiCreateFailed = createAction(API_CREATE_FAILED);
 
 const apiWillRead = createAction(API_WILL_READ);
 const apiRead = createAction(API_READ);
+const apiRelationshipRead = createAction(API_RELATIONSHIP_READ);
 const apiReadFailed = createAction(API_READ_FAILED);
 
 const apiWillUpdate = createAction(API_WILL_UPDATE);
@@ -40,6 +42,14 @@ const apiUpdateFailed = createAction(API_UPDATE_FAILED);
 const apiWillDelete = createAction(API_WILL_DELETE);
 const apiDeleted = createAction(API_DELETED);
 const apiDeleteFailed = createAction(API_DELETE_FAILED);
+
+const apiRelationshipWillUpdate = createAction(API_RELATIONSHIP_WILL_UPDATE);
+const apiRelationshipUpdated = createAction(API_RELATIONSHIP_UPDATED);
+const apiRelationshipUpdateFailed = createAction(API_RELATIONSHIP_UPDATE_FAILED);
+
+const apiRelationshipWillDelete = createAction(API_RELATIONSHIP_WILL_DELETE);
+const apiRelationshipDeleted = createAction(API_RELATIONSHIP_DELETED);
+const apiRelationshipDeleteFailed = createAction(API_RELATIONSHIP_DELETE_FAILED);
 
 export const createResource = (resource) => {
   return (dispatch, getState) => {
@@ -196,6 +206,38 @@ export const requireResource = (resourceType, endpoint = resourceType) => {
   };
 };
 
+export const fetchRelationship = (resource, relationship) => {
+  return (dispatch, getState) => {
+    const { axiosConfig } = getState().api.endpoint;
+    let endpoint;
+
+    if (hasOwnProperties(resource, ['relationships', relationship, 'links', 'self'])) {
+      endpoint = resource.relationships[relationship].links.self;
+    }
+
+    if (!endpoint) {
+      endpoint = `${resource.type}/${resource.id}/relationships/${relationship}`;
+    }
+
+    dispatch(apiWillRead(endpoint));
+
+    return new Promise((resolve, reject) => {
+      apiRequest(endpoint, axiosConfig)
+        .then((json) => {
+          dispatch(apiRelationshipRead({ resource, relationship, data: json }));
+          resolve(json);
+        })
+        .catch((error) => {
+          const err = error;
+          err.resource = resource;
+
+          dispatch(apiReadFailed(err));
+          reject(err);
+        });
+    });
+  };
+};
+
 // Reducers
 export const reducer = handleActions({
   [API_SET_AXIOS_CONFIG]: (state, { payload: axiosConfig }) => {
@@ -253,6 +295,14 @@ export const reducer = handleActions({
       .value();
   },
 
+  [API_RELATIONSHIP_READ]: (state, { payload: { resource, relationship, data } }) => {
+    const newState = updateRelationship(state, resource, relationship, data);
+
+    return imm.wrap(newState)
+      .set('isReading', state.isReading - 1)
+      .value();
+  },
+
   [API_READ_FAILED]: (state) => {
     return imm.wrap(state).set(['isReading'], state.isReading - 1).value();
   },
@@ -306,6 +356,96 @@ export const reducer = handleActions({
     const { type, id } = resource;
 
     return setIsInvalidatingForExistingResource(state, { type, id }, IS_DELETING)
+      .set('isDeleting', state.isDeleting - 1)
+      .value();
+  },
+
+  [API_RELATIONSHIP_WILL_UPDATE]: (state, { payload: { resource, relationship } }) => {
+    const { type, id } = resource;
+
+    const newState = ensureRelationshipInState(state, {
+      type,
+      id
+    }, relationship);
+
+    return setIsInvalidatingForExistingRelationship(
+      newState,
+      {
+        type,
+        id
+      },
+      relationship,
+      IS_UPDATING
+    )
+      .set('isUpdating', state.isUpdating + 1)
+      .value();
+  },
+
+  [API_RELATIONSHIP_UPDATED]: (state, { payload: { resource, relationship, data } }) => {
+    const newState = updateRelationship(state, resource, relationship, data);
+
+    return imm.wrap(newState)
+      .set('isUpdating', state.isUpdating - 1)
+      .value();
+  },
+
+  [API_RELATIONSHIP_UPDATE_FAILED]: (state, { payload: { resource, relationship } }) => {
+    const { type, id } = resource;
+
+    return setIsInvalidatingForExistingRelationship(
+      state,
+      {
+        type,
+        id
+      },
+      relationship,
+      IS_UPDATING
+    )
+      .set('isUpdating', state.isUpdating - 1)
+      .value();
+  },
+
+  [API_RELATIONSHIP_WILL_DELETE]: (state, { payload: { resource, relationship } }) => {
+    const { type, id } = resource;
+
+    const newState = ensureRelationshipInState(state, {
+      type,
+      id
+    }, relationship);
+
+    return setIsInvalidatingForExistingRelationship(
+      newState,
+      {
+        type,
+        id
+      },
+      relationship,
+      IS_DELETING
+    )
+      .set('isDeleting', state.isDeleting + 1)
+      .value();
+  },
+
+  [API_RELATIONSHIP_DELETED]: (state, { payload: { resource, relationship, data } }) => {
+    const newState = updateRelationship(state, resource, relationship, data);
+
+    return imm.wrap(newState)
+      .set('isDeleting', state.isDeleting - 1)
+      .value();
+  },
+
+  [API_RELATIONSHIP_DELETE_FAILED]: (state, { payload: { resource, relationship } }) => {
+    const { type, id } = resource;
+
+    return setIsInvalidatingForExistingRelationship(
+      state,
+      {
+        type,
+        id
+      },
+      relationship,
+      IS_DELETING
+    )
       .set('isDeleting', state.isDeleting - 1)
       .value();
   }
