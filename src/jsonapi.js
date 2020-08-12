@@ -206,7 +206,7 @@ export const requireResource = (resourceType, endpoint = resourceType) => {
   };
 };
 
-export const fetchRelated = (resource, relationship) => {
+export const readRelated = (resource, relationship) => {
   return (dispatch) => {
     let endpoint;
 
@@ -230,7 +230,7 @@ const getRelationshipEndpoint = (resource, relationship) => {
   return `${resource.type}/${resource.id}/relationships/${relationship}`;
 };
 
-export const fetchRelationship = (resource, relationship) => {
+export const readRelationship = (resource, relationship) => {
   return (dispatch, getState) => {
     const { axiosConfig } = getState().api.endpoint;
     const endpoint = getRelationshipEndpoint(resource, relationship);
