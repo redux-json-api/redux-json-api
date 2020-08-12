@@ -206,18 +206,34 @@ export const requireResource = (resourceType, endpoint = resourceType) => {
   };
 };
 
-export const fetchRelationship = (resource, relationship) => {
-  return (dispatch, getState) => {
-    const { axiosConfig } = getState().api.endpoint;
+export const fetchRelated = (resource, relationship) => {
+  return (dispatch) => {
     let endpoint;
 
-    if (hasOwnProperties(resource, ['relationships', relationship, 'links', 'self'])) {
-      endpoint = resource.relationships[relationship].links.self;
+    if (hasOwnProperties(resource, ['relationships', relationship, 'links', 'related'])) {
+      endpoint = resource.relationships[relationship].links.related;
     }
 
     if (!endpoint) {
-      endpoint = `${resource.type}/${resource.id}/relationships/${relationship}`;
+      endpoint = `${resource.type}/${resource.id}/${relationship}`;
     }
+
+    return dispatch(readEndpoint(endpoint));
+  };
+};
+
+const getRelationshipEndpoint = (resource, relationship) => {
+  if (hasOwnProperties(resource, ['relationships', relationship, 'links', 'self'])) {
+    return resource.relationships[relationship].links.self;
+  }
+
+  return `${resource.type}/${resource.id}/relationships/${relationship}`;
+};
+
+export const fetchRelationship = (resource, relationship) => {
+  return (dispatch, getState) => {
+    const { axiosConfig } = getState().api.endpoint;
+    const endpoint = getRelationshipEndpoint(resource, relationship);
 
     dispatch(apiWillRead(endpoint));
 
@@ -232,6 +248,108 @@ export const fetchRelationship = (resource, relationship) => {
           err.resource = resource;
 
           dispatch(apiReadFailed(err));
+          reject(err);
+        });
+    });
+  };
+};
+
+export const replaceRelationship = (resource, relationship, data) => {
+  return (dispatch, getState) => {
+    dispatch(apiRelationshipWillUpdate({ resource, relationship }));
+
+    const { axiosConfig } = getState().api.endpoint;
+    const endpoint = getRelationshipEndpoint(resource, relationship);
+
+    const options = {
+      ...axiosConfig,
+      method: 'PATCH',
+      data: {
+        data
+      }
+    };
+
+    return new Promise((resolve, reject) => {
+      apiRequest(endpoint, options)
+        .then((json) => {
+          dispatch(apiRelationshipUpdated(json));
+          resolve(json);
+        })
+        .catch((error) => {
+          const err = error;
+          err.resource = resource;
+
+          dispatch(apiRelationshipUpdateFailed(err));
+          reject(err);
+        });
+    });
+  };
+};
+
+export const addRelationship = (resource, relationship, data) => {
+  return (dispatch, getState) => {
+    dispatch(apiRelationshipWillUpdate({
+      resource,
+      relationship
+    }));
+
+    const { axiosConfig } = getState().api.endpoint;
+    const endpoint = getRelationshipEndpoint(resource, relationship);
+
+    const options = {
+      ...axiosConfig,
+      method: 'POST',
+      data: {
+        data
+      }
+    };
+
+    return new Promise((resolve, reject) => {
+      apiRequest(endpoint, options)
+        .then((json) => {
+          dispatch(apiRelationshipUpdated(json));
+          resolve(json);
+        })
+        .catch((error) => {
+          const err = error;
+          err.resource = resource;
+
+          dispatch(apiRelationshipUpdateFailed(err));
+          reject(err);
+        });
+    });
+  };
+};
+
+export const deleteRelationship = (resource, relationship, data) => {
+  return (dispatch, getState) => {
+    dispatch(apiRelationshipWillDelete({
+      resource,
+      relationship
+    }));
+
+    const { axiosConfig } = getState().api.endpoint;
+    const endpoint = getRelationshipEndpoint(resource, relationship);
+
+    const options = {
+      ...axiosConfig,
+      method: 'DELETE',
+      data: {
+        data
+      }
+    };
+
+    return new Promise((resolve, reject) => {
+      apiRequest(endpoint, options)
+        .then((json) => {
+          dispatch(apiRelationshipDeleted(json));
+          resolve(json);
+        })
+        .catch((error) => {
+          const err = error;
+          err.resource = resource;
+
+          dispatch(apiRelationshipDeleteFailed(err));
           reject(err);
         });
     });
