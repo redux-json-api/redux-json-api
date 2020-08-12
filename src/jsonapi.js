@@ -41,11 +41,11 @@ const apiWillDelete = createAction(API_WILL_DELETE);
 const apiDeleted = createAction(API_DELETED);
 const apiDeleteFailed = createAction(API_DELETE_FAILED);
 
-export const createResource = (resource) => {
+export const createResource = (resource, apiState = state => state.api) => {
   return (dispatch, getState) => {
     dispatch(apiWillCreate(resource));
 
-    const { axiosConfig } = getState().api.endpoint;
+    const { axiosConfig } = apiState(getState()).endpoint;
     const options = {
       ...axiosConfig,
       method: 'POST',
@@ -88,11 +88,11 @@ export const readEndpoint = (endpoint, {
   options = {
     indexLinks: undefined,
   }
-} = {}) => {
+} = {}, apiState = state => state.api) => {
   return (dispatch, getState) => {
     dispatch(apiWillRead(endpoint));
 
-    const { axiosConfig } = getState().api.endpoint;
+    const { axiosConfig } = apiState(getState()).endpoint;
 
     return new Promise((resolve, reject) => {
       apiRequest(endpoint, axiosConfig)
@@ -115,11 +115,11 @@ export const readEndpoint = (endpoint, {
   };
 };
 
-export const updateResource = (resource) => {
+export const updateResource = (resource, apiState = state => state.api) => {
   return (dispatch, getState) => {
     dispatch(apiWillUpdate(resource));
 
-    const { axiosConfig } = getState().api.endpoint;
+    const { axiosConfig } = apiState(getState()).endpoint;
     const endpoint = `${resource.type}/${resource.id}`;
 
     const options = {
@@ -147,11 +147,11 @@ export const updateResource = (resource) => {
   };
 };
 
-export const deleteResource = (resource) => {
+export const deleteResource = (resource, apiState = state => state.api) => {
   return (dispatch, getState) => {
     dispatch(apiWillDelete(resource));
 
-    const { axiosConfig } = getState().api.endpoint;
+    const { axiosConfig } = apiState(getState()).endpoint;
     const endpoint = `${resource.type}/${resource.id}`;
 
     const options = {
@@ -176,10 +176,10 @@ export const deleteResource = (resource) => {
   };
 };
 
-export const requireResource = (resourceType, endpoint = resourceType) => {
+export const requireResource = (resourceType, endpoint = resourceType, apiState = state => state.api) => {
   return (dispatch, getState) => {
     return new Promise((resolve, reject) => {
-      const { api } = getState();
+      const api = apiState(getState());
       if (api.hasOwnProperty(resourceType)) {
         resolve();
       }
