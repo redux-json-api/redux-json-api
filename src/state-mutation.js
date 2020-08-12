@@ -234,9 +234,34 @@ export const setIsInvalidatingForExistingResource = (state, { type, id }, value 
     : imm.wrap(state).set(updatePath, value);
 };
 
+export const setIsInvalidatingForExistingRelationship = (
+  state,
+  { type, id },
+  relationship,
+  value = null
+) => {
+  const idx = state[type].data.findIndex((e) => e.id === id && e.type === type);
+  const updatePath = [type, 'data', idx, 'relationships', relationship, 'isInvalidating'];
+
+  return value === null ? imm.wrap(state)
+    .del(updatePath) : imm.wrap(state)
+    .set(updatePath, value);
+};
+
 export const ensureResourceTypeInState = (state, type) => {
   const path = [type, 'data'];
   return hasOwnProperties(state, [type])
     ? state
     : imm.wrap(state).set(path, []).value();
+};
+
+export const ensureRelationshipInState = (state, { type, id }, relationship) => {
+  const idx = state[type].data.findIndex((e) => e.id === id && e.type === type);
+  const path = [type, 'data', idx, 'relationships', relationship];
+
+  return hasOwnProperties(state, path)
+    ? state
+    : imm.wrap(state)
+      .set(path, null)
+      .value();
 };

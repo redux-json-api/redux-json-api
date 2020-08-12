@@ -6,7 +6,9 @@ import {
   updateOrInsertResource,
   updateOrInsertResourcesIntoState,
   ensureResourceTypeInState,
-  updateRelationship
+  ensureRelationshipInState,
+  updateRelationship,
+  setIsInvalidatingForExistingRelationship
 } from '../src/state-mutation';
 
 import {
@@ -216,6 +218,34 @@ describe('[State mutation] Insertion of empty resources type', () => {
   });
 });
 
+describe('[State mutation] Insertion of empty relationship type', () => {
+  it('should insert empty relationship into state resource', () => {
+    const resourceIdentifier = {
+      type: 'users',
+      id: '1'
+    };
+    const updatedState = ensureRelationshipInState(
+      state, resourceIdentifier, 'tasks'
+    );
+
+    expect(updatedState.users.data[0].relationships.tasks)
+      .toBeNull();
+  });
+
+  it('should not mutate state if relationship exists', () => {
+    const resourceIdentifier = {
+      type: 'transactions',
+      id: '37'
+    };
+    const updatedState = ensureResourceTypeInState(
+      state, resourceIdentifier, 'task'
+    );
+
+    expect(updatedState.transactions.data[2].relationships.task)
+      .toEqual(state.transactions.data[2].relationships.task);
+  });
+});
+
 describe('[State Mutation] Update or Reverse relationships', () => {
   it('Should update a resource relationship', () => {
     const updatedEntities = makeUpdateReverseRelationship(
@@ -293,6 +323,24 @@ describe('[State Mutation]: Set is invalidating for existing resource', () => {
       IS_UPDATING
     ).value();
     expect(updatedState.users.data[0].isInvalidating).toEqual(IS_UPDATING);
+  });
+});
+
+describe('[State Mutation]: Set is invalidating for existing relationship', () => {
+  it('Should set a isvalidating type for relationship to IS_UPDATING', () => {
+    const { id, type } = state.users.data[0];
+    const updatedState = setIsInvalidatingForExistingRelationship(
+      state,
+      {
+        type,
+        id
+      },
+      'companies',
+      IS_UPDATING
+    )
+      .value();
+    expect(updatedState.users.data[0].relationships.companies.isInvalidating)
+      .toEqual(IS_UPDATING);
   });
 });
 
