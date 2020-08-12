@@ -1,4 +1,3 @@
-import expect from 'expect';
 import { getPaginationUrl } from '../src/utils';
 
 const path = 'http://localhost';

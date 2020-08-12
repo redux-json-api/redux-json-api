@@ -2,13 +2,15 @@
   "parser": "babel-eslint",
   "extends": "airbnb/base",
   "env": {
-    "browser": true
+    "browser": true,
+    "jest": true
   },
   "globals": {
     "__API_HOST__": false,
     "__API_ENDPOINT__": false,
     "describe": false,
-    "it": false
+    "it": false,
+    "expect": false
   },
   "rules": {
     "comma-dangle": 0,
@@ -16,6 +18,7 @@
     "id-length": 0,
     "react/prop-types": 0,
     "max-len": 0,
-    "arrow-body-style": 0
+    "arrow-body-style": 0,
+    "no-prototype-builtins": 0
   }
 }

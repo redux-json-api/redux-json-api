@@ -1,4 +1,3 @@
-import expect from 'expect';
 import { createAction } from 'redux-actions';
 
 import {
@@ -10,15 +9,14 @@ import {
 } from '../src/state-mutation';
 
 import {
-  reducer
+  reducer,
+  IS_UPDATING
 } from '../src/jsonapi';
 
 import {
   apiState,
   patchedResource
 } from './payloads/failingReverseRelationshipUpdate';
-
-import { IS_UPDATING } from '../src/jsonapi';
 
 import topics from './payloads/topics.json';
 
@@ -171,7 +169,7 @@ describe('[State mutation] Insertion of resources', () => {
     };
     expect(() => updateOrInsertResourcesIntoState(
       state, payload.data
-    )).toNotThrow();
+    )).not.toThrow();
   });
 
   it('should persists existing relationships when response has none', () => {
@@ -285,7 +283,6 @@ describe('[State Mutation] Update or Reverse relationships', () => {
   });
 });
 
-
 describe('[State Mutation]: Set is invalidating for existing resource', () => {
   it('Should set a ivalidating type for resource to IS_UPDATING', () => {
     const { id, type } = state.users.data[0];
@@ -307,7 +304,7 @@ describe('[State Mutation]: Create new reference when Object is mutated', () => 
       IS_UPDATING
     ).value();
 
-    expect(updatedState.users.data[0]).toNotBe(state.users.data[0]);
+    expect(updatedState.users.data[0]).not.toBe(state.users.data[0]);
     expect(updatedState.users.data[1]).toBe(state.users.data[1]);
   });
 
@@ -317,7 +314,7 @@ describe('[State Mutation]: Create new reference when Object is mutated', () => 
       resource.relationships.transaction
     )(state.transactions.data);
 
-    expect(updatedResources[0]).toNotBe(state.transactions.data[0]);
+    expect(updatedResources[0]).not.toBe(state.transactions.data[0]);
     expect(updatedResources[1]).toBe(state.transactions.data[1]);
   });
 
@@ -335,7 +332,7 @@ describe('[State Mutation]: Create new reference when Object is mutated', () => 
       }
     });
 
-    expect(updatedState.users.data[0]).toNotBe(state.users.data[0]);
+    expect(updatedState.users.data[0]).not.toBe(state.users.data[0]);
     expect(updatedState.users.data[1]).toBe(state.users.data[1]);
   });
 
