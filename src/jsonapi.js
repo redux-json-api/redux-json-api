@@ -1,5 +1,5 @@
 import { createAction, handleActions } from 'redux-actions';
-import imm from 'object-path-immutable';
+import * as imm from 'object-path-immutable';
 
 import {
   addLinksToState, ensureRelationshipInState,
@@ -101,7 +101,7 @@ export const readEndpoint = (endpoint, {
 } = {}) => {
   return (dispatch, getState) => {
     let finalEndpoint = endpoint;
-    if ('type' in endpoint) {
+    if (typeof endpoint === 'object' && 'type' in endpoint) {
       finalEndpoint = `${endpoint.type}/${endpoint.id}`;
     }
 

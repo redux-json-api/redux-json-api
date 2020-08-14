@@ -1,4 +1,4 @@
-import imm from 'object-path-immutable';
+import * as imm from 'object-path-immutable';
 import pluralize from 'pluralize';
 import equal from 'deep-equal';
 import { hasOwnProperties } from './utils';
@@ -169,11 +169,14 @@ export const updateOrInsertResource = (state, resource) => {
     const idx = resources.findIndex((item) => item.id === resource.id);
 
     const relationships = {};
-    Object.keys(resources[idx].relationships).forEach((relationship) => {
-      if (!hasOwnProperties(resource, ['relationships', relationship, 'data'])) {
-        relationships[relationship] = resources[idx].relationships[relationship];
-      }
-    });
+    if (resources[idx].hasOwnProperty('relationships')) {
+      Object.keys(resources[idx].relationships)
+        .forEach((relationship) => {
+          if (!hasOwnProperties(resource, ['relationships', relationship, 'data'])) {
+            relationships[relationship] = resources[idx].relationships[relationship];
+          }
+        });
+    }
     if (!resource.hasOwnProperty('relationships')) {
       Object.assign(resource, { relationships });
     } else {
