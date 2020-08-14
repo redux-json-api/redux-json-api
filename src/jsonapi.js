@@ -207,11 +207,17 @@ export const requireResource = (resourceType, endpoint = resourceType) => {
 };
 
 export const readRelated = (resource, relationship) => {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     let endpoint;
+
+    const { axiosConfig } = getState().api.endpoint;
 
     if (hasOwnProperties(resource, ['relationships', relationship, 'links', 'related'])) {
       endpoint = resource.relationships[relationship].links.related;
+
+      if (axiosConfig.baseURL && endpoint.indexOf(axiosConfig.baseURL) === 0) {
+        endpoint = endpoint.replace(axiosConfig.baseURL, '');
+      }
     }
 
     if (!endpoint) {
@@ -222,9 +228,15 @@ export const readRelated = (resource, relationship) => {
   };
 };
 
-const getRelationshipEndpoint = (resource, relationship) => {
+const getRelationshipEndpoint = (resource, relationship, axiosConfig) => {
   if (hasOwnProperties(resource, ['relationships', relationship, 'links', 'self'])) {
-    return resource.relationships[relationship].links.self;
+    let endpoint = resource.relationships[relationship].links.self;
+
+    if (axiosConfig.baseURL && endpoint.indexOf(axiosConfig.baseURL) === 0) {
+      endpoint = endpoint.replace(axiosConfig.baseURL, '');
+    }
+
+    return endpoint;
   }
 
   return `${resource.type}/${resource.id}/relationships/${relationship}`;
@@ -233,7 +245,7 @@ const getRelationshipEndpoint = (resource, relationship) => {
 export const readRelationship = (resource, relationship) => {
   return (dispatch, getState) => {
     const { axiosConfig } = getState().api.endpoint;
-    const endpoint = getRelationshipEndpoint(resource, relationship);
+    const endpoint = getRelationshipEndpoint(resource, relationship, axiosConfig);
 
     dispatch(apiWillRead(endpoint));
 
@@ -259,7 +271,7 @@ export const replaceRelationship = (resource, relationship, data) => {
     dispatch(apiRelationshipWillUpdate({ resource, relationship }));
 
     const { axiosConfig } = getState().api.endpoint;
-    const endpoint = getRelationshipEndpoint(resource, relationship);
+    const endpoint = getRelationshipEndpoint(resource, relationship, axiosConfig);
 
     const options = {
       ...axiosConfig,
@@ -294,7 +306,7 @@ export const addRelationship = (resource, relationship, data) => {
     }));
 
     const { axiosConfig } = getState().api.endpoint;
-    const endpoint = getRelationshipEndpoint(resource, relationship);
+    const endpoint = getRelationshipEndpoint(resource, relationship, axiosConfig);
 
     const options = {
       ...axiosConfig,
