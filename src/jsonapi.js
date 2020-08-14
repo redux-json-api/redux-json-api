@@ -341,7 +341,7 @@ export const deleteRelationship = (resource, relationship, data) => {
     }));
 
     const { axiosConfig } = getState().api.endpoint;
-    const endpoint = getRelationshipEndpoint(resource, relationship);
+    const endpoint = getRelationshipEndpoint(resource, relationship, axiosConfig);
 
     const options = {
       ...axiosConfig,
