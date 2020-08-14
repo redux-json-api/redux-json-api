@@ -258,6 +258,7 @@ export const readRelationship = (resource, relationship) => {
         .catch((error) => {
           const err = error;
           err.resource = resource;
+          err.relationship = relationship;
 
           dispatch(apiReadFailed(err));
           reject(err);
@@ -284,12 +285,17 @@ export const replaceRelationship = (resource, relationship, data) => {
     return new Promise((resolve, reject) => {
       apiRequest(endpoint, options)
         .then((json) => {
-          dispatch(apiRelationshipUpdated(json));
+          dispatch(apiRelationshipUpdated({
+            resource,
+            relationship,
+            data: json
+          }));
           resolve(json);
         })
         .catch((error) => {
           const err = error;
           err.resource = resource;
+          err.relationship = relationship;
 
           dispatch(apiRelationshipUpdateFailed(err));
           reject(err);
@@ -319,12 +325,17 @@ export const addRelationship = (resource, relationship, data) => {
     return new Promise((resolve, reject) => {
       apiRequest(endpoint, options)
         .then((json) => {
-          dispatch(apiRelationshipUpdated(json));
+          dispatch(apiRelationshipUpdated({
+            resource,
+            relationship,
+            data: json
+          }));
           resolve(json);
         })
         .catch((error) => {
           const err = error;
           err.resource = resource;
+          err.relationship = relationship;
 
           dispatch(apiRelationshipUpdateFailed(err));
           reject(err);
@@ -354,12 +365,17 @@ export const deleteRelationship = (resource, relationship, data) => {
     return new Promise((resolve, reject) => {
       apiRequest(endpoint, options)
         .then((json) => {
-          dispatch(apiRelationshipDeleted(json));
+          dispatch(apiRelationshipDeleted({
+            resource,
+            relationship,
+            data: json
+          }));
           resolve(json);
         })
         .catch((error) => {
           const err = error;
           err.resource = resource;
+          err.relationship = relationship;
 
           dispatch(apiRelationshipDeleteFailed(err));
           reject(err);
