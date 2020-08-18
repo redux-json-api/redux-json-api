@@ -1,6 +1,6 @@
 {
   "name": "redux-json-api",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "description": "A bunch of Redux actions, action creators and reducers to integrate with a JSON API",
   "main": "lib/jsonapi.js",
   "scripts": {
