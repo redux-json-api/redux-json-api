@@ -1,6 +1,6 @@
 import axios from 'axios';
 import createError from 'axios/lib/core/createError';
-import imm from 'object-path-immutable';
+import * as imm from 'object-path-immutable';
 
 export const jsonContentTypes = [
   'application/json',
@@ -14,7 +14,7 @@ const hasValidContentType = (response) => jsonContentTypes.some(
 export const noop = () => {};
 
 export const apiRequest = (url, options = {}) => {
-  const allOptions = imm(options)
+  const allOptions = imm.wrap(options)
     .set('url', url)
     .set(['headers', 'Accept'], 'application/vnd.api+json')
     .set(['headers', 'Content-Type'], 'application/vnd.api+json')

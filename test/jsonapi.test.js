@@ -12,6 +12,7 @@ global.__API_ENDPOINT__ = '/api'; // eslint-disable-line
 
 const apiCreated = createAction('API_CREATED');
 const apiRead = createAction('API_READ');
+const apiRelationshipRead = createAction('API_RELATIONSHIP_READ');
 const apiUpdated = createAction('API_UPDATED');
 const apiDeleted = createAction('API_DELETED');
 
@@ -20,6 +21,14 @@ const apiWillDelete = createAction('API_WILL_DELETE');
 
 const apiUpdateFailed = createAction('API_UPDATE_FAILED');
 const apiDeleteFailed = createAction('API_DELETE_FAILED');
+
+const apiRelationshipWillUpdate = createAction('API_RELATIONSHIP_WILL_UPDATE');
+const apiRelationshipUpdated = createAction('API_RELATIONSHIP_UPDATED');
+const apiRelationshipUpdateFailed = createAction('API_RELATIONSHIP_UPDATE_FAILED');
+
+const apiRelationshipWillDelete = createAction('API_RELATIONSHIP_WILL_DELETE');
+const apiRelationshipDeleted = createAction('API_RELATIONSHIP_DELETED');
+const apiRelationshipDeleteFailed = createAction('API_RELATIONSHIP_DELETE_FAILED');
 
 const state = {
   endpoint: {
@@ -580,6 +589,56 @@ describe('Invalidating flag', () => {
     );
     expect(updatedState.users.data[0].isInvalidating).toBeFalsy();
   });
+
+  it('should set before relationship delete', () => {
+    const updatedState = reducer(state, apiRelationshipWillDelete({
+      resource: state.users.data[0],
+      relationship: 'companies'
+    }));
+    expect(updatedState.users.data[0].relationships.companies.isInvalidating)
+      .toEqual(IS_DELETING);
+  });
+
+  it('should set before relationship update', () => {
+    const updatedState = reducer(state, apiRelationshipWillUpdate({
+      resource: state.users.data[0],
+      relationship: 'companies'
+    }));
+    expect(updatedState.users.data[0].relationships.companies.isInvalidating)
+      .toEqual(IS_UPDATING);
+  });
+
+  it('should be removed after relationship update', () => {
+    const updatedState = reducer(
+      reducer(state, apiRelationshipWillUpdate({
+        resource: state.users.data[0],
+        relationship: 'companies'
+      })),
+      apiRelationshipUpdated({
+        resource: state.users.data[0],
+        relationship: 'companies',
+        data: null
+      })
+    );
+    expect(updatedState.users.data[0].relationships.companies)
+      .toBeNull();
+  });
+
+  it('should be removed after relationship deleted', () => {
+    const updatedState = reducer(
+      reducer(state, apiRelationshipWillDelete({
+        resource: state.users.data[0],
+        relationship: 'companies'
+      })),
+      apiRelationshipDeleted({
+        resource: state.users.data[0],
+        relationship: 'companies',
+        data: null
+      })
+    );
+    expect(updatedState.users.data[0].relationships.companies)
+      .toBeNull();
+  });
 });
 
 describe('progress flags', () => {
@@ -595,6 +654,30 @@ describe('progress flags', () => {
     expect(updatedState.isDeleting).toEqual(1);
     updatedState = reducer(updatedState, apiDeleteFailed({ resource: state.users.data[0] }));
     expect(updatedState.isDeleting).toEqual(0);
+  });
+
+  it('should update isUpdating flag properly when relationship update fails', () => {
+    let updatedState = reducer(state, apiRelationshipWillUpdate({ resource: state.users.data[0], relationship: 'companies' }));
+    expect(updatedState.isUpdating)
+      .toEqual(1);
+    updatedState = reducer(updatedState, apiRelationshipUpdateFailed({
+      resource: state.users.data[0],
+      relationship: 'companies'
+    }));
+    expect(updatedState.isUpdating)
+      .toEqual(0);
+  });
+
+  it('should update isDeleting flag properly when relationship delete fails', () => {
+    let updatedState = reducer(state, apiRelationshipWillDelete({
+      resource: state.users.data[0],
+      relationship: 'companies'
+    }));
+    expect(updatedState.isDeleting)
+      .toEqual(1);
+    updatedState = reducer(updatedState, apiRelationshipDeleteFailed({ resource: state.users.data[0], relationship: 'companies' }));
+    expect(updatedState.isDeleting)
+      .toEqual(0);
   });
 });
 
@@ -665,5 +748,49 @@ describe('Relationships without data key should not be reset', () => {
     expect(updatedState2.articles).toBeInstanceOf(Object);
     expect(updatedState2.articles.data.length).toEqual(1);
     expect(updatedState2.articles.data[0].relationships.author).toEqual({ data: { id: '42', type: 'people' } });
+  });
+});
+
+describe('Relationship endpoints update state', () => {
+  it('should update the state', () => {
+    const updatedState = reducer(state, apiRelationshipRead({
+      resource: state.users.data[0],
+      relationship: 'companies',
+      data: {
+        data: [
+          {
+            type: 'companies',
+            id: '1'
+          }
+        ]
+      }
+    }));
+
+    expect(updatedState.users.data[0].relationships.companies).toStrictEqual({
+      data: [
+        {
+          type: 'companies',
+          id: '1'
+        }
+      ]
+    });
+  });
+
+  it('should clear the state', () => {
+    state.users.data[0].relationships.companies = {
+      data: [
+        {
+          type: 'companies',
+          id: '1'
+        }
+      ]
+    };
+    const updatedState = reducer(state, apiRelationshipRead({
+      resource: state.users.data[0],
+      relationship: 'companies',
+      data: null
+    }));
+
+    expect(updatedState.users.data[0].relationships.companies).toBeNull();
   });
 });

@@ -1,4 +1,4 @@
-import imm from 'object-path-immutable';
+import * as imm from 'object-path-immutable';
 import pluralize from 'pluralize';
 import equal from 'deep-equal';
 import { hasOwnProperties } from './utils';
@@ -96,48 +96,8 @@ const stateContainsResource = (state, resource) => {
   return false;
 };
 
-export const addLinksToState = (state, links, options) => {
-  if (options === undefined || options.indexLinks === undefined) {
-    return state;
-  }
-
-  const indexLinkName = options.indexLinks;
-  const newState = imm.set(state, `links.${indexLinkName}`, links);
-
-  return newState;
-};
-
-export const updateOrInsertResource = (state, resource) => {
-  if (typeof resource !== 'object') {
-    return state;
-  }
-
+const ensureUpdatedReverseRelationships = (state, resource) => {
   let newState = state;
-  const updatePath = [resource.type, 'data'];
-
-  if (stateContainsResource(state, resource)) {
-    const resources = state[resource.type].data;
-    const idx = resources.findIndex((item) => item.id === resource.id);
-
-    const relationships = {};
-    Object.keys(resources[idx].relationships).forEach((relationship) => {
-      if (!hasOwnProperties(resource, ['relationships', relationship, 'data'])) {
-        relationships[relationship] = resources[idx].relationships[relationship];
-      }
-    });
-    if (!resource.hasOwnProperty('relationships')) {
-      Object.assign(resource, { relationships });
-    } else {
-      Object.assign(resource.relationships, relationships);
-    }
-
-    if (!equal(resources[idx], resource)) {
-      newState = imm.set(newState, updatePath.concat(idx), resource);
-    }
-  } else {
-    newState = imm.push(newState, updatePath, resource);
-  }
-
   const rels = resource.relationships;
 
   if (!rels) {
@@ -155,9 +115,7 @@ export const updateOrInsertResource = (state, resource) => {
       return;
     }
 
-    const updateReverseRelationship = makeUpdateReverseRelationship(
-      resource, rels[relKey]
-    );
+    const updateReverseRelationship = makeUpdateReverseRelationship(resource, rels[relKey]);
 
     newState = imm.set(
       newState,
@@ -167,6 +125,72 @@ export const updateOrInsertResource = (state, resource) => {
   });
 
   return newState;
+};
+
+export const addLinksToState = (state, links, options) => {
+  if (options === undefined || options.indexLinks === undefined) {
+    return state;
+  }
+
+  const indexLinkName = options.indexLinks;
+  return imm.set(state, `links.${indexLinkName}`, links);
+};
+
+export const updateRelationship = (state, resourceIdentifier, relationshipName, relationship) => {
+  if (typeof resourceIdentifier !== 'object') {
+    return state;
+  }
+
+  if (!stateContainsResource(state, resourceIdentifier)) {
+    return state;
+  }
+
+  let newState = state;
+  const updatePath = [resourceIdentifier.type, 'data'];
+
+  const resources = state[resourceIdentifier.type].data;
+  const idx = resources.findIndex((item) => item.id === resourceIdentifier.id);
+
+  newState = imm.set(newState, updatePath.concat(...[idx, 'relationships', relationshipName]), relationship);
+
+  return ensureUpdatedReverseRelationships(newState, resources[idx]);
+};
+
+export const updateOrInsertResource = (state, resource) => {
+  if (typeof resource !== 'object') {
+    return state;
+  }
+
+  let newState = state;
+  const updatePath = [resource.type, 'data'];
+
+  if (stateContainsResource(state, resource)) {
+    const resources = state[resource.type].data;
+    const idx = resources.findIndex((item) => item.id === resource.id);
+
+    const relationships = {};
+    if (resources[idx].hasOwnProperty('relationships')) {
+      Object.keys(resources[idx].relationships)
+        .forEach((relationship) => {
+          if (!hasOwnProperties(resource, ['relationships', relationship, 'data'])) {
+            relationships[relationship] = resources[idx].relationships[relationship];
+          }
+        });
+    }
+    if (!resource.hasOwnProperty('relationships')) {
+      Object.assign(resource, { relationships });
+    } else {
+      Object.assign(resource.relationships, relationships);
+    }
+
+    if (!equal(resources[idx], resource)) {
+      newState = imm.set(newState, updatePath.concat(idx), resource);
+    }
+  } else {
+    newState = imm.push(newState, updatePath, resource);
+  }
+
+  return ensureUpdatedReverseRelationships(newState, resource);
 };
 
 export const removeResourceFromState = (state, resource) => {
@@ -213,9 +237,34 @@ export const setIsInvalidatingForExistingResource = (state, { type, id }, value 
     : imm.wrap(state).set(updatePath, value);
 };
 
+export const setIsInvalidatingForExistingRelationship = (
+  state,
+  { type, id },
+  relationship,
+  value = null
+) => {
+  const idx = state[type].data.findIndex((e) => e.id === id && e.type === type);
+  const updatePath = [type, 'data', idx, 'relationships', relationship, 'isInvalidating'];
+
+  return value === null ? imm.wrap(state)
+    .del(updatePath) : imm.wrap(state)
+    .set(updatePath, value);
+};
+
 export const ensureResourceTypeInState = (state, type) => {
   const path = [type, 'data'];
   return hasOwnProperties(state, [type])
     ? state
     : imm.wrap(state).set(path, []).value();
+};
+
+export const ensureRelationshipInState = (state, { type, id }, relationship) => {
+  const idx = state[type].data.findIndex((e) => e.id === id && e.type === type);
+  const path = [type, 'data', idx, 'relationships', relationship];
+
+  return hasOwnProperties(state, path)
+    ? state
+    : imm.wrap(state)
+      .set(path, null)
+      .value();
 };

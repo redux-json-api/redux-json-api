@@ -5,7 +5,10 @@ import {
   setIsInvalidatingForExistingResource,
   updateOrInsertResource,
   updateOrInsertResourcesIntoState,
-  ensureResourceTypeInState
+  ensureResourceTypeInState,
+  ensureRelationshipInState,
+  updateRelationship,
+  setIsInvalidatingForExistingRelationship
 } from '../src/state-mutation';
 
 import {
@@ -215,6 +218,34 @@ describe('[State mutation] Insertion of empty resources type', () => {
   });
 });
 
+describe('[State mutation] Insertion of empty relationship type', () => {
+  it('should insert empty relationship into state resource', () => {
+    const resourceIdentifier = {
+      type: 'users',
+      id: '1'
+    };
+    const updatedState = ensureRelationshipInState(
+      state, resourceIdentifier, 'tasks'
+    );
+
+    expect(updatedState.users.data[0].relationships.tasks)
+      .toBeNull();
+  });
+
+  it('should not mutate state if relationship exists', () => {
+    const resourceIdentifier = {
+      type: 'transactions',
+      id: '37'
+    };
+    const updatedState = ensureResourceTypeInState(
+      state, resourceIdentifier, 'task'
+    );
+
+    expect(updatedState.transactions.data[2].relationships.task)
+      .toEqual(state.transactions.data[2].relationships.task);
+  });
+});
+
 describe('[State Mutation] Update or Reverse relationships', () => {
   it('Should update a resource relationship', () => {
     const updatedEntities = makeUpdateReverseRelationship(
@@ -295,6 +326,24 @@ describe('[State Mutation]: Set is invalidating for existing resource', () => {
   });
 });
 
+describe('[State Mutation]: Set is invalidating for existing relationship', () => {
+  it('Should set a isvalidating type for relationship to IS_UPDATING', () => {
+    const { id, type } = state.users.data[0];
+    const updatedState = setIsInvalidatingForExistingRelationship(
+      state,
+      {
+        type,
+        id
+      },
+      'companies',
+      IS_UPDATING
+    )
+      .value();
+    expect(updatedState.users.data[0].relationships.companies.isInvalidating)
+      .toEqual(IS_UPDATING);
+  });
+});
+
 describe('[State Mutation]: Create new reference when Object is mutated', () => {
   it('Should keep proper refrences when setting isInvalidating', () => {
     const { id, type } = state.users.data[0];
@@ -351,5 +400,42 @@ describe('[State Mutation]: Create new reference when Object is mutated', () => 
     });
 
     expect(updatedState.users.data[0]).toBe(state.users.data[0]);
+  });
+});
+
+describe('[State Mutation]: Update relationships', () => {
+  it('should update a resource relationship', () => {
+    const updatedState = updateRelationship(state, {
+      type: 'users',
+      id: '1'
+    }, 'companies', {
+      data: [
+        {
+          type: 'companies',
+          id: '1'
+        }
+      ]
+    });
+
+    expect(updatedState.users.data[0].relationships.companies).toStrictEqual({
+      data: [
+        {
+          type: 'companies',
+          id: '1'
+        }
+      ]
+    });
+  });
+
+  it('should clear a resource relationship', () => {
+    const updatedState = updateRelationship(state, {
+      type: 'users',
+      id: '1'
+    }, 'companies', {
+      data: null
+    });
+
+    expect(updatedState.users.data[0].relationships.companies.data)
+      .toBeNull();
   });
 });

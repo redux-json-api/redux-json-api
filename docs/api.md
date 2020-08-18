@@ -8,6 +8,7 @@ _redux-json-api_ provides a simple API for all four CRUD actions.
 - Update resource with [updateResource](#updateresource-resource-object--promise)
 - Delete resource using [deleteResource](#deleteresource-resource-object--promise)
 - Add a resource to the store using [hydrateStore](#hydratestore-resource-object--action)
+- Manage relationships using [relationship endpoints](api/relationships.md)
 
 ## Resource objects
 
