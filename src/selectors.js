@@ -9,7 +9,7 @@ export const getResource = createCachedSelector(
   (state, identifier) => getResourceData(state, typeof identifier === 'string' ? identifier : identifier.type),
   (_state, identifier, id) => id || identifier.id,
   (resources, id) => resources.find((resource) => resource.id === id) || null
-)((_state, identifier, id) => typeof identifier === 'string' ? `${identifier}/${id}` : `${identifier.type}/${identifier.id}`);
+)((_state, identifier, id) => (typeof identifier === 'string' ? `${identifier}/${id}` : `${identifier.type}/${identifier.id}`));
 
 const getType = (identifiers) => {
   let type = identifiers;
