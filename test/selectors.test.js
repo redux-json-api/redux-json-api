@@ -1,4 +1,6 @@
-import { getResourceTree, getResourceData, getResource } from '../src/selectors';
+import {
+  getRelatedResources, getResource, getResourceData, getResources, getResourceTree
+} from '../src/selectors';
 
 const state = {
   api: {
@@ -14,8 +16,13 @@ const state = {
             name: 'John Doe'
           },
           relationships: {
-            companies: {
-              data: null
+            transactions: {
+              data: [
+                {
+                  type: 'transactions',
+                  id: '34'
+                }
+              ]
             }
           }
         },
@@ -108,6 +115,13 @@ describe('Resource selector', () => {
       .toEqual(state.api.users.data[0]);
   });
 
+  it('should support alternative inputs and the correct resource', () => {
+    const resourceTree = getResource(state, 'users', '1');
+
+    expect(resourceTree)
+      .toEqual(state.api.users.data[0]);
+  });
+
   it('should not break if resource does not have exist', () => {
     state.types = {};
     const resourceTree = getResource(state, {
@@ -128,5 +142,54 @@ describe('Resource selector', () => {
 
     expect(resourceTree)
       .toEqual(null);
+  });
+});
+
+describe('Resources selector', () => {
+  it('should return the correct resources', () => {
+    const resourceTree = getResources(state, 'users', ['1', '2']);
+
+    expect(resourceTree)
+      .toEqual(state.api.users.data);
+  });
+
+  it('should return the correct resources with an array of identifiers', () => {
+    const resourceTree = getResources(state, [
+      {
+        type: 'users',
+        id: '1',
+      },
+      {
+        type: 'users',
+        id: '2',
+      }
+    ]);
+
+    expect(resourceTree)
+      .toEqual(state.api.users.data);
+  });
+
+  it('should not break if a resource does not have exist', () => {
+    const resourceTree = getResources(state, 'users', ['1', '2', '3']);
+
+    expect(resourceTree)
+      .toEqual(state.api.users.data);
+  });
+
+  it('should not break if resource type does not have exist', () => {
+    state.types = {};
+    const resourceTree = getResources(state, 'unicorns', ['1']);
+
+    expect(resourceTree)
+      .toEqual([]);
+  });
+});
+
+describe('Relationship selector', () => {
+  it('should return the correct relationships', () => {
+    const relationshipResources = getRelatedResources(state, state.api.users.data[0], 'transactions');
+
+    expect(relationshipResources)
+      .toEqual([state.api.transactions.data[0]]);
   });
 });
