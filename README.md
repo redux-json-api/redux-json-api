@@ -12,6 +12,7 @@ Please raise any questions as an [Issue](https://github.com/dixieio/redux-json-a
 # Table of contents
 1. [Set-Up & Configure](docs/set-up-configure.md)
 1. [API](docs/api.md)
+1. [Selectors](docs/selectors.md)
 1. [Good reads](#good-reads)
 1. [Contribute](#contribute)
 1. [Contributors](#contributors)
