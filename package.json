@@ -66,6 +66,8 @@
     "deep-equal": "^2.0.3",
     "object-path-immutable": "^4.1.0",
     "pluralize": "^8.0.0",
-    "redux-actions": "^2.6.5"
+    "re-reselect": "^4.0.0",
+    "redux-actions": "^2.6.5",
+    "reselect": "^4.0.0"
   }
 }
