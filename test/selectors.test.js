@@ -1,6 +1,6 @@
 import {
   getRelatedResources, getResource, getResourceData, getResources, getResourceTree
-} from '../src/selectors';
+} from '../src/jsonapi';
 
 const state = {
   api: {
