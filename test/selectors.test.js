@@ -122,6 +122,13 @@ describe('Resource selector', () => {
       .toEqual(state.api.users.data[0]);
   });
 
+  it('should support passing an integer as an id', () => {
+    const resourceTree = getResource(state, 'users', 1);
+
+    expect(resourceTree)
+      .toEqual(state.api.users.data[0]);
+  });
+
   it('should not break if resource does not have exist', () => {
     state.types = {};
     const resourceTree = getResource(state, {
@@ -164,6 +171,13 @@ describe('Resources selector', () => {
         id: '2',
       }
     ]);
+
+    expect(resourceTree)
+      .toEqual(state.api.users.data);
+  });
+
+  it('should support passing an integer as an id', () => {
+    const resourceTree = getResources(state, 'users', [1, 2]);
 
     expect(resourceTree)
       .toEqual(state.api.users.data);

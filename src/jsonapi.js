@@ -615,7 +615,7 @@ export const getResourceData = (state, resourceType) => getResourceTree(state, r
 export const getResource = createCachedSelector(
   (state, identifier) => getResourceData(state, typeof identifier === 'string' ? identifier : identifier.type),
   (_state, identifier, id) => id || identifier.id,
-  (resources, id) => resources.find((resource) => resource.id === id) || null
+  (resources, id) => resources.find((resource) => `${resource.id}` === `${id}` || null)
 )((_state, identifier, id) => (typeof identifier === 'string' ? `${identifier}/${id}` : `${identifier.type}/${identifier.id}`));
 
 const getType = (identifiers) => {
@@ -633,8 +633,8 @@ const getIdList = (identifiers, idList) => idList || identifiers.map((identifier
 // Usage getResources(state, [{type: 'users', id: '1'}, {type: 'users', id: '2'}]) or getResources(state, 'users', ['1', '2'])
 export const getResources = createCachedSelector(
   (state, identifiers) => getResourceData(state, getType(identifiers)),
-  (_state, identifiers, idList) => getIdList(identifiers, idList),
-  (resources, idList) => resources.filter((resource) => idList.includes(resource.id))
+  (_state, identifiers, idList) => getIdList(identifiers, idList).map((id) => `${id}`),
+  (resources, idList) => resources.filter((resource) => idList.includes(`${resource.id}`))
 )((_state, identifiers, idList) => {
   const type = getType(identifiers);
   const useIdList = getIdList(identifiers, idList);
