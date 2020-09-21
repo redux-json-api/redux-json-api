@@ -621,7 +621,7 @@ export const getResource = createCachedSelector(
 const getType = (identifiers) => {
   let type = identifiers;
 
-  if (Array.isArray(identifiers)) {
+  if (Array.isArray(identifiers) && identifiers.length > 0) {
     [{ type }] = identifiers;
   }
 

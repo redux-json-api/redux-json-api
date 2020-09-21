@@ -197,6 +197,14 @@ describe('Resources selector', () => {
     expect(resourceTree)
       .toEqual([]);
   });
+
+  it('should not break if identifiers is an empty array', () => {
+    state.types = {};
+    const resourceTree = getResources(state, []);
+
+    expect(resourceTree)
+      .toEqual([]);
+  });
 });
 
 describe('Relationship selector', () => {
