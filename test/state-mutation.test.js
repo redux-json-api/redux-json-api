@@ -312,6 +312,37 @@ describe('[State Mutation] Update or Reverse relationships', () => {
       updatedState.zenAccounts.data[0].relationships.expenseItems.data.length
     ).toEqual(1);
   });
+
+  it('should correctly identifies and mutate one-to-many reverse relationship', () => {
+    const localresource = {
+      type: 'companies',
+      id: '1',
+      attributes: {
+        name: 'ABC',
+        createdAt: '2016-02-19T11:52:43+0000',
+        updatedAt: '2016-02-19T11:52:43+0000'
+      },
+      relationships: {
+        user: {
+          data: {
+            type: 'users',
+            id: '1'
+          }
+        },
+      },
+      links: {
+        self: 'http://localhost/companies/1'
+      }
+    };
+
+    const updatedState = updateOrInsertResource(
+      state,
+      localresource
+    );
+
+    expect(updatedState.users.data[0].relationships.companies.data)
+      .toStrictEqual([{ type: 'companies', id: '1' }]);
+  });
 });
 
 describe('[State Mutation]: Set is invalidating for existing resource', () => {
