@@ -207,7 +207,7 @@ export const requireResource = (resourceType, endpoint = resourceType) => {
   };
 };
 
-export const readRelated = (resource, relationship) => {
+export const readRelated = (resource, relationship, queryString = '') => {
   return (dispatch, getState) => {
     let endpoint;
 
@@ -225,7 +225,7 @@ export const readRelated = (resource, relationship) => {
       endpoint = `${resource.type}/${resource.id}/${relationship}`;
     }
 
-    return dispatch(readEndpoint(endpoint));
+    return dispatch(readEndpoint(`${endpoint}${queryString}`));
   };
 };
 
@@ -243,10 +243,10 @@ const getRelationshipEndpoint = (resource, relationship, axiosConfig) => {
   return `${resource.type}/${resource.id}/relationships/${relationship}`;
 };
 
-export const readRelationship = (resource, relationship) => {
+export const readRelationship = (resource, relationship, queryString = '') => {
   return (dispatch, getState) => {
     const { axiosConfig } = getState().api.endpoint;
-    const endpoint = getRelationshipEndpoint(resource, relationship, axiosConfig);
+    const endpoint = getRelationshipEndpoint(resource, relationship, axiosConfig) + queryString;
 
     dispatch(apiWillRead(endpoint));
 
