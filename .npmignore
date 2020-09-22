@@ -1,3 +1,5 @@
 src/
 .babelrc
 webpack.config.js
+.idea/
+test/
