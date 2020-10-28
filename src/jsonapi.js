@@ -651,5 +651,9 @@ export const getRelatedResources = (state, identifier, relationship) => {
   }
   const relationshipData = resource.relationships[relationship].data;
 
+  if (!relationshipData) {
+    return null
+  }
+
   return Array.isArray(relationshipData) ? getResources(state, relationshipData) : getResource(state, relationshipData);
 };

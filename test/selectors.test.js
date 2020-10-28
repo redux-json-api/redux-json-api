@@ -214,4 +214,16 @@ describe('Relationship selector', () => {
     expect(relationshipResources)
       .toEqual([state.api.transactions.data[0]]);
   });
+
+  it('should not break if use incorrect relationship name', () => {
+    const relationshipResources = getRelatedResources(state, state.api.users.data[1], 'incorrect_relationship');
+    expect(relationshipResources)
+      .toEqual(null);
+  });
+
+  it('should not break if relationship does not have exist', () => {
+    const relationshipResources = getRelatedResources(state, state.api.users.data[1], 'companies');
+    expect(relationshipResources)
+      .toEqual(null);
+  });
 });
