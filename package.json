@@ -62,7 +62,7 @@
     "rimraf": "^3.0.2"
   },
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "deep-equal": "^2.0.3",
     "object-path-immutable": "^4.1.0",
     "pluralize": "^8.0.0",
